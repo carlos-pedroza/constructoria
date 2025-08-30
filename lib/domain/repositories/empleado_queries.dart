@@ -1,6 +1,6 @@
 class EmpleadoQueries {
   static const String getAllEmpleados = '''
-    query GetAllEmpleados {
+    query {
       empleados {
         idempleado
         nombre
@@ -27,6 +27,11 @@ class EmpleadoQueries {
         cuenta_bancaria
         costo_por_hora
         activo
+        empleado_perfiles {
+          idempleado_perfil
+          idempleado
+          idperfil
+        }
       }
     }
     ''';
@@ -237,4 +242,4 @@ class EmpleadoQueries {
       }
     }
     ''';
-  }
+}
