@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   final List<_MenuItem> menuItems = [
     _MenuItem(Icons.home, 'Inicio', () {}),
     _MenuItem(Icons.people, 'Trabajadores', () {
-      Navigator.of(context).
+      //Navigator.of(context)
     }),
     _MenuItem(Icons.work, 'Proyectos y tareas', () {}),
     _MenuItem(Icons.payments, 'Pagos', () {}),
