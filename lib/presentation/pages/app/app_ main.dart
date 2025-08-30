@@ -37,7 +37,11 @@ class _AppMainState extends State<AppMain> {
       title: 'Constructoria',
       theme: theme
           .light(), // brightness == Brightness.light ? theme.light() : theme.dark(),
-      home: const HomePage(),
+      home: HomePage(
+        httpLink: widget.httpLink,
+        client: widget.client,
+        servicesProvider: widget.servicesProvider,
+      ),
     );
   }
 }

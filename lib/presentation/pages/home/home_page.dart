@@ -1,4 +1,8 @@
+import 'package:constructoria/domain/entities/services_provider.dart';
+import 'package:constructoria/presentation/pages/home/login/login_page.dart'
+    show LoginPage;
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 class _MenuItem {
   final IconData icon;
@@ -7,7 +11,16 @@ class _MenuItem {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({
+    super.key,
+    required this.httpLink,
+    required this.client,
+    required this.servicesProvider,
+  });
+
+  final HttpLink httpLink;
+  final GraphQLClient client;
+  final ServicesProvider servicesProvider;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -18,9 +31,8 @@ class _HomePageState extends State<HomePage> {
     _MenuItem(Icons.home, 'Inicio'),
     _MenuItem(Icons.people, 'Trabajadores'),
     _MenuItem(Icons.work, 'Proyectos y tareas'),
-    _MenuItem(Icons.assignment, 'Informes proyectos'),
     _MenuItem(Icons.payments, 'Pagos'),
-    _MenuItem(Icons.receipt_long, 'Informe pagos'),
+    _MenuItem(Icons.receipt_long, 'Informes'),
   ];
 
   int selectedIndex = 0;
@@ -41,7 +53,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           Container(
             width: double.infinity,
-            height: 20,
+            height: 116,
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(color: colorScheme.outline, width: 1),
@@ -75,64 +87,97 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+    var client = ValueNotifier<GraphQLClient>(
+      GraphQLClient(
+        link: widget.httpLink,
+        cache: GraphQLCache(store: HiveStore()),
+      ),
+    );
+    return GraphQLProvider(
+      client: client,
+      child: LoginPage(
+        onLogin: (token) {
+          setState(() {});
+        },
+      ),
+    );
 
-    return LayoutBuilder(
+    LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 600;
         return Scaffold(
           drawer: isMobile ? Drawer(child: menu) : null,
-          body: Column(
+          body: Stack(
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: colorScheme.surface,
-                  border: Border(bottom: BorderSide(color: theme.dividerColor)),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-                width: double.infinity,
-                child: Text(
-                  'Constructoría',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Row(
-                  children: [
-                    if (!isMobile) menu,
-                    Expanded(
-                      child: PageView(
-                        controller: _pageController,
-                        onPageChanged: (i) {
-                          setState(() {
-                            selectedIndex = i;
-                          });
-                        },
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            height: double.infinity,
-                            color: colorScheme.primary,
-                            child: Center(
-                              child: Text(
-                                'Constructoria',
-                                style: theme.textTheme.headlineLarge?.copyWith(
-                                  color: colorScheme.onPrimary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          for (int i = 1; i < menuItems.length; i++)
-                            Center(child: Text(menuItems[i].title)),
-                        ],
+              Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      border: Border(
+                        bottom: BorderSide(color: theme.dividerColor),
                       ),
                     ),
-                  ],
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 10,
+                    ),
+                    width: double.infinity,
+                    child: Text(
+                      '',
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        if (!isMobile) menu,
+                        Expanded(
+                          child: PageView(
+                            controller: _pageController,
+                            onPageChanged: (i) {
+                              setState(() {
+                                selectedIndex = i;
+                              });
+                            },
+                            children: [
+                              LoginPage(onLogin: _onLogin),
+                              Container(
+                                width: double.infinity,
+                                height: double.infinity,
+                                color: colorScheme.primary,
+                                child: Center(
+                                  child: Text(
+                                    'CONSTRUCTORIA',
+                                    style: theme.textTheme.headlineLarge
+                                        ?.copyWith(
+                                          color: colorScheme.onPrimary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                ),
+                              ),
+                              for (int i = 1; i < menuItems.length; i++)
+                                Center(child: Text(menuItems[i].title)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Align(
+                alignment: Alignment.topLeft,
+                child: Container(
+                  margin: EdgeInsets.only(left: 16, top: 22),
+                  height: 140,
+                  child: Image.asset(
+                    'assets/images/constructoria.png',
+                    fit: BoxFit.fitHeight,
+                  ),
                 ),
               ),
             ],
@@ -140,5 +185,9 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
+  }
+
+  void _onLogin() {
+    _pageController.jumpToPage(1);
   }
 }
