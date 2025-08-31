@@ -138,25 +138,48 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  IconButton(
-                    onPressed: widget.onBack,
-                    icon: Icon(Icons.arrow_back),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: widget.onBack,
+                        icon: Icon(Icons.arrow_back),
+                      ),
+                      SizedBox(width: 20),
+                      Icon(Icons.person, size: 40),
+                      SizedBox(width: 10),
+                      Text(
+                        'Trabajador',
+                        style: theme.textTheme.headlineSmall!.copyWith(
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    'Trabajador',
-                    style: theme.textTheme.headlineSmall!.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: _onGuardar,
-                    label: Text('Guardar'),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: _onGuardar,
+                        label: Text('Guardar'),
+                      ),
+                      SizedBox(width: 10),
+                      TextButton.icon(
+                        onPressed: _onEliminar,
+                        label: Text(
+                          'Eliminar',
+                          style: theme.textTheme.bodyMedium!.copyWith(
+                            color: theme.colorScheme.error,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
+              padding: const EdgeInsets.only(top: 5, left: 20, right: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -436,4 +459,6 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
   }
 
   void _onGuardar() {}
+
+  void _onEliminar() {}
 }

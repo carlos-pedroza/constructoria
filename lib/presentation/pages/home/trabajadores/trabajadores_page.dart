@@ -113,6 +113,7 @@ class _TrabajadoresPageState extends State<TrabajadoresPage> {
                     ),
                     child: Row(
                       children: [
+                        SizedBox(width: 40),
                         Expanded(
                           child: Text(
                             'Nombre',
@@ -181,11 +182,11 @@ class _TrabajadoresPageState extends State<TrabajadoresPage> {
                             ),
                           ),
                           child: ListTile(
-                            onTap: () {
-                              // Acción al tocar un trabajador (por ejemplo, ver detalles)
-                            },
+                            onTap: () => _editEmpleado(trabajador),
                             title: Row(
                               children: [
+                                Icon(Icons.person),
+                                SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
                                     '${trabajador.nombre} ${trabajador.apellidoPaterno} ${trabajador.apellidoMaterno}',
@@ -220,6 +221,13 @@ class _TrabajadoresPageState extends State<TrabajadoresPage> {
         },
       ),
     );
+  }
+
+  void _editEmpleado(Empleado empleado) {
+    setState(() {
+      _empleado = empleado;
+    });
+    _pageController.jumpToPage(1);
   }
 
   void _onAddEmpleado() {
