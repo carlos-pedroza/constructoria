@@ -30,16 +30,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<_MenuItem> menuItems = [
-    _MenuItem(Icons.home, 'Inicio', () {}),
-    _MenuItem(Icons.people, 'Trabajadores', () {
-      //Navigator.of(context)
-    }),
-    _MenuItem(Icons.work, 'Proyectos y tareas', () {}),
-    _MenuItem(Icons.payments, 'Pagos', () {}),
-    _MenuItem(Icons.receipt_long, 'Informes', () {}),
-  ];
-
   int selectedIndex = 0;
   final PageController _pageController = PageController();
 
@@ -47,6 +37,18 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final List<_MenuItem> menuItems = [
+      _MenuItem(Icons.home, 'Inicio', () {}),
+      _MenuItem(Icons.people, 'Trabajadores', () {
+        setState(() {
+          selectedIndex = 2;
+          _pageController.jumpToPage(2);
+        });
+      }),
+      _MenuItem(Icons.work, 'Proyectos y tareas', () {}),
+      _MenuItem(Icons.payments, 'Pagos', () {}),
+      _MenuItem(Icons.receipt_long, 'Informes', () {}),
+    ];
 
     Widget menu = Container(
       width: 300,
@@ -74,6 +76,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               child: ListTile(
+                onTap: menuItems[i].openRoute,
                 leading: Icon(menuItems[i].icon, color: colorScheme.secondary),
                 title: Text(
                   menuItems[i].title,
@@ -81,12 +84,6 @@ class _HomePageState extends State<HomePage> {
                 ),
                 trailing: Icon(Icons.chevron_right, size: 24),
                 selected: selectedIndex == i,
-                onTap: () {
-                  setState(() {
-                    selectedIndex = i;
-                    _pageController.jumpToPage(i);
-                  });
-                },
               ),
             ),
         ],
@@ -135,6 +132,7 @@ class _HomePageState extends State<HomePage> {
                           Expanded(
                             child: PageView(
                               controller: _pageController,
+                              physics: NeverScrollableScrollPhysics(),
                               onPageChanged: (i) {
                                 setState(() {
                                   selectedIndex = i;
@@ -157,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                 ),
-                                TrabajadoresPage(),
+                                TrabajadoresPage(client: widget.client),
                               ],
                             ),
                           ),

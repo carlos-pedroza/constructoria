@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class Empleado {
   const Empleado({
     required this.idempleado,
@@ -27,7 +29,7 @@ class Empleado {
     required this.activo,
   });
 
-  final int idempleado;
+  final int? idempleado;
   final String nombre;
   final String apellidoPaterno;
   final String apellidoMaterno;
@@ -80,6 +82,36 @@ class Empleado {
       cuentaBancaria: json['cuenta_bancaria'] as String,
       costoPorHora: (json['costo_por_hora'] as num).toDouble(),
       activo: (json['activo'] == 1 || json['activo'] == true),
+    );
+  }
+
+  factory Empleado.empty() {
+    return Empleado(
+      idempleado: null,
+      nombre: '',
+      apellidoPaterno: '',
+      apellidoMaterno: '',
+      fechaNacimiento: DateTime.now(),
+      curp: '',
+      rfc: '',
+      nss: '',
+      direccion: '',
+      telefono: '',
+      correo: '',
+      password: '',
+      fechaIngreso: DateTime.now(),
+      puesto: '',
+      departamento: '',
+      salario: 0.0,
+      estadoCivil: '',
+      sexo: '',
+      nacionalidad: '',
+      tipoContrato: '',
+      jornadaLaboral: '',
+      banco: '',
+      cuentaBancaria: '',
+      costoPorHora: 0.0,
+      activo: false,
     );
   }
 
