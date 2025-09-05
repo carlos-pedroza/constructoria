@@ -1,8 +1,8 @@
-import 'package:flutter/foundation.dart';
+import 'package:constructoria/domain/repositories/empleado_queries.dart';
 
 class Empleado {
-  const Empleado({
-    required this.idempleado,
+  Empleado({
+    this.idempleado,
     required this.nombre,
     required this.apellidoPaterno,
     required this.apellidoMaterno,
@@ -29,7 +29,7 @@ class Empleado {
     required this.activo,
   });
 
-  final int? idempleado;
+  int? idempleado;
   final String nombre;
   final String apellidoPaterno;
   final String apellidoMaterno;
@@ -85,33 +85,33 @@ class Empleado {
     );
   }
 
-  factory Empleado.empty() {
+  factory Empleado.empty({Empleado? empleado}) {
     return Empleado(
-      idempleado: null,
-      nombre: '',
-      apellidoPaterno: '',
-      apellidoMaterno: '',
-      fechaNacimiento: DateTime.now(),
-      curp: '',
-      rfc: '',
-      nss: '',
-      direccion: '',
-      telefono: '',
-      correo: '',
-      password: '',
-      fechaIngreso: DateTime.now(),
-      puesto: '',
-      departamento: '',
-      salario: 0.0,
-      estadoCivil: '',
-      sexo: '',
-      nacionalidad: '',
-      tipoContrato: '',
-      jornadaLaboral: '',
-      banco: '',
-      cuentaBancaria: '',
-      costoPorHora: 0.0,
-      activo: false,
+      idempleado: empleado?.idempleado,
+      nombre: empleado?.nombre ?? '',
+      apellidoPaterno: empleado?.apellidoPaterno ?? '',
+      apellidoMaterno: empleado?.apellidoMaterno ?? '',
+      fechaNacimiento: empleado?.fechaNacimiento ?? DateTime.now(),
+      curp: empleado?.curp ?? '',
+      rfc: empleado?.rfc ?? '',
+      nss: empleado?.nss ?? '',
+      direccion: empleado?.direccion ?? '',
+      telefono: empleado?.telefono ?? '',
+      correo: empleado?.correo ?? '',
+      password: empleado?.password ?? '',
+      fechaIngreso: empleado?.fechaIngreso ?? DateTime.now(),
+      puesto: empleado?.puesto ?? '',
+      departamento: empleado?.departamento ?? '',
+      salario: empleado?.salario ?? 0.0,
+      estadoCivil: empleado?.estadoCivil ?? '',
+      sexo: empleado?.sexo ?? '',
+      nacionalidad: empleado?.nacionalidad ?? '',
+      tipoContrato: empleado?.tipoContrato ?? '',
+      jornadaLaboral: empleado?.jornadaLaboral ?? '',
+      banco: empleado?.banco ?? '',
+      cuentaBancaria: empleado?.cuentaBancaria ?? '',
+      costoPorHora: empleado?.costoPorHora ?? 0.0,
+      activo: empleado?.activo ?? true,
     );
   }
 
@@ -120,6 +120,42 @@ class Empleado {
   }
 
   Map<String, dynamic> toJson() {
+    if (idempleado == null) {
+      return createJson();
+    }
+    return updateJson();
+  }
+
+  Map<String, dynamic> createJson() {
+    return {
+      'nombre': nombre,
+      'apellido_paterno': apellidoPaterno,
+      'apellido_materno': apellidoMaterno,
+      'fecha_nacimiento': fechaNacimiento.toIso8601String(),
+      'curp': curp,
+      'rfc': rfc,
+      'nss': nss,
+      'direccion': direccion,
+      'telefono': telefono,
+      'correo': correo,
+      'password': password,
+      'fecha_ingreso': fechaIngreso.toIso8601String(),
+      'puesto': puesto,
+      'departamento': departamento,
+      'salario': salario,
+      'estado_civil': estadoCivil,
+      'sexo': sexo,
+      'nacionalidad': nacionalidad,
+      'tipo_contrato': tipoContrato,
+      'jornada_laboral': jornadaLaboral,
+      'banco': banco,
+      'cuenta_bancaria': cuentaBancaria,
+      'costo_por_hora': costoPorHora,
+      'activo': activo,
+    };
+  }
+
+  Map<String, dynamic> updateJson() {
     return {
       'idempleado': idempleado,
       'nombre': nombre,
@@ -145,8 +181,16 @@ class Empleado {
       'banco': banco,
       'cuenta_bancaria': cuentaBancaria,
       'costo_por_hora': costoPorHora,
-      'activo': activo ? 1 : 0,
+      'activo': activo,
     };
+  }
+
+  String query() {
+    if (idempleado == null) {
+      return EmpleadoQueries.createEmpleado;
+    } else {
+      return EmpleadoQueries.updateEmpleado;
+    }
   }
 
   @override

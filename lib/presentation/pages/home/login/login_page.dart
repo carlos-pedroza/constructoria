@@ -1,4 +1,9 @@
+import 'package:constructoria/domain/entities/empleado.dart';
+import 'package:constructoria/domain/entities/user_log.dart';
+import 'package:constructoria/domain/repositories/security_queries.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 class LoginPage extends StatefulWidget {
   final void Function() onLogin;
@@ -14,6 +19,16 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   var _passwordVisible = false;
   var _isGetEmailStep = true;
+  var _emailToken = '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (!kReleaseMode) {
+      _emailController.text = 'julio@tecjamaya.com.mx';
+      _passwordController.text = '1234567';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,12 +116,92 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ],
                         SizedBox(height: 30),
-                        ElevatedButton.icon(
-                          onPressed: _submitForm,
-                          label: Text(
-                            _isGetEmailStep ? 'Continuar' : 'Iniciar sesión',
+                        Mutation(
+                          options: MutationOptions(
+                            document: gql(
+                              _isGetEmailStep
+                                  ? SecurityQueries.loginEmpleado
+                                  : SecurityQueries.loginEmpleadoPassword,
+                            ),
+                            onCompleted: (data) {
+                              if (data == null) return;
+                              if (_isGetEmailStep) {
+                                final result = data?['loginEmpleado'];
+                                if (result['result'] == true) {
+                                  var token = data?['loginEmpleado']['token'];
+                                  if (token != null) {
+                                    setState(() {
+                                      _emailToken = token;
+                                      _isGetEmailStep = false;
+                                    });
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'El correo electrónico no es válido.',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'El correo electrónico no es válido.',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } else {
+                                final result = data?['loginEmpleadoPassword'];
+                                if (result['result'] == true) {
+                                  var jwt =
+                                      data?['loginEmpleadoPassword']['jwt'] ??
+                                      '';
+                                  var empleado =
+                                      data?['loginEmpleadoPassword']['empleado'];
+                                  if (jwt != null && empleado != null) {
+                                    UserLog.login(
+                                      jwt: jwt,
+                                      empleado: Empleado.fromJson(
+                                        empleado as Map<String, dynamic>,
+                                      ),
+                                    ).then((value) {
+                                      widget.onLogin();
+                                    });
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Error en el inicio de sesión. Verifique sus credenciales.',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            onError: (error) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Error de red. Intente de nuevo.',
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          icon: const Icon(Icons.login),
+                          builder: (runMutation, result) {
+                            return ElevatedButton.icon(
+                              onPressed: () => _submitForm(runMutation),
+                              label: Text(
+                                _isGetEmailStep
+                                    ? 'Continuar'
+                                    : 'Iniciar sesión',
+                              ),
+                              icon: const Icon(Icons.login),
+                            );
+                          },
                         ),
                         SizedBox(height: 20),
                       ],
@@ -121,14 +216,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _submitForm() {
+  void _submitForm(runMutation) {
     if (_formKey.currentState!.validate()) {
       if (_isGetEmailStep) {
-        setState(() {
-          _isGetEmailStep = false;
-        });
+        runMutation({'correo': _emailController.text});
       } else {
-        widget.onLogin();
+        runMutation({
+          'token': _emailToken,
+          'password': _passwordController.text,
+        });
       }
     }
   }

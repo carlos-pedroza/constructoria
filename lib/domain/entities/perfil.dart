@@ -1,8 +1,5 @@
 class Perfil {
-  const Perfil({
-    required this.idperfil,
-    required this.nombre,
-  });
+  const Perfil({required this.idperfil, required this.nombre});
 
   final int idperfil;
   final String nombre;
@@ -19,10 +16,18 @@ class Perfil {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'idperfil': idperfil,
-      'nombre': nombre,
-    };
+    if (idperfil == 0) {
+      return createJson();
+    }
+    return updateJson();
+  }
+
+  Map<String, dynamic> createJson() {
+    return {'nombre': nombre};
+  }
+
+  Map<String, dynamic> updateJson() {
+    return {'idperfil': idperfil, 'nombre': nombre};
   }
 
   @override

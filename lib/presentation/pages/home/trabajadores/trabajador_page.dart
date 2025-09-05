@@ -50,6 +50,7 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
   final _cuentaBancariaController = TextEditingController();
   final _costoPorHoraController = TextEditingController();
   bool _activo = false;
+  late Empleado _empleado;
 
   @override
   void initState() {
@@ -83,6 +84,7 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
     _cuentaBancariaController.text = empleado.cuentaBancaria;
     _costoPorHoraController.text = empleado.costoPorHora.toString();
     _activo = empleado.activo;
+    _empleado = empleado;
   }
 
   @override
@@ -159,9 +161,33 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ElevatedButton.icon(
-                        onPressed: _onGuardar,
-                        label: Text('Guardar'),
+                      Mutation(
+                        options: MutationOptions(
+                          document: gql(_empleado.query()),
+                          onCompleted: (data) {
+                            if (data == null) return;
+                            print('Empleado guardado: $data');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Trabajador guardado')),
+                            );
+                            widget.onBack();
+                          },
+                          onError: (error) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Error al guardar trabajador: ${error?.graphqlErrors.first.message ?? 'Desconocido'}',
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        builder: (runMutation, result) {
+                          return ElevatedButton.icon(
+                            onPressed: () => _onGuardar(runMutation),
+                            label: Text('Guardar'),
+                          );
+                        },
                       ),
                       SizedBox(width: 10),
                       TextButton.icon(
@@ -205,9 +231,40 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                   Row(
                     children: [
                       Expanded(
-                        child: _textField(
-                          _fechaNacimientoController,
-                          'Fecha de Nacimiento',
+                        child: Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: TextFormField(
+                            controller: _fechaNacimientoController,
+                            readOnly: true,
+                            decoration: InputDecoration(
+                              labelText: 'Fecha de Nacimiento',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              suffixIcon: Icon(Icons.calendar_today),
+                            ),
+                            onTap: () async {
+                              DateTime? pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate:
+                                    _fechaNacimientoController.text.isNotEmpty
+                                    ? DateTime.tryParse(
+                                            _fechaNacimientoController.text,
+                                          ) ??
+                                          DateTime.now()
+                                    : DateTime.now(),
+                                firstDate: DateTime(1950),
+                                lastDate: DateTime(2100),
+                              );
+                              if (pickedDate != null) {
+                                setState(() {
+                                  _fechaNacimientoController.text = pickedDate
+                                      .toIso8601String()
+                                      .substring(0, 10);
+                                });
+                              }
+                            },
+                          ),
                         ),
                       ),
                       Expanded(child: _textField(_curpController, 'CURP')),
@@ -238,9 +295,40 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                   Row(
                     children: [
                       Expanded(
-                        child: _textField(
-                          _fechaIngresoController,
-                          'Fecha de Ingreso',
+                        child: Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: TextFormField(
+                            controller: _fechaIngresoController,
+                            readOnly: true,
+                            decoration: InputDecoration(
+                              labelText: 'Fecha de Ingreso',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              suffixIcon: Icon(Icons.calendar_today),
+                            ),
+                            onTap: () async {
+                              DateTime? pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate:
+                                    _fechaIngresoController.text.isNotEmpty
+                                    ? DateTime.tryParse(
+                                            _fechaIngresoController.text,
+                                          ) ??
+                                          DateTime.now()
+                                    : DateTime.now(),
+                                firstDate: DateTime(1950),
+                                lastDate: DateTime(2100),
+                              );
+                              if (pickedDate != null) {
+                                setState(() {
+                                  _fechaIngresoController.text = pickedDate
+                                      .toIso8601String()
+                                      .substring(0, 10);
+                                });
+                              }
+                            },
+                          ),
                         ),
                       ),
                       Expanded(child: _textField(_puestoController, 'Puesto')),
@@ -262,9 +350,38 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                         ),
                       ),
                       Expanded(
-                        child: _textField(
-                          _estadoCivilController,
-                          'Estado Civil',
+                        child: Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: DropdownButtonFormField<String>(
+                            value: _estadoCivilController.text.isNotEmpty
+                                ? _estadoCivilController.text
+                                : null,
+                            decoration: InputDecoration(
+                              labelText: 'Estado Civil',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'Soltero',
+                                child: Text('Soltero'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'Casado',
+                                child: Text('Casado'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'Unión libre',
+                                child: Text('Unión libre'),
+                              ),
+                            ],
+                            onChanged: (val) {
+                              setState(() {
+                                _estadoCivilController.text = val ?? '';
+                              });
+                            },
+                          ),
                         ),
                       ),
                       Expanded(child: _textField(_sexoController, 'Sexo')),
@@ -458,7 +575,38 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
     );
   }
 
-  void _onGuardar() {}
+  void _onGuardar(runMutation) {
+    final empleado = Empleado(
+      idempleado: widget.empleado.idempleado,
+      nombre: _nombreController.text,
+      apellidoPaterno: _apellidoPaternoController.text,
+      apellidoMaterno: _apellidoMaternoController.text,
+      fechaNacimiento:
+          DateTime.tryParse(_fechaNacimientoController.text) ?? DateTime.now(),
+      curp: _curpController.text,
+      rfc: _rfcController.text,
+      nss: _nssController.text,
+      direccion: _direccionController.text,
+      telefono: _telefonoController.text,
+      correo: _correoController.text,
+      password: _passwordController.text,
+      fechaIngreso:
+          DateTime.tryParse(_fechaIngresoController.text) ?? DateTime.now(),
+      puesto: _puestoController.text,
+      departamento: _departamentoController.text,
+      salario: double.tryParse(_salarioController.text) ?? 0.0,
+      estadoCivil: _estadoCivilController.text,
+      sexo: _sexoController.text,
+      nacionalidad: _nacionalidadController.text,
+      tipoContrato: _tipoContratoController.text,
+      jornadaLaboral: _jornadaLaboralController.text,
+      banco: _bancoController.text,
+      cuentaBancaria: _cuentaBancariaController.text,
+      costoPorHora: double.tryParse(_costoPorHoraController.text) ?? 0.0,
+      activo: _activo,
+    );
+    runMutation(empleado.toJson());
+  }
 
   void _onEliminar() {}
 }

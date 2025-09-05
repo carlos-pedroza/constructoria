@@ -1,4 +1,5 @@
 import 'package:constructoria/domain/entities/services_provider.dart';
+import 'package:constructoria/domain/entities/user_log.dart';
 import 'package:constructoria/presentation/pages/home/login/login_page.dart'
     show LoginPage;
 import 'package:constructoria/presentation/pages/home/trabajadores/trabajadores_page.dart';
@@ -183,7 +184,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _onLogin() {
+  void _onLogin() async {
+    var userLog = await UserLog.get();
     _pageController.jumpToPage(1);
   }
 }
