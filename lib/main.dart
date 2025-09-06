@@ -18,24 +18,6 @@ void main() async {
   const server = Constants.baseUrlDev;
 
   Constants.setBaseUrl(server);
-  final http.Client httpClient = http.Client();
 
-  final HttpLink httpLink = HttpLink(
-    httpClient: httpClient,
-    '$server/graphql',
-    defaultHeaders: {'Connection': 'keep-alive'},
-  );
-
-  final GraphQLClient client = GraphQLClient(
-    link: httpLink,
-    cache: GraphQLCache(store: HiveStore()),
-  );
-
-  runApp(
-    AppMain(
-      client: client,
-      httpLink: httpLink,
-      servicesProvider: ServicesProvider(server: server),
-    ),
-  );
+  runApp(AppMain(server: server));
 }

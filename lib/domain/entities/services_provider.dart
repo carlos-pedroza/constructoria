@@ -18,6 +18,21 @@ class ServicesProvider {
   Future<void> setServer() async {
     var prefs = await SharedPreferences.getInstance();
     prefs.setString(keyServer, server);
-    prefs.setString(keyToken, token ?? '');
+  }
+
+  static Future<void> setServer2(String server) async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setString(keyServer, server);
+  }
+
+  static Future<void> setToken(String token) async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setString(keyToken, token);
+  }
+
+  static Future<void> logout() async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.remove(keyServer);
+    prefs.remove(keyToken);
   }
 }

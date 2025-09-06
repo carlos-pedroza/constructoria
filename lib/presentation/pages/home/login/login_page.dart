@@ -1,5 +1,5 @@
 import 'package:constructoria/domain/entities/empleado.dart';
-import 'package:constructoria/domain/entities/user_log.dart';
+import 'package:constructoria/domain/entities/security_auth.dart';
 import 'package:constructoria/domain/repositories/security_queries.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -126,9 +126,9 @@ class _LoginPageState extends State<LoginPage> {
                             onCompleted: (data) {
                               if (data == null) return;
                               if (_isGetEmailStep) {
-                                final result = data?['loginEmpleado'];
+                                final result = data['loginEmpleado'];
                                 if (result['result'] == true) {
-                                  var token = data?['loginEmpleado']['token'];
+                                  var token = data['loginEmpleado']['token'];
                                   if (token != null) {
                                     setState(() {
                                       _emailToken = token;
@@ -153,15 +153,15 @@ class _LoginPageState extends State<LoginPage> {
                                   );
                                 }
                               } else {
-                                final result = data?['loginEmpleadoPassword'];
+                                final result = data['loginEmpleadoPassword'];
                                 if (result['result'] == true) {
                                   var jwt =
-                                      data?['loginEmpleadoPassword']['jwt'] ??
+                                      data['loginEmpleadoPassword']['jwt'] ??
                                       '';
                                   var empleado =
-                                      data?['loginEmpleadoPassword']['empleado'];
+                                      data['loginEmpleadoPassword']['empleado'];
                                   if (jwt != null && empleado != null) {
-                                    UserLog.login(
+                                    SecurityAuth.login(
                                       jwt: jwt,
                                       empleado: Empleado.fromJson(
                                         empleado as Map<String, dynamic>,

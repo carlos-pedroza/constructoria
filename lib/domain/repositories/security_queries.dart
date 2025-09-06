@@ -48,4 +48,10 @@ class SecurityQueries {
       }
     }
   ''';
+
+  static const String verifyJwt = '''
+    mutation VerifyJwt(\$token: String!) {
+      verifyJwt(token: \$token)
+    }
+  ''';
 }

@@ -1,10 +1,10 @@
-import 'package:constructoria/domain/entities/services_provider.dart';
-import 'package:constructoria/domain/entities/user_log.dart';
+import 'package:constructoria/domain/entities/security_auth.dart';
 import 'package:constructoria/presentation/pages/home/login/login_page.dart'
     show LoginPage;
 import 'package:constructoria/presentation/pages/home/trabajadores/trabajadores_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:http/http.dart' as http;
 
 class _MenuItem {
   const _MenuItem(this.icon, this.title, this.openRoute);
@@ -18,13 +18,11 @@ class HomePage extends StatefulWidget {
   const HomePage({
     super.key,
     required this.httpLink,
-    required this.client,
-    required this.servicesProvider,
+    required this.securityAuth,
   });
 
   final HttpLink httpLink;
-  final GraphQLClient client;
-  final ServicesProvider servicesProvider;
+  final SecurityAuth? securityAuth;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -33,6 +31,22 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
   final PageController _pageController = PageController();
+
+  late AuthLink _authLink;
+  late GraphQLClient _client;
+
+  @override
+  void initState() {
+    super.initState();
+    _authLink = AuthLink(
+      getToken: () async => 'Bearer ${widget.securityAuth?.jwt}',
+    );
+    var link = _authLink.concat(widget.httpLink);
+    _client = GraphQLClient(
+      link: link,
+      cache: GraphQLCache(store: HiveStore()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                 ),
-                                TrabajadoresPage(client: widget.client),
+                                TrabajadoresPage(client: _client),
                               ],
                             ),
                           ),
@@ -185,7 +199,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onLogin() async {
-    var userLog = await UserLog.get();
+    var userLog = await SecurityAuth.get();
     _pageController.jumpToPage(1);
   }
 }
