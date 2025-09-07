@@ -1,6 +1,7 @@
 import 'package:constructoria/cors/wait_tool.dart';
 import 'package:constructoria/domain/entities/empleado.dart';
 import 'package:constructoria/domain/entities/security_auth.dart';
+import 'package:constructoria/domain/entities/user_empleado.dart';
 import 'package:constructoria/domain/repositories/security_queries.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -214,25 +215,43 @@ class _LoginPageState extends State<LoginPage> {
                                 if (result['result'] == true) {
                                   var jwt =
                                       data['loginEmpleadoPassword']['jwt'];
-                                  var empleado =
+                                  var empleadoData =
                                       data['loginEmpleadoPassword']['empleado'];
-                                  if (jwt != null && empleado != null) {
-                                    SecurityAuth.login(
-                                      jwt: jwt,
-                                      empleado: Empleado.fromJson(
-                                        empleado as Map<String, dynamic>,
-                                      ),
-                                    ).then((value) {
-                                      widget.onLogin();
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        backgroundColor: Colors.green,
-                                        content: Text(
-                                          'Inicio de sesión exitoso.',
-                                        ),
-                                      ),
+                                  if (jwt != null && empleadoData != null) {
+                                    var empleado = Empleado.fromJson(
+                                      empleadoData,
                                     );
+                                    if (empleado.activo) {
+                                      var userEmpleado =
+                                          UserEmpleado.fromEmpleado(empleado);
+                                      SecurityAuth.login(
+                                        jwt: jwt,
+                                        userEmpleado: userEmpleado,
+                                      ).then((value) {
+                                        widget.onLogin();
+                                      });
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: Colors.green,
+                                          content: Text(
+                                            'Inicio de sesión exitoso.',
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: Colors.red,
+                                          content: Text(
+                                            'El usuario no está activo. Contacte al administrador.',
+                                          ),
+                                        ),
+                                      );
+                                    }
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(

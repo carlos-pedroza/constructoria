@@ -1,3 +1,4 @@
+import 'package:constructoria/cors/wait_tool.dart';
 import 'package:constructoria/domain/entities/empleado.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -7,11 +8,13 @@ class TrabajadorPage extends StatefulWidget {
     super.key,
     required this.client,
     required this.empleado,
+    required this.onSave,
     required this.onBack,
   });
 
   final GraphQLClient client;
   final Empleado empleado;
+  final void Function() onSave;
   final void Function() onBack;
 
   @override
@@ -51,6 +54,7 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
   final _costoPorHoraController = TextEditingController();
   bool _activo = false;
   late Empleado _empleado;
+  var _saving = false;
 
   @override
   void initState() {
@@ -161,34 +165,50 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Mutation(
-                        options: MutationOptions(
-                          document: gql(_empleado.query()),
-                          onCompleted: (data) {
-                            if (data == null) return;
-                            print('Empleado guardado: $data');
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Trabajador guardado')),
-                            );
-                            widget.onBack();
-                          },
-                          onError: (error) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Error al guardar trabajador: ${error?.graphqlErrors.first.message ?? 'Desconocido'}',
+                      if (_saving)
+                        SizedBox(width: 100, child: WaitTool())
+                      else
+                        Mutation(
+                          options: MutationOptions(
+                            document: gql(_empleado.query()),
+                            onCompleted: (data) {
+                              if (data == null) return;
+                              print('Empleado guardado: $data');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.green,
+                                  content: Text(
+                                    'El trabajador se guardó correctamente',
+                                  ),
                                 ),
-                              ),
+                              );
+                              setState(() {
+                                _saving = false;
+                              });
+                              widget.onSave();
+                              if (data['createEmpleado'] != null) {
+                                widget.onBack();
+                              }
+                            },
+                            onError: (error) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.red,
+                                  content: Text('Error al guardar trabajador'),
+                                ),
+                              );
+                              setState(() {
+                                _saving = false;
+                              });
+                            },
+                          ),
+                          builder: (runMutation, result) {
+                            return ElevatedButton.icon(
+                              onPressed: () => _onGuardar(runMutation),
+                              label: Text('Guardar'),
                             );
                           },
                         ),
-                        builder: (runMutation, result) {
-                          return ElevatedButton.icon(
-                            onPressed: () => _onGuardar(runMutation),
-                            label: Text('Guardar'),
-                          );
-                        },
-                      ),
                       SizedBox(width: 10),
                       TextButton.icon(
                         onPressed: _onEliminar,
@@ -576,6 +596,9 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
   }
 
   void _onGuardar(runMutation) {
+    setState(() {
+      _saving = true;
+    });
     final empleado = Empleado(
       idempleado: widget.empleado.idempleado,
       nombre: _nombreController.text,

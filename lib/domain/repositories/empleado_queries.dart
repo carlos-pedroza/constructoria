@@ -38,7 +38,7 @@ class EmpleadoQueries {
 
   static const String getEmpleadoById = '''
     query GetEmpleadoById(
-      \$idempleado: ID!
+      \$idempleado: Int!
     ) {
       empleado(idempleado: \$idempleado) {
         idempleado
@@ -154,31 +154,31 @@ class EmpleadoQueries {
 
   static const String updateEmpleado = '''
     mutation UpdateEmpleado(
-      \$idempleado: ID!,
-      \$nombre: String,
-      \$apellido_paterno: String,
-      \$apellido_materno: String,
-      \$fecha_nacimiento: String,
-      \$curp: String,
-      \$rfc: String,
-      \$nss: String,
-      \$direccion: String,
-      \$telefono: String,
-      \$correo: String,
-      \$password: String,
-      \$fecha_ingreso: String,
-      \$puesto: String,
-      \$departamento: String,
-      \$salario: Float,
-      \$estado_civil: String,
-      \$sexo: String,
-      \$nacionalidad: String,
-      \$tipo_contrato: String,
-      \$jornada_laboral: String,
-      \$banco: String,
-      \$cuenta_bancaria: String,
-      \$costo_por_hora: Float,
-      \$activo: Boolean
+      \$idempleado: Int!,
+      \$nombre: String!,
+      \$apellido_paterno: String!,
+      \$apellido_materno: String!,
+      \$fecha_nacimiento: String!,
+      \$curp: String!,
+      \$rfc: String!,
+      \$nss: String!,
+      \$direccion: String!,
+      \$telefono: String!,
+      \$correo: String!,
+      \$password: String!,
+      \$fecha_ingreso: String!,
+      \$puesto: String!,
+      \$departamento: String!,
+      \$salario: Float!,
+      \$estado_civil: String!,
+      \$sexo: String!,
+      \$nacionalidad: String!,
+      \$tipo_contrato: String!,
+      \$jornada_laboral: String!,
+      \$banco: String!,
+      \$cuenta_bancaria: String!,
+      \$costo_por_hora: Float!,
+      \$activo: Boolean!
     ) {
       updateEmpleado(idempleado: \$idempleado, input: {
         nombre: \$nombre,

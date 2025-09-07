@@ -1,7 +1,7 @@
 import 'package:constructoria/domain/entities/security_auth.dart';
 import 'package:constructoria/presentation/pages/home/login/login_page.dart'
     show LoginPage;
-import 'package:constructoria/presentation/pages/home/trabajadores/trabajadores_page.dart';
+import 'package:constructoria/presentation/trabajadores/trabajadores_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -31,20 +31,29 @@ class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
   final PageController _pageController = PageController();
 
-  late AuthLink _authLink;
-  late GraphQLClient _client;
+  static const _pageLogin = 0;
+  static const _pageHome = 1;
+  static const _pageTrabajadores = 2;
 
-  @override
-  void initState() {
-    super.initState();
+  late AuthLink? _authLink;
+  late GraphQLClient? _client;
+
+  Future<void> _initClient() async {
     _authLink = AuthLink(
       getToken: () async => 'Bearer ${widget.securityAuth?.jwt}',
     );
-    var link = _authLink.concat(widget.httpLink);
+    var link = _authLink!.concat(widget.httpLink);
     _client = GraphQLClient(
       link: link,
       cache: GraphQLCache(store: HiveStore()),
     );
+    _onVerifyLogin();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initClient();
   }
 
   @override
@@ -52,11 +61,16 @@ class _HomePageState extends State<HomePage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final List<_MenuItem> menuItems = [
-      _MenuItem(Icons.home, 'Inicio', () {}),
+      _MenuItem(Icons.home, 'Inicio', () {
+        setState(() {
+          selectedIndex = 2;
+          _pageController.jumpToPage(_pageHome);
+        });
+      }),
       _MenuItem(Icons.people, 'Trabajadores', () {
         setState(() {
           selectedIndex = 2;
-          _pageController.jumpToPage(2);
+          _pageController.jumpToPage(_pageTrabajadores);
         });
       }),
       _MenuItem(Icons.work, 'Proyectos y tareas', () {}),
@@ -139,43 +153,48 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          if (!isMobile) menu,
-                          Expanded(
-                            child: PageView(
-                              controller: _pageController,
-                              physics: NeverScrollableScrollPhysics(),
-                              onPageChanged: (i) {
-                                setState(() {
-                                  selectedIndex = i;
-                                });
-                              },
-                              children: [
-                                LoginPage(onLogin: _onLogin),
-                                Container(
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  color: colorScheme.primary,
-                                  child: Center(
-                                    child: Text(
-                                      'CONSTRUCTORIA',
-                                      style: theme.textTheme.headlineLarge
-                                          ?.copyWith(
-                                            color: colorScheme.onPrimary,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                    if (_authLink != null && _client != null)
+                      Expanded(
+                        child: Row(
+                          children: [
+                            if (!isMobile) menu,
+                            Expanded(
+                              child: PageView(
+                                controller: _pageController,
+                                physics: NeverScrollableScrollPhysics(),
+                                onPageChanged: (i) {
+                                  setState(() {
+                                    selectedIndex = i;
+                                  });
+                                },
+                                children: [
+                                  LoginPage(onLogin: _onVerifyLogin),
+                                  Container(
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    color: colorScheme.primary,
+                                    child: Center(
+                                      child: Text(
+                                        'CONSTRUCTORIA',
+                                        style: theme.textTheme.headlineLarge
+                                            ?.copyWith(
+                                              color: colorScheme.onPrimary,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                TrabajadoresPage(client: _client),
-                              ],
+                                  TrabajadoresPage(client: _client!),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      )
+                    else
+                      Expanded(
+                        child: Center(child: CircularProgressIndicator()),
                       ),
-                    ),
                   ],
                 ),
                 Align(
@@ -197,8 +216,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _onLogin() async {
+  void _onVerifyLogin() async {
     var userLog = await SecurityAuth.get();
-    _pageController.jumpToPage(1);
+    if (userLog == null) {
+      _pageController.jumpToPage(_pageLogin);
+    }
+    _pageController.jumpToPage(_pageHome);
   }
 }

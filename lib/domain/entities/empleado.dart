@@ -55,7 +55,7 @@ class Empleado {
   final double costoPorHora;
   final bool activo;
 
-  factory Empleado.fromJson(Map<String, dynamic> json) {
+  factory Empleado.fromJson(dynamic json) {
     return Empleado(
       idempleado: json['idempleado'] as int,
       nombre: json['nombre'] as String,
@@ -124,6 +124,36 @@ class Empleado {
       return createJson();
     }
     return updateJson();
+  }
+
+  Map<String, dynamic> toJson2() {
+    return {
+      'idempleado': idempleado,
+      'nombre': nombre,
+      'apellido_paterno': apellidoPaterno,
+      'apellido_materno': apellidoMaterno,
+      'fecha_nacimiento': fechaNacimiento.toIso8601String(),
+      'curp': curp,
+      'rfc': rfc,
+      'nss': nss,
+      'direccion': direccion,
+      'telefono': telefono,
+      'correo': correo,
+      'password': password,
+      'fecha_ingreso': fechaIngreso.toIso8601String(),
+      'puesto': puesto,
+      'departamento': departamento,
+      'salario': salario,
+      'estado_civil': estadoCivil,
+      'sexo': sexo,
+      'nacionalidad': nacionalidad,
+      'tipo_contrato': tipoContrato,
+      'jornada_laboral': jornadaLaboral,
+      'banco': banco,
+      'cuenta_bancaria': cuentaBancaria,
+      'costo_por_hora': costoPorHora,
+      'activo': activo,
+    };
   }
 
   Map<String, dynamic> createJson() {

@@ -44,7 +44,6 @@ class _MainPageState extends State<MainPage> {
 
   Future<SecurityAuth?> getSecurityAuth() async {
     var auth = await SecurityAuth.get();
-    print(auth);
     return auth;
   }
 
@@ -78,7 +77,7 @@ class _MainPageState extends State<MainPage> {
                     options: QueryOptions(
                       document: gql(SecurityQueries.verifyJwt),
                       variables: {'token': securityAuth.jwt},
-                      fetchPolicy: FetchPolicy.networkOnly,
+                      fetchPolicy: FetchPolicy.noCache,
                     ),
                     builder: (result, {fetchMore, refetch}) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -92,8 +91,11 @@ class _MainPageState extends State<MainPage> {
                         );
                       }
 
-                      if (result.data == null ||
-                          result.data?['verifyJwt'] == false) {
+                      if (snapshot.data == null) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (result.data?['verifyJwt'] == false) {
                         SecurityAuth.logout().then((_) {
                           setState(() {});
                         });
