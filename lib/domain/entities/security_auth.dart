@@ -5,16 +5,20 @@ import 'package:constructoria/domain/entities/services_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SecurityAuth {
-  const SecurityAuth({required this.jwt, required this.empleado});
+  const SecurityAuth({
+    required this.jwt,
+    required this.empleado,
+    this.isLogged = false,
+  });
 
   final String jwt;
   final Empleado empleado;
-  final bool isLogged = false;
+  final bool isLogged;
 
   static const _userLogKey = 'user_log';
 
   static Future<SecurityAuth> login({required jwt, required empleado}) async {
-    var userLog = SecurityAuth(jwt: jwt, empleado: empleado);
+    var userLog = SecurityAuth(jwt: jwt, empleado: empleado, isLogged: true);
     await userLog.set();
     return userLog;
   }

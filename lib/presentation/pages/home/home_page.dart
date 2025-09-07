@@ -4,7 +4,6 @@ import 'package:constructoria/presentation/pages/home/login/login_page.dart'
 import 'package:constructoria/presentation/pages/home/trabajadores/trabajadores_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:http/http.dart' as http;
 
 class _MenuItem {
   const _MenuItem(this.icon, this.title, this.openRoute);
