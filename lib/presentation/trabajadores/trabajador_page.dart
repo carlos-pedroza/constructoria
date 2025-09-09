@@ -311,13 +311,17 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                       Expanded(
                         child: Row(
                           children: [
-                            _textFieldPassword(
-                              _passwordController,
-                              'Contraseña',
+                            Expanded(
+                              child: _textFieldPassword(
+                                _passwordController,
+                                'Contraseña',
+                              ),
                             ),
-                            _textFieldPassword(
-                              _passwordController,
-                              'Confirmar',
+                            Expanded(
+                              child: _textFieldPassword(
+                                _passwordConfirmationController,
+                                'Confirmar',
+                              ),
                             ),
                           ],
                         ),
