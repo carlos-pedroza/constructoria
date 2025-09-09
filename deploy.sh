@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # Elimina el contenedor anterior si existe
 docker rm -f constructoria 2>/dev/null
