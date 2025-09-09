@@ -4,7 +4,10 @@ FROM nginx:alpine
 # Copia el contenido de la carpeta publish al directorio de nginx
 COPY publish /usr/share/nginx/html
 
-# Expone el puerto 80
+# Copia la configuración personalizada de nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expone el puerto 2999
 EXPOSE 2999
 
 # Inicia nginx
