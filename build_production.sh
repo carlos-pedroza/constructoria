@@ -1,5 +1,5 @@
-echo "Starting production build..."
 clear
+echo "Starting production build..."
 flutter clean
 flutter pub get
 flutter build web --release -t "lib/main_production.dart"
