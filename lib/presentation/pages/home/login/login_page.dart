@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     if (!kReleaseMode) {
       _emailController.text = 'julio@tecjamaya.com.mx';
-      _passwordController.text = '1234567';
+      _passwordController.text = '1234569';
     }
   }
 

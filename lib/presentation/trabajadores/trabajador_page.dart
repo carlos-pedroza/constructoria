@@ -40,6 +40,7 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
   final _telefonoController = TextEditingController();
   final _correoController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _passwordConfirmationController = TextEditingController();
   final _fechaIngresoController = TextEditingController();
   final _puestoController = TextEditingController();
   final _departamentoController = TextEditingController();
@@ -73,6 +74,7 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
     _telefonoController.text = empleado.telefono;
     _correoController.text = empleado.correo;
     _passwordController.text = empleado.password;
+    _passwordConfirmationController.text = empleado.password;
     _fechaIngresoController.text = empleado.fechaIngreso
         .toIso8601String()
         .substring(0, 10);
@@ -104,6 +106,7 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
     _telefonoController.dispose();
     _correoController.dispose();
     _passwordController.dispose();
+    _passwordConfirmationController.dispose();
     _fechaIngresoController.dispose();
     _puestoController.dispose();
     _departamentoController.dispose();
@@ -306,7 +309,18 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                     children: [
                       Expanded(child: _textField(_correoController, 'Correo')),
                       Expanded(
-                        child: _textField(_passwordController, 'Password'),
+                        child: Row(
+                          children: [
+                            _textFieldPassword(
+                              _passwordController,
+                              'Contraseña',
+                            ),
+                            _textFieldPassword(
+                              _passwordController,
+                              'Confirmar',
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -595,10 +609,51 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
     );
   }
 
+  var _oscureText = true;
+
+  Widget _textFieldPassword(
+    TextEditingController controller,
+    String label, {
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(6.0),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+          suffixIcon: IconButton(
+            icon: Icon(_oscureText ? Icons.visibility : Icons.visibility_off),
+            onPressed: () {
+              setState(() {
+                _oscureText = !_oscureText;
+              });
+            },
+          ),
+        ),
+        keyboardType: keyboardType,
+        obscureText: _oscureText,
+      ),
+    );
+  }
+
   void _onGuardar(runMutation) {
     setState(() {
       _saving = true;
     });
+    if (_passwordController.text != _passwordConfirmationController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('La contraseña no coincide con la confirmación'),
+        ),
+      );
+      setState(() {
+        _saving = false;
+      });
+      return;
+    }
     final empleado = Empleado(
       idempleado: widget.empleado.idempleado,
       nombre: _nombreController.text,

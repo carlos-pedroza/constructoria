@@ -4,11 +4,16 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    
         {
-            "name": "constructoria",
+            "name": "dev",
             "request": "launch",
             "type": "dart"
+        },
+        {
+            "name": "prod",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main_production.dart"
         },
         {
             "name": "constructoria (profile mode)",
