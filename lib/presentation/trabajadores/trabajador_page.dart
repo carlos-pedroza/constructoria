@@ -82,7 +82,7 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
     _departamentoController.text = empleado.departamento;
     _salarioController.text = empleado.salario.toString();
     _estadoCivilController.text = empleado.estadoCivil;
-    _sexoController.text = empleado.sexo;
+    _sexoController.text = empleado.sexo == 'M' ? 'Masculino' : 'Femenino';
     _nacionalidadController.text = empleado.nacionalidad;
     _tipoContratoController.text = empleado.tipoContrato;
     _jornadaLaboralController.text = empleado.jornadaLaboral;
@@ -422,7 +422,37 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                           ),
                         ),
                       ),
-                      Expanded(child: _textField(_sexoController, 'Sexo')),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: DropdownButtonFormField<String>(
+                            value: _sexoController.text.isNotEmpty
+                                ? _sexoController.text
+                                : null,
+                            decoration: InputDecoration(
+                              labelText: 'Sexo',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'Masculino',
+                                child: Text('Masculino'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'Femenino',
+                                child: Text('Femenino'),
+                              ),
+                            ],
+                            onChanged: (val) {
+                              setState(() {
+                                _sexoController.text = val ?? '';
+                              });
+                            },
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   Row(
@@ -678,7 +708,9 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
       departamento: _departamentoController.text,
       salario: double.tryParse(_salarioController.text) ?? 0.0,
       estadoCivil: _estadoCivilController.text,
-      sexo: _sexoController.text,
+      sexo: _sexoController.text.isNotEmpty
+          ? _sexoController.text.substring(0, 1).toUpperCase()
+          : 'M',
       nacionalidad: _nacionalidadController.text,
       tipoContrato: _tipoContratoController.text,
       jornadaLaboral: _jornadaLaboralController.text,

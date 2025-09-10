@@ -22,7 +22,7 @@ class _TrabajadoresPageState extends State<TrabajadoresPage> {
   void initState() {
     super.initState();
     _futureEmpleados = _fetchEmpleados();
-    _empleado = Empleado.empty();
+    _empleado = Empleado.clone();
   }
 
   Future<List<Empleado>> _fetchEmpleados() async {
@@ -238,6 +238,9 @@ class _TrabajadoresPageState extends State<TrabajadoresPage> {
   }
 
   void _onAddEmpleado() {
+    setState(() {
+      _empleado = Empleado.empty();
+    });
     _pageController.jumpToPage(1);
   }
 

@@ -1,4 +1,5 @@
 import 'package:constructoria/domain/repositories/empleado_queries.dart';
+import 'package:intl/intl.dart';
 
 class Empleado {
   Empleado({
@@ -85,7 +86,7 @@ class Empleado {
     );
   }
 
-  factory Empleado.empty({Empleado? empleado}) {
+  factory Empleado.clone({Empleado? empleado}) {
     return Empleado(
       idempleado: empleado?.idempleado,
       nombre: empleado?.nombre ?? '',
@@ -103,7 +104,7 @@ class Empleado {
       puesto: empleado?.puesto ?? '',
       departamento: empleado?.departamento ?? '',
       salario: empleado?.salario ?? 0.0,
-      estadoCivil: empleado?.estadoCivil ?? '',
+      estadoCivil: empleado?.estadoCivil ?? 'Soltero',
       sexo: empleado?.sexo ?? '',
       nacionalidad: empleado?.nacionalidad ?? '',
       tipoContrato: empleado?.tipoContrato ?? '',
@@ -112,6 +113,35 @@ class Empleado {
       cuentaBancaria: empleado?.cuentaBancaria ?? '',
       costoPorHora: empleado?.costoPorHora ?? 0.0,
       activo: empleado?.activo ?? true,
+    );
+  }
+
+  factory Empleado.empty() {
+    return Empleado(
+      nombre: '',
+      apellidoPaterno: '',
+      apellidoMaterno: '',
+      fechaNacimiento: DateTime.now(),
+      curp: '',
+      rfc: '',
+      nss: '',
+      direccion: '',
+      telefono: '',
+      correo: '',
+      password: '',
+      fechaIngreso: DateTime.now(),
+      puesto: '',
+      departamento: '',
+      salario: 0.0,
+      estadoCivil: 'Soltero',
+      sexo: '',
+      nacionalidad: '',
+      tipoContrato: '',
+      jornadaLaboral: '',
+      banco: '',
+      cuentaBancaria: '',
+      costoPorHora: 0.0,
+      activo: true,
     );
   }
 
@@ -132,7 +162,7 @@ class Empleado {
       'nombre': nombre,
       'apellido_paterno': apellidoPaterno,
       'apellido_materno': apellidoMaterno,
-      'fecha_nacimiento': fechaNacimiento.toIso8601String(),
+      'fecha_nacimiento': DateFormat('yyyy-MM-dd').format(fechaNacimiento),
       'curp': curp,
       'rfc': rfc,
       'nss': nss,
@@ -140,7 +170,7 @@ class Empleado {
       'telefono': telefono,
       'correo': correo,
       'password': password,
-      'fecha_ingreso': fechaIngreso.toIso8601String(),
+      'fecha_ingreso': DateFormat('yyyy-MM-dd').format(fechaIngreso),
       'puesto': puesto,
       'departamento': departamento,
       'salario': salario,
@@ -161,7 +191,7 @@ class Empleado {
       'nombre': nombre,
       'apellido_paterno': apellidoPaterno,
       'apellido_materno': apellidoMaterno,
-      'fecha_nacimiento': fechaNacimiento.toIso8601String(),
+      'fecha_nacimiento': DateFormat('yyyy-MM-dd').format(fechaNacimiento),
       'curp': curp,
       'rfc': rfc,
       'nss': nss,
@@ -169,7 +199,7 @@ class Empleado {
       'telefono': telefono,
       'correo': correo,
       'password': password,
-      'fecha_ingreso': fechaIngreso.toIso8601String(),
+      'fecha_ingreso': DateFormat('yyyy-MM-dd').format(fechaIngreso),
       'puesto': puesto,
       'departamento': departamento,
       'salario': salario,
@@ -191,7 +221,7 @@ class Empleado {
       'nombre': nombre,
       'apellido_paterno': apellidoPaterno,
       'apellido_materno': apellidoMaterno,
-      'fecha_nacimiento': fechaNacimiento.toIso8601String(),
+      'fecha_nacimiento': DateFormat('yyyy-MM-dd').format(fechaNacimiento),
       'curp': curp,
       'rfc': rfc,
       'nss': nss,
@@ -199,7 +229,7 @@ class Empleado {
       'telefono': telefono,
       'correo': correo,
       'password': password,
-      'fecha_ingreso': fechaIngreso.toIso8601String(),
+      'fecha_ingreso': DateFormat('yyyy-MM-dd').format(fechaIngreso),
       'puesto': puesto,
       'departamento': departamento,
       'salario': salario,
