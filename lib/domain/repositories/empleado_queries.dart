@@ -236,10 +236,8 @@ class EmpleadoQueries {
     ''';
 
   static const String deleteEmpleado = '''
-    mutation DeleteEmpleado(\$idempleado: ID!) {
-      deleteEmpleado(idempleado: \$idempleado) {
-        idempleado
-      }
+    mutation RemoveEmpleado(\$idempleado: Int!) {
+      removeEmpleado(idempleado: \$idempleado)
     }
     ''';
 }

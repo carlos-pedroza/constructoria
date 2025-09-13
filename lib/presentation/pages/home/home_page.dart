@@ -1,7 +1,7 @@
 import 'package:constructoria/domain/entities/security_auth.dart';
 import 'package:constructoria/presentation/pages/home/login/login_page.dart'
     show LoginPage;
-import 'package:constructoria/presentation/trabajadores/trabajadores_page.dart';
+import 'package:constructoria/presentation/pages/trabajadores/trabajadores_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
