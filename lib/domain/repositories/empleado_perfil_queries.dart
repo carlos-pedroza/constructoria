@@ -1,21 +1,11 @@
 class EmpleadoPerfilQueries {
   static const String getAllEmpleadosPerfiles = '''
-    query GetAllEmpleadosPerfiles {
-      empleadoPerfiles {
+    query EmpleadoPerfiles (\$idempleado: Int!) {
+      empleadoPerfiles(idempleado: \$idempleado) {
         idempleado_perfil
         idempleado
         idperfil
-        empleado {
-          idempleado
-          nombre
-          apellido_paterno
-          apellido_materno
-        }
-        perfil {
-          idperfil
-          nombre
-          descripcion
-        }
+        acceso
       }
     }
   ''';
@@ -28,6 +18,7 @@ class EmpleadoPerfilQueries {
         idempleado_perfil
         idempleado
         idperfil
+        acceso
         empleado {
           idempleado
           nombre
@@ -44,28 +35,23 @@ class EmpleadoPerfilQueries {
   ''';
 
   static const String createEmpleadoPerfil = '''
-    mutation CreateEmpleadoPerfil(
-      \$idempleado: ID!,
-      \$idperfil: ID!
-    ) {
-      createEmpleadoPerfil(input: {
-        idempleado: \$idempleado,
-        idperfil: \$idperfil
-      }) {
+    mutation CreateEmpleadoPerfil(\$input: EmpleadoPerfilInput!) {
+      createEmpleadoPerfil(input: \$input) {
         idempleado_perfil
         idempleado
         idperfil
-        empleado {
-          idempleado
-          nombre
-          apellido_paterno
-          apellido_materno
-        }
-        perfil {
-          idperfil
-          nombre
-          descripcion
-        }
+        acceso
+      }
+    }
+  ''';
+
+  static const String updateEmpleadoPerfil = '''
+    mutation UpdateEmpleadoPerfil(\$idempleado_perfil: Int!, \$input: EmpleadoPerfilInput!) {
+      updateEmpleadoPerfil(idempleado_perfil: \$idempleado_perfil, input: \$input) {
+        idempleado_perfil
+        idempleado
+        idperfil
+        acceso
       }
     }
   ''';

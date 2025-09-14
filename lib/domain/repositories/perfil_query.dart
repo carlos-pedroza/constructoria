@@ -1,11 +1,11 @@
 class PerfilQuery {
   static const String getAllPerfiles = '''
     query GetAllPerfiles {
-      perfiles {
-        idperfil
-        nombre
-        descripcion
-      }
+        perfiles {
+            idperfil
+            code
+            nombre
+        }
     }
   ''';
 
@@ -15,8 +15,8 @@ class PerfilQuery {
     ) {
       perfil(idperfil: \$idperfil) {
         idperfil
+        code
         nombre
-        descripcion
       }
     }
   ''';
@@ -31,8 +31,8 @@ class PerfilQuery {
         descripcion: \$descripcion
       }) {
         idperfil
+        code
         nombre
-        descripcion
       }
     }
   ''';
@@ -45,20 +45,18 @@ class PerfilQuery {
     ) {
       updatePerfil(idperfil: \$idperfil, input: {
         nombre: \$nombre,
-        descripcion: \$descripcion
+        code: \$descripcion
       }) {
         idperfil
+        code
         nombre
-        descripcion
       }
     }
   ''';
 
-  static const String deletePerfil = '''
-    mutation DeletePerfil(\$idperfil: ID!) {
-      deletePerfil(idperfil: \$idperfil) {
-        idperfil
-      }
+  static const String removePerfil = '''
+    mutation RemovePerfil(\$idperfil: ID!) {
+      removePerfil(idperfil: \$idperfil)
     }
   ''';
 }
