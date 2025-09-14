@@ -10,6 +10,18 @@ class EmpleadoPerfilQueries {
     }
   ''';
 
+  static const String perfilesPorEmpleado = '''
+    query PerfilesPorEmpleado(\$idempleado: Int!) {
+      perfilesPorEmpleado(idempleado: \$idempleado) {
+        idperfil
+        code
+        nombre
+        acceso
+        idempleado_perfil
+      }
+    }
+  ''';
+
   static const String getEmpleadoPerfilById = '''
     query GetEmpleadoPerfilById(
       \$id: ID! 

@@ -5,7 +5,6 @@ import 'package:constructoria/domain/entities/empleado_perfil.dart';
 import 'package:constructoria/domain/entities/perfil.dart';
 import 'package:constructoria/domain/repositories/empleado_perfil_queries.dart';
 import 'package:constructoria/domain/repositories/empleado_queries.dart';
-import 'package:constructoria/domain/repositories/perfil_query.dart';
 import 'package:constructoria/presentation/bloc/perfiles_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,33 +62,7 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
   late Empleado _empleado;
   var _saving = false;
   bool _isNew = true;
-
-  Future<List<Perfil>> _fetchEmpleadoPerfiles(List<Perfil> perfiles) async {
-    final query = EmpleadoPerfilQueries.getAllEmpleadosPerfiles;
-
-    final options = QueryOptions(
-      document: gql(query),
-      variables: {'idempleado': widget.empleado.idempleado},
-    );
-
-    final result = await widget.client.query(options);
-
-    if (result.hasException) {
-      return [];
-    }
-    
-    var empleadoPerfiles = EmpleadoPerfil.fromJsonList(result.data?['empleadoPerfiles'] ?? []);
-
-    for (var perfil in perfiles) {
-      var empleadoPerfil = empleadoPerfiles.where((ep) => ep.idperfil == perfil.idperfil);
-      if (empleadoPerfil.isNotEmpty) {
-        context.read<PerfilesBloc>().add(UpdatePerfilAcceso(perfil.idperfil, empleadoPerfil.first.acceso, empleadoPerfil.first.idempleadoPerfil));
-      } 
-    }
-  
-
-    return perfiles;
-  }
+  dynamic _refetch;
 
   @override
   void initState() {
@@ -219,6 +192,13 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                                       try {
                                         final perfilesBloc = context.read<PerfilesBloc>();
                                         final perfiles = perfilesBloc.state.perfiles;
+                                        if(_isNew) {
+                                          setState(() {
+                                            _saving = false;
+                                          });
+                                          widget.onBack();
+                                          return;
+                                        }
                                         _guardarPerfil(0, perfiles, onComplete: () {
                                           widget.onSave(widget.refetch);
                                           setState(() {
@@ -233,8 +213,8 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                                               ),
                                             ),
                                           );
-                                          if(_isNew) {
-                                            widget.onBack();
+                                          if(_refetch != null) {
+                                            _refetch();
                                           }
                                         });
                                       }
@@ -588,6 +568,25 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                         ),
                         const SizedBox(height: 10),
                         _sectionTitle(context, 'Perfiles de seguridad'),
+                        if (widget.empleado.idempleado == null)
+                          Container(
+                            width: double.infinity,
+                            height: 300,
+                            margin: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surface,
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Guarde el trabajador para asignar perfiles de seguridad',
+                                style: theme.textTheme.titleMedium!.copyWith(
+                                  color: Colors.blue[800],
+                                ),
+                              ),
+                            ),
+                          )
+                        else
                         Container(
                           decoration: BoxDecoration(color: theme.colorScheme.surface),
                           child: Column(
@@ -613,7 +612,10 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                               ),
                               Query(
                                 options: QueryOptions(
-                                  document: gql(PerfilQuery.getAllPerfiles),
+                                  document: gql(EmpleadoPerfilQueries.perfilesPorEmpleado),
+                                  variables: {
+                                    'idempleado': widget.empleado.idempleado!,
+                                  },
                                   fetchPolicy: FetchPolicy.networkOnly,
                                 ),
                                 builder: (result, {fetchMore, refetch}) {
@@ -635,41 +637,20 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
                                     );
                                   }
                                   final perfiles = Perfil.fromJsonList(
-                                    result.data?['perfiles'] ?? [],
+                                    result.data?['perfilesPorEmpleado'] ?? [],
                                   );
                                   // Actualiza el Bloc solo si está vacío
                                   if (perfilesState.perfiles.isEmpty && perfiles.isNotEmpty) {
                                     context.read<PerfilesBloc>().add(SetPerfiles(perfiles));
                                   }
-                                  
-                                  return FutureBuilder(
-                                    future: _fetchEmpleadoPerfiles(perfilesState.perfiles),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState == ConnectionState.waiting) {
-                                        return SizedBox(
-                                          height: 300,
-                                          child: Center(child: WaitTool())
-                                        );
-                                      }
-                                      if (snapshot.hasError) {
-                                        return SizedBox(
-                                          height: 300,
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text('Error al cargar perfiles del empleado'),
-                                            ],
-                                          )
-                                        );
-                                      } 
 
-                                      return PerfilesComponent(
-                                        perfiles: perfilesState.perfiles,
-                                        onChanged: (perfil) {
-                                          context.read<PerfilesBloc>().add(UpdatePerfilAcceso(perfil.idperfil, perfil.acceso, null));
-                                        },
-                                      );
-                                    }
+                                  _refetch = refetch;
+                                  
+                                  return PerfilesComponent(
+                                    perfiles: perfilesState.perfiles,
+                                    onChanged: (perfil) {
+                                      context.read<PerfilesBloc>().add(UpdatePerfilAcceso(perfil.idperfil, perfil.acceso, null));
+                                    },
                                   );
                                 }
                               ),
@@ -821,7 +802,7 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
           if (data == null) return;
           if(data['createEmpleadoPerfil'] != null) {
             var newEmpleadoPerfil = EmpleadoPerfil.fromJson(data['createEmpleadoPerfil']);
-            context.read<PerfilesBloc>().add(UpdatePerfilAcceso(perfil.idperfil, perfil.acceso, newEmpleadoPerfil.idempleadoPerfil));
+            //context.read<PerfilesBloc>().add(UpdatePerfilAcceso(perfil.idperfil, perfil.acceso, newEmpleadoPerfil.idempleadoPerfil));
             print('EmpleadoPerfil creado: $newEmpleadoPerfil');
             _guardarPerfil(index + 1, perfiles, onComplete: onComplete);
           } else if(data['updateEmpleadoPerfil'] != null) {

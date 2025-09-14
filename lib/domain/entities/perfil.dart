@@ -18,6 +18,8 @@ class Perfil {
       idperfil: json['idperfil'] as int,
       code: json['code'] as String,
       nombre: json['nombre'] as String,
+      acceso: json['acceso'] as bool? ?? false,
+      idempleadoPerfil: json['idempleado_perfil'] as int?,
     );
   }
 
