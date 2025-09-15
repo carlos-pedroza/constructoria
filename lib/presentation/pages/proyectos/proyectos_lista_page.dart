@@ -1,5 +1,6 @@
 import 'package:constructoria/domain/entities/proyecto.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ProyectosListaPage extends StatefulWidget {
   const ProyectosListaPage({super.key, required this.onAvances, required this.onEditarTareas, required this.onEditProyecto});
@@ -13,9 +14,11 @@ class ProyectosListaPage extends StatefulWidget {
 }
 
 class _ProyectosListaPageState extends State<ProyectosListaPage> {
+  final _formatDate = DateFormat('dd/MM/yyyy');
+  final _formatCurrency = NumberFormat.currency(locale: 'es_MX', symbol: '\$');
+
   // Simulación de datos, reemplaza por tu consulta real
   final List<Proyecto> proyectos = [
-    Proyecto.empty(),
     Proyecto(
       claveProyecto: 'PRJ-001',
       nombre: 'Edificio Central',
@@ -23,6 +26,26 @@ class _ProyectosListaPageState extends State<ProyectosListaPage> {
       fechaInicio: DateTime(2025, 9, 15),
       fechaFin: DateTime(2026, 3, 30),
       idestado: 1,
+      estadoNombre: 'Por realizar',
+      presupuesto: 1500000,
+      ubicacion: 'Av. Principal 123',
+      clienteNombre: 'Constructora XYZ',
+      clienteContacto: 'Juan Pérez',
+      clienteEmail: 'juan@xyz.com',
+      clienteTelefono: '555-1234',
+      clienteDireccion: 'Calle Falsa 456',
+      responsableId: 2,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
+    Proyecto(
+      claveProyecto: 'PRJ-002',
+      nombre: 'Edificio Sur',
+      descripcion: 'Construcción de edificio de oficinas',
+      fechaInicio: DateTime(2025, 9, 15),
+      fechaFin: DateTime(2026, 3, 30),
+      idestado: 1,
+      estadoNombre: 'Por realizar',
       presupuesto: 1500000,
       ubicacion: 'Av. Principal 123',
       clienteNombre: 'Constructora XYZ',
@@ -71,7 +94,15 @@ class _ProyectosListaPageState extends State<ProyectosListaPage> {
                   ),
                 ],
               ),
-              // Puedes agregar aquí un botón para agregar proyecto si lo necesitas
+              Spacer(),
+              ElevatedButton.icon(
+                onPressed: () {
+                  // Acción para agregar un nuevo proyecto
+                },
+                icon: Icon(Icons.add),
+                label: Text('Proyecto'),
+              ),
+              SizedBox(width: 20),
             ],
           ),
         ),
@@ -90,34 +121,49 @@ class _ProyectosListaPageState extends State<ProyectosListaPage> {
             children: [
               SizedBox(width: 40),
               Expanded(
-                flex: 120,
-                child: Text(
-                  'Clave',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                child: Row(
+                  children: [
+                    SizedBox(width: 10),
+                    Expanded(
+                      flex: 95,
+                      child: Text(
+                        'Clave',
+                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 150,
+                      child: Text(
+                        'Nombre',
+                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 95,
+                      child: Text(
+                        'Fecha inicio',
+                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 95,
+                      child: Text(
+                        'Presupuesto',
+                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 95,
+                      child: Text(
+                        'Estado',
+                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Expanded(
-                flex: 200,
-                child: Text(
-                  'Nombre',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ),
-              Expanded(
-                flex: 100,
-                child: Text(
-                  'Presupuesto',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ),
-              Expanded(
-                flex: 100,
-                child: Text(
-                  'Estado',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(width: 40),
+              SizedBox(width: 200),
             ],
           ),
         ),
@@ -152,15 +198,19 @@ class _ProyectosListaPageState extends State<ProyectosListaPage> {
                       ),
                       Expanded(
                         flex: 100,
+                        child: Text(_formatDate.format(proyecto.fechaInicio)),
+                      ),
+                      Expanded(
+                        flex: 100,
                         child: Text(
-                          proyecto.presupuesto.toStringAsFixed(0),
+                          _formatCurrency.format(proyecto.presupuesto),
                           textAlign: TextAlign.right,
                         ),
                       ),
                       Expanded(
                         flex: 100,
                         child: Text(
-                          proyecto.idestado.toString(),
+                          proyecto.estadoNombre,
                           textAlign: TextAlign.right,
                         ),
                       ),

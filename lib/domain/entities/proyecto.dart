@@ -9,6 +9,7 @@ class Proyecto {
     required this.fechaInicio,
     required this.fechaFin,
     required this.idestado,
+    this.estadoNombre = '',
     required this.presupuesto,
     required this.ubicacion,
     required this.clienteNombre,
@@ -28,6 +29,7 @@ class Proyecto {
   final DateTime fechaInicio;
   final DateTime fechaFin;
   final int idestado;
+  final String estadoNombre;
   final double presupuesto;
   final String ubicacion;
   final String clienteNombre;
