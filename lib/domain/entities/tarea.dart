@@ -14,6 +14,7 @@ class Tarea {
     required this.idestadoTarea,
     required this.avance,
     this.estadoTarea,
+    this.orden = 0,
   });
 
   int? idtarea;
@@ -27,6 +28,7 @@ class Tarea {
   final int idestadoTarea;
   final double avance;
   final EstadoTarea? estadoTarea;
+  int orden;
 
   factory Tarea.fromJson(dynamic json) {
     String? empleadoNombre;
@@ -58,11 +60,25 @@ class Tarea {
       estadoTarea: json['estadoTarea'] != null
           ? EstadoTarea.fromJson(json['estadoTarea'])
           : null,
+      orden: json['orden'] as int? ?? 0,
     );
   }
 
   static List<Tarea> fromJsonList(List<dynamic> jsonList) {
     return jsonList.map((json) => Tarea.fromJson(json)).toList();
+  }
+
+  static Tarea newItem({ required int idproyecto}) {
+    return Tarea(
+      idproyecto: idproyecto,
+      code: '',
+      descripcion: '',
+      fechaInicio: DateTime.now(),
+      fechaFin: DateTime.now(),
+      idempleado: 0,
+      idestadoTarea: 0,
+      avance: 0.0,
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -76,6 +92,7 @@ class Tarea {
       'idempleado': idempleado,
       'idestado_tarea': idestadoTarea,
       'avance': avance,
+      'orden': orden,
     };
   }
 

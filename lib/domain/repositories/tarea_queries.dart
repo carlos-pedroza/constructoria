@@ -1,7 +1,7 @@
 class TareaQueries {
   static const String getAllTareas = '''
-    query {
-      tareas {
+    query Tareas(\$idproyecto: Int!) {
+      tareas(idproyecto: \$idproyecto) {
         idtarea
         idproyecto
         code

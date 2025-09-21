@@ -56,6 +56,10 @@ class Empleado {
   final double costoPorHora;
   final bool activo;
 
+  String get nombreCompleto {
+    return '$nombre $apellidoPaterno $apellidoMaterno';
+  }
+
   factory Empleado.fromJson(dynamic json) {
     return Empleado(
       idempleado: json['idempleado'] as int,

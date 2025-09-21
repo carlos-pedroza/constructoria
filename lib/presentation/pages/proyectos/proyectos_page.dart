@@ -1,6 +1,7 @@
 import 'package:constructoria/domain/entities/proyecto.dart';
 import 'package:constructoria/presentation/pages/proyectos/proyecto_page.dart';
 import 'package:constructoria/presentation/pages/proyectos/proyectos_lista_page.dart';
+import 'package:constructoria/presentation/pages/proyectos/tareas_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -16,6 +17,10 @@ class ProyectosPage extends StatefulWidget {
 class _ProyectosPageState extends State<ProyectosPage> {
   final _pageController = PageController(initialPage: 0);
   late Proyecto _proyecto;
+
+  static const int _pageListaProyectos = 0;
+  static const int _pageProyecto = 1;
+  static const int _pageTareas = 2;
 
   @override
   void initState() {
@@ -43,6 +48,11 @@ class _ProyectosPageState extends State<ProyectosPage> {
             onBack: _onBack,
             onDelete: _onDelete,
           ),
+          TareasPage(
+            client: widget.client,
+            proyecto: _proyecto,
+            onBack: _onBack,
+          ),
         ],
       ),
     );
@@ -52,7 +62,7 @@ class _ProyectosPageState extends State<ProyectosPage> {
     setState(() {
       _proyecto = proyecto;
     });
-    _pageController.jumpToPage(1);
+    _pageController.jumpToPage(_pageProyecto);
   }
 
   void _onAvances(Proyecto proyecto) {
@@ -60,20 +70,23 @@ class _ProyectosPageState extends State<ProyectosPage> {
   }
 
   void _onEditarTareas(Proyecto proyecto) {
-    // Implementa la navegación o acción para editar tareas
+    setState(() {
+      _proyecto = proyecto;
+    });
+    _pageController.jumpToPage(_pageTareas);
   }
 
   void _onBack() {
-    _pageController.jumpToPage(0);
+    _pageController.jumpToPage(_pageListaProyectos);
   }
 
   void _onSave(Proyecto proyecto) {
     // Aquí podrías refrescar la lista si tienes backend
-    _pageController.jumpToPage(0);
+    _pageController.jumpToPage(_pageListaProyectos);
   }
 
   void _onDelete(Proyecto proyecto) {
     // Aquí podrías refrescar la lista si tienes backend
-    _pageController.jumpToPage(0);
+    _pageController.jumpToPage(_pageListaProyectos);
   }
 }
