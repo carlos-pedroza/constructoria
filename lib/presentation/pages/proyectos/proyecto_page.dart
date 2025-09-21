@@ -371,7 +371,7 @@ class _ProyectoPageState extends State<ProyectoPage> {
                                   ),
                                   items: empleados.map((resp) => DropdownMenuItem<int>(
                                     value: resp.idempleado,
-                                    child: Text(resp.nombre),
+                                    child: Text(resp.nombreCompleto),
                                   )).toList(),
                                   onChanged: (val) {
                                     setState(() {

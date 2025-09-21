@@ -1,8 +1,10 @@
+import 'package:constructoria/cors/dialog_Ask.dart';
 import 'package:constructoria/domain/entities/empleado.dart';
 import 'package:constructoria/domain/entities/proyecto.dart';
 import 'package:constructoria/domain/entities/tarea.dart';
 import 'package:constructoria/domain/repositories/empleado_queries.dart';
 import 'package:constructoria/domain/repositories/tarea_queries.dart';
+import 'package:constructoria/presentation/global_components/custom_date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -146,6 +148,58 @@ class _TareasPageState extends State<TareasPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceBright,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: theme.colorScheme.outline,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(width: 40),
+                        Expanded(
+                          flex: 14,
+                          child: Text('Código', style: theme.textTheme.titleSmall!.copyWith(
+                            color: theme.colorScheme.inverseSurface,
+                          )),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 86,
+                          child: Text('Tarea', style: theme.textTheme.titleSmall!.copyWith(
+                            color: theme.colorScheme.inverseSurface,
+                          )),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 230,
+                          child: Text('Fecha inicio', style: theme.textTheme.titleSmall!.copyWith(
+                            color: theme.colorScheme.inverseSurface,
+                          )),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 230,
+                          child: Text('Fecha fin', style: theme.textTheme.titleSmall!.copyWith(
+                            color: theme.colorScheme.inverseSurface,
+                          )),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 210,
+                          child: Text('Asignado a', style: theme.textTheme.bodyMedium!.copyWith(
+                            color: theme.colorScheme.inverseSurface,
+                          )),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                  ),
                   if(_isLoading)
                     Container(
                       width: double.infinity,
@@ -179,7 +233,7 @@ class _TareasPageState extends State<TareasPage> {
                           )),
                           const SizedBox(width: 8),
                           Expanded(
-                            flex: 10,
+                            flex: 14,
                             child: TextFormField(
                               initialValue: _tareas[i].code,
                               style: theme.textTheme.bodySmall,
@@ -217,7 +271,7 @@ class _TareasPageState extends State<TareasPage> {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            flex: 90,
+                            flex: 86,
                             child: TextFormField(
                               initialValue: _tareas[i].descripcion,
                               style: theme.textTheme.bodySmall,
@@ -243,6 +297,56 @@ class _TareasPageState extends State<TareasPage> {
                                     descripcion: val,
                                     fechaInicio: _tareas[i].fechaInicio,
                                     fechaFin: _tareas[i].fechaFin,
+                                    idempleado: _tareas[i].idempleado,
+                                    empleado: _tareas[i].empleado,
+                                    idestadoTarea: _tareas[i].idestadoTarea,
+                                    avance: _tareas[i].avance,
+                                    estadoTarea: _tareas[i].estadoTarea,
+                                  );
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          SizedBox(
+                            width: 230,
+                            child: CustomDatePicker(
+                              label: 'Fecha inicio',
+                              initialDate: _tareas[i].fechaInicio,
+                              onChanged: (date) {
+                                setState(() {
+                                  _tareas[i] = Tarea(
+                                    idtarea: _tareas[i].idtarea,
+                                    idproyecto: _tareas[i].idproyecto,
+                                    code: _tareas[i].code,
+                                    descripcion: _tareas[i].descripcion,
+                                    fechaInicio: date,
+                                    fechaFin: _tareas[i].fechaFin,
+                                    idempleado: _tareas[i].idempleado,
+                                    empleado: _tareas[i].empleado,
+                                    idestadoTarea: _tareas[i].idestadoTarea,
+                                    avance: _tareas[i].avance,
+                                    estadoTarea: _tareas[i].estadoTarea,
+                                  );
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          SizedBox(
+                            width: 230,
+                            child: CustomDatePicker(
+                              label: 'Fecha Fin',
+                              initialDate: _tareas[i].fechaFin,
+                              onChanged: (date) {
+                                setState(() {
+                                  _tareas[i] = Tarea(
+                                    idtarea: _tareas[i].idtarea,
+                                    idproyecto: _tareas[i].idproyecto,
+                                    code: _tareas[i].code,
+                                    descripcion: _tareas[i].descripcion,
+                                    fechaInicio: _tareas[i].fechaInicio,
+                                    fechaFin: date,
                                     idempleado: _tareas[i].idempleado,
                                     empleado: _tareas[i].empleado,
                                     idestadoTarea: _tareas[i].idestadoTarea,
@@ -286,8 +390,6 @@ class _TareasPageState extends State<TareasPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Text('Avance: ${_tareas[i].avance}%', style: theme.textTheme.bodySmall),
                         ],
                       ),
                     ),
@@ -307,5 +409,11 @@ class _TareasPageState extends State<TareasPage> {
   }
 
   void _onSaveTareas() {
+    DialogAsk.simple(
+      context: context, 
+      title: 'Guardar tareas', 
+      content: Text('Funcionalidad en desarrollo.'), 
+      onOk: (){}
+    );
   }
 }

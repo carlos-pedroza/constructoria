@@ -212,7 +212,7 @@ class _ProyectosListaPageState extends State<ProyectosListaPage> {
                               label: Text('Editar tareas'),
                             ),
                             SizedBox(width: 8),
-                            Icon(Icons.chevron_right),
+                            Icon(Icons.edit, color: theme.colorScheme.primary, size: 18),
                           ],
                         ),
                       ),
