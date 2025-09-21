@@ -779,7 +779,7 @@ class _TrabajadorPageState extends State<TrabajadorPage> {
       costoPorHora: double.tryParse(_costoPorHoraController.text) ?? 0.0,
       activo: _activo,
     );
-    runMutation(empleado.toJson());
+    runMutation(empleado.data());
   }
 
   Future<void> _guardarPerfil(int index, List<Perfil> perfiles, {required void Function() onComplete}) async {

@@ -116,15 +116,16 @@ class Empleado {
     );
   }
 
-  factory Empleado.empty() {
+  factory Empleado.empty({int? idempleado, String nombre = ''}) {
     return Empleado(
-      nombre: '',
+      idempleado: idempleado,
+      nombre: nombre,
       apellidoPaterno: '',
       apellidoMaterno: '',
       fechaNacimiento: DateTime.now(),
       curp: '',
       rfc: '',
-      nss: '',
+      nss: '',  
       direccion: '',
       telefono: '',
       correo: '',
@@ -149,7 +150,7 @@ class Empleado {
     return jsonList.map((json) => Empleado.fromJson(json)).toList();
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> data() {
     if (idempleado == null) {
       return createJson();
     }

@@ -16,7 +16,6 @@ class ProyectosPage extends StatefulWidget {
 class _ProyectosPageState extends State<ProyectosPage> {
   final _pageController = PageController(initialPage: 0);
   late Proyecto _proyecto;
-  dynamic _refetch;
 
   @override
   void initState() {
@@ -32,11 +31,13 @@ class _ProyectosPageState extends State<ProyectosPage> {
         physics: NeverScrollableScrollPhysics(),
         children: [
           ProyectosListaPage(
+            client: widget.client,
             onAvances: (proyecto) => _onAvances(proyecto),
             onEditarTareas: (proyecto) => _onEditarTareas(proyecto),
             onEditProyecto: (proyecto) => _editProyecto(proyecto),
           ),
           ProyectoPage(
+            client: widget.client,
             proyecto: _proyecto,
             onSave: _onSave,
             onBack: _onBack,
