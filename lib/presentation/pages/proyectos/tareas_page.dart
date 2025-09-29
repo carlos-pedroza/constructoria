@@ -1,4 +1,6 @@
 import 'package:constructoria/cors/dialog_Ask.dart';
+import 'package:constructoria/cors/snak.dart';
+import 'package:constructoria/cors/wait_tool.dart';
 import 'package:constructoria/domain/entities/empleado.dart';
 import 'package:constructoria/domain/entities/proyecto.dart';
 import 'package:constructoria/domain/entities/tarea.dart';
@@ -24,6 +26,7 @@ class _TareasPageState extends State<TareasPage> {
   var _tareas = <Tarea>[];
   var _empleados = <Empleado>[];
   var _isLoading = true;
+  var _saving = false;
 
   @override
   void initState() {
@@ -129,6 +132,12 @@ class _TareasPageState extends State<TareasPage> {
                     ],
                   ),
                 ),
+                if(_saving)
+                  SizedBox(
+                    width: 100,
+                    child: WaitTool()
+                  )
+                else
                 ElevatedButton(
                   onPressed: _onSaveTareas,
                   child: Text('Guardar'),
@@ -408,12 +417,81 @@ class _TareasPageState extends State<TareasPage> {
     });
   }
 
+  bool _validateTareas(List<Tarea> tareas) {
+    for (var index = 0; index < tareas.length; index++) {
+      var tarea = tareas[index];
+      if (tarea.descripcion.trim().isNotEmpty) {
+        if (tarea.fechaFin.isBefore(tarea.fechaInicio)) {
+          Snak.show(
+            context: context, message: 'La fecha fin no puede ser anterior a la fecha inicio, en la tarea ${index + 1}', 
+            backcolor: Colors.red,
+            style: TextStyle(color: Colors.white),
+          );
+          return false;
+        }
+        if (tarea.idempleado == 0) {
+          Snak.show(
+            context: context, message: 'Debe asignar un empleado en la tarea ${index + 1}', 
+            backcolor: Colors.red,
+            style: TextStyle(color: Colors.white),
+          );
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   void _onSaveTareas() {
-    DialogAsk.simple(
-      context: context, 
-      title: 'Guardar tareas', 
-      content: Text('Funcionalidad en desarrollo.'), 
-      onOk: (){}
+    setState(() {
+      _saving = true;
+    });
+    var tareas = _tareas.where((t) => t.descripcion.trim().isNotEmpty).toList();
+    if(_validateTareas(tareas)) {
+      _saveTarea(0, tareas, widget.client);
+    } else {
+      setState(() {
+        _saving = false;
+      });
+    }
+  }
+
+  void _saveTarea(int index, List<Tarea> tareas, GraphQLClient client) async {
+    if(index >= tareas.length) {
+      setState(() {
+        _saving = false;
+      });
+      _fetchTareas();
+      Snak.show(
+        context: context, message: 'Tareas guardadas correctamente', 
+        backcolor: Colors.green,
+        style: TextStyle(color: Colors.white),
+      );
+      return;
+    }
+    await client.mutate(
+      MutationOptions(
+        document: gql(tareas[index].query),
+        variables: tareas[index].data(index + 1),
+        onCompleted: (data) {
+          if (data != null) {
+            if(data['createTarea'] != null || data['updateTarea'] != null) {
+              _saveTarea(index + 1, tareas, client);
+            }
+          } 
+        },
+        onError: (error) {
+          print('Error saving tarea: ${error.toString()}');
+          setState(() {
+            _saving = false;
+          });
+          Snak.show(
+            context: context, message: 'Error al guardar las tareas', 
+            backcolor: Colors.red,
+            style: TextStyle(color: Colors.white),
+          );
+        },
+      ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:constructoria/domain/repositories/tarea_queries.dart';
 import 'package:intl/intl.dart';
 import 'estado_tarea.dart';
 
@@ -79,6 +80,49 @@ class Tarea {
       idestadoTarea: 0,
       avance: 0.0,
     );
+  }
+
+  String get query {
+    if (idtarea == null) {
+      return TareaQueries.createTarea;
+    }
+    return TareaQueries.updateTarea;
+  }
+
+  Map<String, dynamic> data(int NOrden) {
+    if(idtarea == null) {
+      return createJson(NOrden);
+    }
+    return updateJson(NOrden);
+  }
+
+  Map<String, dynamic> createJson(int NOrden) {
+    return {
+      'idproyecto': idproyecto,
+      'code': code,
+      'descripcion': descripcion,
+      'fecha_inicio': DateFormat('yyyy-MM-ddTHH:mm:ss').format(fechaInicio),
+      'fecha_fin': DateFormat('yyyy-MM-ddTHH:mm:ss').format(fechaFin),
+      'idempleado': idempleado,
+      'idestado_tarea': EstadoTarea.pendiente,
+      'avance': avance,
+      'orden': NOrden,
+    };
+  }
+
+  Map<String, dynamic> updateJson(int NOrden) {
+    return {
+      'id': idtarea,
+      'idproyecto': idproyecto,
+      'code': code,
+      'descripcion': descripcion,
+      'fecha_inicio': DateFormat('yyyy-MM-ddTHH:mm:ss').format(fechaInicio),
+      'fecha_fin': DateFormat('yyyy-MM-ddTHH:mm:ss').format(fechaFin),
+      'idempleado': idempleado,
+      'idestado_tarea': idestadoTarea,
+      'avance': avance,
+      'orden': NOrden,
+    };
   }
 
   Map<String, dynamic> toJson() {

@@ -61,6 +61,7 @@ class TareaQueries {
       \$idempleado: Int!,
       \$idestado_tarea: Int!,
       \$avance: Float!
+      \$orden: Int!
     ) {
       createTarea(
         idproyecto: \$idproyecto,
@@ -71,6 +72,7 @@ class TareaQueries {
         idempleado: \$idempleado,
         idestado_tarea: \$idestado_tarea,
         avance: \$avance
+        orden: \$orden
       ) {
         idtarea
         idproyecto
@@ -81,6 +83,7 @@ class TareaQueries {
         idempleado
         idestado_tarea
         avance
+        orden
       }
     }
   ''';
@@ -95,7 +98,8 @@ class TareaQueries {
       \$fecha_fin: DateTime!,
       \$idempleado: Int!,
       \$idestado_tarea: Int!,
-      \$avance: Float!
+      \$avance: Float!,
+      \$orden: Int!
     ) {
       updateTarea(
         id: \$id,
@@ -106,7 +110,8 @@ class TareaQueries {
         fecha_fin: \$fecha_fin,
         idempleado: \$idempleado,
         idestado_tarea: \$idestado_tarea,
-        avance: \$avance
+        avance: \$avance,
+        orden: \$orden
       ) {
         idtarea
         idproyecto
@@ -117,6 +122,7 @@ class TareaQueries {
         idempleado
         idestado_tarea
         avance
+        orden
       }
     }
   ''';

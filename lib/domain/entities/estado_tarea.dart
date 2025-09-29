@@ -9,6 +9,13 @@ class EstadoTarea {
   final String nombre;
   final String descripcion;
 
+  static const int pendiente = 1;
+  static const int enProgreso = 2;
+  static const int enRevision = 3;
+  static const int completada = 4;
+  static const int bloqueada = 5;
+  static const int cancelada = 6;
+
   factory EstadoTarea.fromJson(dynamic json) {
     return EstadoTarea(
       idestadoTarea: json['idestado_tarea'] as int?,
