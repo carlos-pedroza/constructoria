@@ -20,11 +20,11 @@ class Tarea {
 
   int? idtarea;
   final int idproyecto;
-  final String code;
-  final String descripcion;
-  final DateTime fechaInicio;
-  final DateTime fechaFin;
-  final int idempleado;
+  String code;
+  String descripcion;
+  DateTime fechaInicio;
+  DateTime fechaFin;
+  int idempleado;
   final String? empleado;
   final int idestadoTarea;
   final double avance;
@@ -69,16 +69,16 @@ class Tarea {
     return jsonList.map((json) => Tarea.fromJson(json)).toList();
   }
 
-  static Tarea newItem({ required int idproyecto}) {
+  static Tarea newItem({ required int idproyecto, String code = '', String descripcion = '', DateTime? fechaInicio, DateTime? fechaFin, int idempleado = 0, int idestadoTarea = EstadoTarea.pendiente, double avance = 0.0 }) {
     return Tarea(
       idproyecto: idproyecto,
-      code: '',
-      descripcion: '',
-      fechaInicio: DateTime.now(),
-      fechaFin: DateTime.now(),
-      idempleado: 0,
-      idestadoTarea: 0,
-      avance: 0.0,
+      code: code,
+      descripcion: descripcion,
+      fechaInicio: fechaInicio ?? DateTime.now(),
+      fechaFin: fechaFin ?? DateTime.now(),
+      idempleado: idempleado,
+      idestadoTarea: idestadoTarea,
+      avance: avance,
     );
   }
 
@@ -142,6 +142,6 @@ class Tarea {
 
   @override
   String toString() {
-    return 'Tarea{idtarea: $idtarea, idproyecto: $idproyecto, code: $code, descripcion: $descripcion, fechaInicio: $fechaInicio, fechaFin: $fechaFin, idempleado: $idempleado, idestadoTarea: $idestadoTarea, avance: $avance, estadoTarea: $estadoTarea}';
+    return '$code\t$descripcion\t${DateFormat('yyyy-MM-ddTHH:mm:ss').format(fechaInicio)}\t${DateFormat('yyyy-MM-ddTHH:mm:ss').format(fechaFin)}';
   }
 }
