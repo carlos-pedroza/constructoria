@@ -1,6 +1,7 @@
 import 'package:constructoria/domain/entities/proyecto.dart';
 import 'package:constructoria/presentation/pages/proyectos/proyecto_page.dart';
 import 'package:constructoria/presentation/pages/proyectos/proyectos_lista_page.dart';
+import 'package:constructoria/presentation/pages/proyectos/tareas_avance_page.dart';
 import 'package:constructoria/presentation/pages/proyectos/tareas_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -21,6 +22,7 @@ class _ProyectosPageState extends State<ProyectosPage> {
   static const int _pageListaProyectos = 0;
   static const int _pageProyecto = 1;
   static const int _pageTareas = 2;
+  static const int _pageTareasAvance = 3;
 
   @override
   void initState() {
@@ -53,6 +55,11 @@ class _ProyectosPageState extends State<ProyectosPage> {
             proyecto: _proyecto,
             onBack: _onBack,
           ),
+          TareasAvancePage(
+            client: widget.client,
+            proyecto: _proyecto,
+            onBack: _onBack,
+          ),
         ],
       ),
     );
@@ -66,7 +73,10 @@ class _ProyectosPageState extends State<ProyectosPage> {
   }
 
   void _onAvances(Proyecto proyecto) {
-    // Implementa la navegación o acción para avances
+    setState(() {
+      _proyecto = proyecto;
+    });
+    _pageController.jumpToPage(_pageTareasAvance);
   }
 
   void _onEditarTareas(Proyecto proyecto) {
