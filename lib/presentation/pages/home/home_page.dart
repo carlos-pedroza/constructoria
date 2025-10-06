@@ -5,6 +5,7 @@ import 'package:constructoria/presentation/pages/proyectos/proyectos_page.dart';
 import 'package:constructoria/presentation/pages/trabajadores/trabajadores_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class _MenuItem {
   const _MenuItem(this.icon, this.title, this.openRoute);
@@ -40,6 +41,9 @@ class _HomePageState extends State<HomePage> {
   late AuthLink? _authLink;
   late GraphQLClient? _client;
 
+  String appVersion = '';
+  String buildSignature = '';
+
   Future<void> _initClient() async {
     _authLink = AuthLink(
       getToken: () async => 'Bearer ${widget.securityAuth?.jwt}',
@@ -56,6 +60,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _initClient();
+    PackageInfo.fromPlatform().then((info) {
+      setState(() {
+        appVersion = info.version;
+        buildSignature = info.buildSignature; // Incluye info de Flutter/Dart
+      });
+    });
   }
 
   @override
@@ -153,11 +163,18 @@ class _HomePageState extends State<HomePage> {
                         vertical: 10,
                       ),
                       width: double.infinity,
-                      child: Text(
-                        '',
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          SizedBox(width: 20),
+                          Text(
+                            'v. $appVersion',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                        ],
                       ),
                     ),
                     if (_authLink != null && _client != null)
