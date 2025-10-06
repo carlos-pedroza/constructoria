@@ -21,6 +21,7 @@ class TareaQueries {
           nombre
           descripcion
         }
+        orden
       }
     }
   ''';
@@ -47,6 +48,7 @@ class TareaQueries {
           nombre
           descripcion
         }
+        orden
       }
     }
   ''';
