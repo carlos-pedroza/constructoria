@@ -1,8 +1,9 @@
 import 'package:constructoria/domain/entities/security_auth.dart';
+import 'package:constructoria/presentation/pages/administracion/administracion_page.dart';
 import 'package:constructoria/presentation/pages/home/login/login_page.dart'
     show LoginPage;
 import 'package:constructoria/presentation/pages/proyectos/proyectos_page.dart';
-import 'package:constructoria/presentation/pages/trabajadores/trabajadores_page.dart';
+import 'package:constructoria/presentation/pages/administracion/trabajadores/trabajadores_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -79,7 +80,7 @@ class _HomePageState extends State<HomePage> {
           _pageController.jumpToPage(_pageHome);
         });
       }),
-      _MenuItem(Icons.people, 'Trabajadores', () {
+      _MenuItem(Icons.admin_panel_settings, 'Administración', () {
         setState(() {
           selectedIndex = 2;
           _pageController.jumpToPage(_pageTrabajadores);
@@ -163,18 +164,19 @@ class _HomePageState extends State<HomePage> {
                         vertical: 10,
                       ),
                       width: double.infinity,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          SizedBox(width: 20),
-                          Text(
-                            'v. $appVersion',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              'v. $appVersion',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 20),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     if (_authLink != null && _client != null)
@@ -208,7 +210,7 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                   ),
-                                  TrabajadoresPage(client: _client!),
+                                  AdministracionPage(client: _client!),
                                   ProyectosPage(client: _client!),
                                 ],
                               ),
