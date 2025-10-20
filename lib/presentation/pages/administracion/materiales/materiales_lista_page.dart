@@ -1,28 +1,27 @@
-import 'package:constructoria/domain/entities/tipo_gasto.dart';
-import 'package:constructoria/domain/repositories/tipo_gasto_queries.dart';
+import 'package:constructoria/domain/entities/material_entidad.dart';
+import 'package:constructoria/domain/repositories/material_queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 
-class TipoGastosListaPage extends StatefulWidget {
-  const TipoGastosListaPage({super.key, required this.onAdd, required this.onEdit});
+class MaterialesListaPage extends StatefulWidget {
+  const MaterialesListaPage({super.key, required this.onAdd, required this.onEdit});
 
   final Function(dynamic refetch) onAdd;
-  final Function(TipoGasto gasto, dynamic refetch) onEdit;
+  final Function(MaterialEntidad material, dynamic refetch) onEdit;
 
   @override
-  State<TipoGastosListaPage> createState() => _TipoGastosListaPageState();
+  State<MaterialesListaPage> createState() => _MaterialesListaPageState();
 }
 
-class _TipoGastosListaPageState extends State<TipoGastosListaPage> {
+class _MaterialesListaPageState extends State<MaterialesListaPage> {
   final _numberFormatter = NumberFormat.currency(locale: 'es_MX', symbol: '\$');
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Query(
       options: QueryOptions(
-        document: gql(TipoGastoQueries.getAll),
+        document: gql(MaterialQueries.getAll),
         fetchPolicy: FetchPolicy.noCache,
       ),
       builder: (QueryResult result, {Refetch? refetch, FetchMore? fetchMore}) {
@@ -36,7 +35,7 @@ class _TipoGastosListaPageState extends State<TipoGastosListaPage> {
             ),
           );
         }
-        final gastos = TipoGasto.fromJsonList(result.data?['tipoGastos'] ?? []);
+        final materiales = MaterialEntidad.fromJsonList(result.data?['materials'] ?? []);
         return Column(
           children: [
             Container(
@@ -57,12 +56,12 @@ class _TipoGastosListaPageState extends State<TipoGastosListaPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.monetization_on,
+                        Icons.inventory,
                         color: theme.colorScheme.inverseSurface,
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Tipos de Gasto',
+                        'Materiales',
                         style: theme.textTheme.headlineSmall?.copyWith(
                           color: theme.colorScheme.inverseSurface,
                         ),
@@ -71,7 +70,7 @@ class _TipoGastosListaPageState extends State<TipoGastosListaPage> {
                   ),
                   ElevatedButton.icon(
                     onPressed: () => widget.onAdd(refetch),
-                    label: Text('Agregar Tipo de Gasto'),
+                    label: Text('Agregar Material'),
                     icon: Icon(Icons.add),
                   ),
                 ],
@@ -136,9 +135,9 @@ class _TipoGastosListaPageState extends State<TipoGastosListaPage> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: gastos.length,
+                itemCount: materiales.length,
                 itemBuilder: (context, index) {
-                  final gasto = gastos[index];
+                  final material = materiales[index];
                   return Container(
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surfaceBright,
@@ -150,7 +149,7 @@ class _TipoGastosListaPageState extends State<TipoGastosListaPage> {
                       ),
                     ),
                     child: ListTile(
-                      onTap: () => widget.onEdit(gasto, refetch),
+                      onTap: () => widget.onEdit(material, refetch),
                       title: Row(
                         children: [
                           Icon(Icons.monetization_on),
@@ -158,22 +157,22 @@ class _TipoGastosListaPageState extends State<TipoGastosListaPage> {
                           Expanded(
                             flex: 100,
                             child: Text(
-                              gasto.codigo,
+                              material.codigo,
                             ),
                           ),
                           Expanded(
                             flex: 250,
                             child: Text(
-                              gasto.nombre,
+                              material.nombre,
                             ),
                           ),
                           Expanded(
                             flex: 300,
-                            child: Text(gasto.descripcion),
+                            child: Text(material.descripcion),
                           ),
                           Expanded(
                             flex: 150,
-                            child: Text(_numberFormatter.format(gasto.costo)),
+                            child: Text(_numberFormatter.format(material.costo)),
                           ),
                         ],
                       ),
