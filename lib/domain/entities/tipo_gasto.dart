@@ -23,6 +23,16 @@ class TipoGasto {
     );
   }
 
+  factory TipoGasto.empty() {
+    return TipoGasto(
+      idTipoGasto: null,
+      nombre: '',
+      descripcion: '',
+      codigo: '',
+      costo: 0.0,
+    );
+  }
+
   static List<TipoGasto> fromJsonList(List<dynamic> jsonList) {
     return jsonList.map((json) => TipoGasto.fromJson(json)).toList();
   }

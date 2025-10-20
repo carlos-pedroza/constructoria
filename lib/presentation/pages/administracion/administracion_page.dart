@@ -1,3 +1,4 @@
+import 'package:constructoria/presentation/pages/administracion/gastos/tipo_gastos_page.dart';
 import 'package:constructoria/presentation/pages/administracion/trabajadores/trabajadores_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -124,9 +125,7 @@ class _AdministracionPageState extends State<AdministracionPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      onTap: () {
-                        Navigator.pushNamed(context, '/administracion/trabajadores');
-                      },
+                      onTap: _onTapTipoGastos,
                     ),
                   ),
                   Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
@@ -211,6 +210,15 @@ class _AdministracionPageState extends State<AdministracionPage> {
       context,
       MaterialPageRoute(
         builder: (context) => TrabajadoresPage(client: widget.client),
+      ),
+    );
+  }
+
+  void _onTapTipoGastos() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TipoGastosPage(client: widget.client),
       ),
     );
   }

@@ -1,25 +1,28 @@
-import 'package:constructoria/domain/entities/empleado.dart';
-import 'package:constructoria/domain/repositories/empleado_queries.dart';
+import 'package:constructoria/domain/entities/tipo_gasto.dart';
+import 'package:constructoria/domain/repositories/tipo_gasto_queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:intl/intl.dart';
 
-class TrabajadoresListaPage extends StatefulWidget {
-  const TrabajadoresListaPage({super.key, required this.onAddEmpleado, required this.onEditEmpleado});
+class TipoGastosListaPage extends StatefulWidget {
+  const TipoGastosListaPage({super.key, required this.onAdd, required this.onEdit});
 
-  final Function(dynamic refetch) onAddEmpleado;
-  final Function(Empleado empleado, dynamic refetch) onEditEmpleado;
+  final Function(dynamic refetch) onAdd;
+  final Function(TipoGasto gasto, dynamic refetch) onEdit;
 
   @override
-  State<TrabajadoresListaPage> createState() => _TrabajadoresListaPageState();
+  State<TipoGastosListaPage> createState() => _TipoGastosListaPageState();
 }
 
-class _TrabajadoresListaPageState extends State<TrabajadoresListaPage> {
+class _TipoGastosListaPageState extends State<TipoGastosListaPage> {
+  final _numberFormatter = NumberFormat.currency(locale: 'es_MX', symbol: '\$');
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Query(
       options: QueryOptions(
-        document: gql(EmpleadoQueries.getAllEmpleados),
+        document: gql(TipoGastoQueries.getAll),
         fetchPolicy: FetchPolicy.noCache,
       ),
       builder: (QueryResult result, {Refetch? refetch, FetchMore? fetchMore}) {
@@ -33,7 +36,7 @@ class _TrabajadoresListaPageState extends State<TrabajadoresListaPage> {
             ),
           );
         }
-        final trabajadores = Empleado.fromJsonList(result.data?['empleados'] ?? []);
+        final gastos = TipoGasto.fromJsonList(result.data?['tipoGastos'] ?? []);
         return Column(
           children: [
             Container(
@@ -59,7 +62,7 @@ class _TrabajadoresListaPageState extends State<TrabajadoresListaPage> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Trabajadores',
+                        'Tipos de Gasto',
                         style: theme.textTheme.headlineSmall?.copyWith(
                           color: theme.colorScheme.inverseSurface,
                         ),
@@ -67,8 +70,8 @@ class _TrabajadoresListaPageState extends State<TrabajadoresListaPage> {
                     ],
                   ),
                   ElevatedButton.icon(
-                    onPressed: () => widget.onAddEmpleado(refetch),
-                    label: Text('Trabajador'),
+                    onPressed: () => widget.onAdd(refetch),
+                    label: Text('Agregar Tipo de Gasto'),
                     icon: Icon(Icons.add),
                   ),
                 ],
@@ -92,7 +95,16 @@ class _TrabajadoresListaPageState extends State<TrabajadoresListaPage> {
                 children: [
                   SizedBox(width: 40),
                   Expanded(
-                    flex: 200,
+                    flex: 100,
+                    child: Text(
+                      'Código',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 250,
                     child: Text(
                       'Nombre',
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -101,45 +113,18 @@ class _TrabajadoresListaPageState extends State<TrabajadoresListaPage> {
                     ),
                   ),
                   Expanded(
+                    flex: 300,
+                    child: Text(
+                      'descripcion',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Expanded(
                     flex: 150,
                     child: Text(
-                      'Puesto',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 80,
-                    child: Text(
-                      'Teléfono',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 130,
-                    child: Text(
-                      'Correo',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 140,
-                    child: Text(
-                      'CURP',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 80,
-                    child: Text(
-                      'Costo por hora',
+                      'Costo',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -151,9 +136,9 @@ class _TrabajadoresListaPageState extends State<TrabajadoresListaPage> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: trabajadores.length,
+                itemCount: gastos.length,
                 itemBuilder: (context, index) {
-                  final trabajador = trabajadores[index];
+                  final gasto = gastos[index];
                   return Container(
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surfaceBright,
@@ -165,39 +150,30 @@ class _TrabajadoresListaPageState extends State<TrabajadoresListaPage> {
                       ),
                     ),
                     child: ListTile(
-                      onTap: () => widget.onEditEmpleado(trabajador, refetch),
+                      onTap: () => widget.onEdit(gasto, refetch),
                       title: Row(
                         children: [
-                          Icon(Icons.person),
+                          Icon(Icons.monetization_on),
                           SizedBox(width: 10),
                           Expanded(
-                            flex: 200,
+                            flex: 100,
                             child: Text(
-                              '${trabajador.nombre} ${trabajador.apellidoPaterno} ${trabajador.apellidoMaterno}',
+                              gasto.codigo,
                             ),
                           ),
                           Expanded(
-                            flex: 150,
-                            child: Text(trabajador.puesto),
-                          ),
-                          Expanded(
-                            flex: 80,
-                            child: Text(trabajador.telefono),
-                          ),
-                          Expanded(
-                            flex: 130,
-                            child: Text(trabajador.correo),
-                          ),
-                          Expanded(
-                            flex: 150,
-                            child: Text(trabajador.curp),
-                          ),
-                          Expanded(
-                            flex: 80,
+                            flex: 250,
                             child: Text(
-                              trabajador.costoPorHora.toString(),
-                              textAlign: TextAlign.right,
+                              gasto.nombre,
                             ),
+                          ),
+                          Expanded(
+                            flex: 300,
+                            child: Text(gasto.descripcion),
+                          ),
+                          Expanded(
+                            flex: 150,
+                            child: Text(_numberFormatter.format(gasto.costo)),
                           ),
                         ],
                       ),

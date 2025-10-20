@@ -1,6 +1,7 @@
 import 'package:constructoria/domain/entities/empleado.dart';
 import 'package:constructoria/presentation/pages/administracion/trabajadores/trabajador_page.dart';
 import 'package:constructoria/presentation/pages/administracion/trabajadores/trabajadores_lista_page.dart';
+import 'package:constructoria/presentation/pages/globales/title_page_component.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -31,31 +32,7 @@ class _TrabajadoresPageState extends State<TrabajadoresPage> {
       child: Scaffold(
         body: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 40),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                border: Border(
-                  bottom: BorderSide(
-                    color: Theme.of(context).colorScheme.outline,
-                    width: 1,
-                  ),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    height:50,
-                    child: Image.asset('assets/images/logo_small.png', fit: BoxFit.fitHeight)
-                  ),
-                  IconButton(
-                    onPressed: _onClose, 
-                    icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  ),
-                ],
-              ),
-            ),
+            TitlePageComponent(onClose: _onClose),
             Expanded(
               child: PageView(
                 controller: _pageController,
