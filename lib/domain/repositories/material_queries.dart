@@ -43,16 +43,6 @@ class MaterialQueries {
           codigo: \$codigo,
           costo: \$costo
         }
-    ) {
-      updateMaterial(
-        id: \$id,
-        input: {
-          nombre: \$nombre,
-          descripcion: \$descripcion,
-          unidad: \$unidad,
-          codigo: \$codigo,
-          costo: \$costo
-        }
       ) {
         id_material
         nombre

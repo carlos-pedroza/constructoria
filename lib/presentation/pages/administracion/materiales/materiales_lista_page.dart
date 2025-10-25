@@ -36,6 +36,7 @@ class _MaterialesListaPageState extends State<MaterialesListaPage> {
           );
         }
         final materiales = MaterialEntidad.fromJsonList(result.data?['materials'] ?? []);
+        
         return Column(
           children: [
             Container(
@@ -123,7 +124,7 @@ class _MaterialesListaPageState extends State<MaterialesListaPage> {
                   Expanded(
                     flex: 150,
                     child: Text(
-                      'Costo',
+                      'Costo sugerido',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -152,7 +153,7 @@ class _MaterialesListaPageState extends State<MaterialesListaPage> {
                       onTap: () => widget.onEdit(material, refetch),
                       title: Row(
                         children: [
-                          Icon(Icons.monetization_on),
+                          Icon(Icons.circle, size: 12, color: theme.colorScheme.primary),
                           SizedBox(width: 10),
                           Expanded(
                             flex: 100,

@@ -1,6 +1,8 @@
+import 'package:constructoria/domain/repositories/material_queries.dart';
+
 class MaterialEntidad {
   MaterialEntidad({
-    this.idMaterialEntidad,
+    this.idMaterial,
     required this.nombre,
     required this.descripcion,
     required this.unidad,
@@ -8,7 +10,7 @@ class MaterialEntidad {
     required this.costo,
   });
 
-  int? idMaterialEntidad;
+  int? idMaterial;
   String nombre;
   String descripcion;
   String unidad;
@@ -17,7 +19,7 @@ class MaterialEntidad {
 
   factory MaterialEntidad.fromJson(dynamic json) {
     return MaterialEntidad(
-      idMaterialEntidad: json['id_MaterialEntidad'] as int?,
+      idMaterial: json['id_material'] as int?,
       nombre: json['nombre'] as String? ?? '',
       descripcion: json['descripcion'] as String? ?? '',
       unidad: json['unidad'] as String? ?? '',
@@ -30,9 +32,46 @@ class MaterialEntidad {
     return jsonList.map((json) => MaterialEntidad.fromJson(json)).toList();
   }
 
+  String get query {
+    if (idMaterial != null) {
+      return MaterialQueries.update;
+    } else {
+      return MaterialQueries.create;
+    }
+  }
+
+  Map<String, dynamic> data() {
+    if (idMaterial != null) {
+      return update();
+    } else {
+      return create();
+    }
+  }
+
+  Map<String, dynamic> update() {
+    return {
+      'id': idMaterial,
+      'nombre': nombre,
+      'descripcion': descripcion,
+      'unidad': unidad,
+      'codigo': codigo,
+      'costo': costo,
+    };
+  }
+
+    Map<String, dynamic> create() {
+    return {
+      'nombre': nombre,
+      'descripcion': descripcion,
+      'unidad': unidad,
+      'codigo': codigo,
+      'costo': costo,
+    };
+  }
+
   Map<String, dynamic> toJson() {
     return {
-      'id_MaterialEntidad': idMaterialEntidad,
+      'id_material': idMaterial,
       'nombre': nombre,
       'descripcion': descripcion,
       'unidad': unidad,
