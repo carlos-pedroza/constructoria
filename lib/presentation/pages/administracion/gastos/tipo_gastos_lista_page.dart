@@ -153,7 +153,7 @@ class _TipoGastosListaPageState extends State<TipoGastosListaPage> {
                       onTap: () => widget.onEdit(gasto, refetch),
                       title: Row(
                         children: [
-                          Icon(Icons.monetization_on),
+                          Icon(Icons.monetization_on, color: theme.colorScheme.primary, size: 12),
                           SizedBox(width: 10),
                           Expanded(
                             flex: 100,

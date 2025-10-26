@@ -206,15 +206,15 @@ class _MaterialEntidadPageState extends State<MaterialEntidadPage> {
                   children: [
                     Row(
                       children: [
-                        Expanded(child: _textField(_nombreController, 'Nombre')),
-                        Expanded(child: _textField(_descripcionController, 'Descripción')),
+                        Expanded(flex: 30, child: _textField(_codigoController, 'Código')),
+                        Expanded(flex: 70, child: _textField(_nombreController, 'Nombre')),
                       ],
                     ),
                     Row(
                       children: [
-                        Expanded(child: _textField(_unidadController, 'Unidad')),
-                        Expanded(child: _textField(_codigoController, 'Código')),
-                        Expanded(child: _textField(_costoController, 'Costo sugerido', keyboardType: TextInputType.number)),
+                        Expanded(flex: 50, child: _textField(_descripcionController, 'Descripción')),
+                        Expanded(flex: 30, child: _textField(_unidadController, 'Unidad')),
+                        Expanded(flex: 20, child: _textField(_costoController, 'Costo sugerido', keyboardType: TextInputType.number)),
                       ],
                     ),
                   ],

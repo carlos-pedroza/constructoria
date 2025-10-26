@@ -1,3 +1,5 @@
+import 'package:constructoria/domain/repositories/tipo_gasto_queries.dart';
+
 class TipoGasto {
   TipoGasto({
     this.idTipoGasto,
@@ -37,9 +39,17 @@ class TipoGasto {
     return jsonList.map((json) => TipoGasto.fromJson(json)).toList();
   }
 
+  String get query {
+    if(idTipoGasto == null) {
+      return TipoGastoQueries.create;
+    } else {
+      return TipoGastoQueries.update;
+    }
+  }
+
   Map<String, dynamic> data() {
     if(idTipoGasto != null) {
-      return toJson();
+      return update();
     } else {
       return create();
     }
@@ -57,6 +67,16 @@ class TipoGasto {
 
   Map<String, dynamic> create() {
     return {
+      'nombre': nombre,
+      'descripcion': descripcion,
+      'codigo': codigo,
+      'costo': costo,
+    };
+  }
+
+  Map<String, dynamic> update() {
+    return {
+      'id': idTipoGasto,
       'nombre': nombre,
       'descripcion': descripcion,
       'codigo': codigo,

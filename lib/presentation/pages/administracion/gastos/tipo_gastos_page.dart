@@ -19,6 +19,9 @@ class _TipoGastosPageState extends State<TipoGastosPage> {
   late TipoGasto _gasto;
   dynamic _refetch;
 
+  static const _listPage = 0;
+  static const _editPage = 1;
+
   @override
   void initState() {
     super.initState();
@@ -42,7 +45,13 @@ class _TipoGastosPageState extends State<TipoGastosPage> {
                     onAdd: _onAdd, 
                     onEdit: _onEdit,
                   ),
-                  TipoGastoPage(),
+                  TipoGastoPage(
+                    client: widget.client,
+                    gasto: _gasto,
+                    onSave: _onSave,
+                    onDelete: _onDelete,
+                    onBack: _onBack,
+                  ),
                 ]
               ),
             ),
@@ -56,9 +65,35 @@ class _TipoGastosPageState extends State<TipoGastosPage> {
     Navigator.of(context).pop();
   }
 
-  _onAdd(refetch) {
+  void _onAdd(refetch) {
+    setState(() {
+      _gasto = TipoGasto.empty();
+      _refetch = refetch;
+    });
+    _pageController.jumpToPage(_editPage);
   }
 
-  _onEdit(TipoGasto gasto, refetch) {
+  void _onEdit(TipoGasto gasto, refetch) {
+    setState(() {
+      _gasto = gasto;
+      _refetch = refetch;
+    });
+    _pageController.jumpToPage(_editPage);
+  }
+
+  void _onSave(TipoGasto gasto) {
+    setState(() {
+      _gasto = gasto;
+    });
+    _refetch();
+    _onBack();
+  }
+
+  void _onDelete(TipoGasto gasto) {
+    _onBack();
+  }
+
+  void _onBack() {
+    _pageController.jumpToPage(_listPage);
   }
 }
