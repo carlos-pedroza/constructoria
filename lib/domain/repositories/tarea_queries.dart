@@ -13,6 +13,7 @@ class TareaQueries {
             nombre
             apellido_paterno
             apellido_materno
+            costo_por_hora
         }
         idestado_tarea
         avance

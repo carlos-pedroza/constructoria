@@ -2,6 +2,7 @@ import 'package:constructoria/cors/dialog_Ask.dart';
 import 'package:constructoria/domain/entities/proyecto.dart';
 import 'package:constructoria/domain/entities/tarea.dart';
 import 'package:constructoria/domain/repositories/tarea_queries.dart';
+import 'package:constructoria/presentation/pages/proyectos/informacion_tarea_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -152,6 +153,7 @@ class _TareasAvancePageState extends State<TareasAvancePage> {
                               return Padding(
                                 padding: const EdgeInsets.only(top: 20, bottom: 20),
                                 child: _TareaCard(
+                                  client: widget.client,
                                   tarea: tarea,
                                   gastos: {'Transporte material': 500, 'Comida personal': 300},
                                   materiales: {'Cemento (5 sacos)': 1200, 'Varilla (20 pzas)': 2000},
@@ -175,11 +177,13 @@ class _TareasAvancePageState extends State<TareasAvancePage> {
 
 class _TareaCard extends StatefulWidget {
   const _TareaCard({
+    required this.client,
     required this.tarea,
     required this.gastos,
     required this.materiales,
   });
 
+  final GraphQLClient client;
   final Tarea tarea;
   final Map<String, int> gastos;
   final Map<String, int> materiales;
@@ -225,7 +229,7 @@ class _TareaCardState extends State<_TareaCard> {
               ),
               IconButton(
                 onPressed: _onTareaComment, 
-                icon: Icon(Icons.comment, size: 16),
+                icon: Icon(Icons.comment, size: 20, color: Colors.blue),
               )
             ],
           ),
@@ -235,7 +239,7 @@ class _TareaCardState extends State<_TareaCard> {
               SizedBox(width: 8),
               IconButton(
                 onPressed: _onEditProgress,
-                icon: Icon(Icons.percent_rounded, size: 16),
+                icon: Icon(Icons.visibility, size: 20, color: Colors.blue),
               ),
             ],
           ),
@@ -312,13 +316,13 @@ class _TareaCardState extends State<_TareaCard> {
   }
 
   void _onEditProgress() {
-    DialogAsk.simple(
-      context: context, 
-      title: 'Editar Avance', 
-      content: Text('Edición de avance en construcción...'), 
-      onOk: () {
-        // Lógica para editar el avance
-      }
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => InformacionTareaPage(
+          client: widget.client,
+          tarea: widget.tarea,
+        ),
+      ),
     );
   }
 

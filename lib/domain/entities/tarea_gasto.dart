@@ -1,3 +1,4 @@
+import 'package:constructoria/domain/entities/tarea.dart';
 import 'package:intl/intl.dart';
 
 class TareaGasto {
@@ -11,7 +12,7 @@ class TareaGasto {
 
   int? idtareaGasto;
   int idtarea;
-  int idTipoGasto;
+  int? idTipoGasto;
   double costo;
   DateTime creado;
 
@@ -22,6 +23,16 @@ class TareaGasto {
       idTipoGasto: json['id_tipo_gasto'] as int,
       costo: json['costo'] != null ? (json['costo'] as num).toDouble() : 0.0,
       creado: json['creado'] != null ? DateTime.parse(json['creado']) : DateTime.now(),
+    );
+  }
+
+  factory TareaGasto.empty(Tarea tarea) {
+    return TareaGasto(
+      idtareaGasto: null,
+      idtarea: tarea.idtarea!,
+      idTipoGasto: null,
+      costo: 0.0,
+      creado: DateTime.now(),
     );
   }
 

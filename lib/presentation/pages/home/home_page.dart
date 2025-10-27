@@ -3,7 +3,6 @@ import 'package:constructoria/presentation/pages/administracion/administracion_p
 import 'package:constructoria/presentation/pages/home/login/login_page.dart'
     show LoginPage;
 import 'package:constructoria/presentation/pages/proyectos/proyectos_page.dart';
-import 'package:constructoria/presentation/pages/administracion/trabajadores/trabajadores_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';

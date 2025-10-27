@@ -16,6 +16,7 @@ class Tarea {
     required this.avance,
     this.estadoTarea,
     this.orden = 0,
+    required this.costoPorHora,
   });
 
   int? idtarea;
@@ -27,9 +28,32 @@ class Tarea {
   int idempleado;
   final String? empleado;
   final int idestadoTarea;
-  final double avance;
+  double avance;
   final EstadoTarea? estadoTarea;
+  final double costoPorHora;
   int orden;
+
+  double get costoTotalManoObra {
+    return (horasTrabajadas * costoPorHora) * avance;
+  }
+
+  double get horasTrabajadas {
+    int totalDiasHabiles = 0;
+    DateTime actual = fechaInicio;
+    while (!actual.isAfter(fechaFin)) {
+      // Lunes=1, ..., Viernes=5
+      if (actual.weekday >= DateTime.monday && actual.weekday <= DateTime.friday) {
+        totalDiasHabiles++;
+      }
+      actual = actual.add(Duration(days: 1));
+    }
+    // Si la tarea inicia y termina el mismo día, considerar solo la diferencia de horas de ese día
+    if (fechaInicio.year == fechaFin.year && fechaInicio.month == fechaFin.month && fechaInicio.day == fechaFin.day) {
+      double horas = fechaFin.difference(fechaInicio).inHours.toDouble();
+      return horas > 8 ? 8 : (horas < 0 ? 0 : horas);
+    }
+    return totalDiasHabiles * 8.0;
+  }
 
   factory Tarea.fromJson(dynamic json) {
     String? empleadoNombre;
@@ -62,6 +86,9 @@ class Tarea {
           ? EstadoTarea.fromJson(json['estadoTarea'])
           : null,
       orden: json['orden'] as int? ?? 0,
+      costoPorHora: json['empleado'] != null && json['empleado']['costo_por_hora'] != null
+          ? (json['empleado']['costo_por_hora'] as num).toDouble()
+          : 0.0,
     );
   }
 
@@ -79,6 +106,7 @@ class Tarea {
       idempleado: idempleado,
       idestadoTarea: idestadoTarea,
       avance: avance,
+      costoPorHora: 0.0,
     );
   }
 
