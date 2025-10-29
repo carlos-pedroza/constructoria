@@ -1,5 +1,7 @@
 import 'package:constructoria/domain/entities/tarea.dart';
 import 'package:constructoria/domain/entities/tarea_gasto.dart';
+import 'package:constructoria/domain/entities/v_tarea_gasto.dart';
+import 'package:constructoria/domain/repositories/v_tarea_gasto.queries.dart';
 import 'package:constructoria/presentation/pages/globales/title_page_component.dart';
 import 'package:constructoria/presentation/pages/proyectos/edicion_gasto_dialog.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +22,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
   final _dateFormat = DateFormat('dd/MM/yyyy HH:mm');
   final _porcetajeFormat = NumberFormat.percentPattern();
   final _currencyFormat = NumberFormat.currency(locale: 'es_MX', symbol: '\$');
+  var _totalGastos = 0.0;
 
 
   @override
@@ -57,269 +60,387 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                child: Container(
-                  margin: EdgeInsets.only(bottom: 100.0),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
-                        child: Text(
-                          'Información detallada de la tarea.',
-                          style: theme.textTheme.titleMedium!.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
                       ),
-                      Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Avance ${_porcetajeFormat.format(widget.tarea.avance)}',
-                              style: theme.textTheme.bodyLarge!.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Spacer(),
-                            SizedBox(width: 10.0),
-                            Text(
-                              'Costo por hora: ${_currencyFormat.format(widget.tarea.costoPorHora)},',
-                              style: theme.textTheme.bodyLarge!.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(width: 14.0),
-                            Text(
-                              'Horas: ${(widget.tarea.horasTrabajadas * widget.tarea.avance).toStringAsFixed(2)}, ',
-                              style: theme.textTheme.bodyLarge!.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(width: 14.0),
-                            Text(
-                              'Total MO: ${_currencyFormat.format(widget.tarea.costoTotalManoObra)}',
-                              style: theme.textTheme.bodyLarge!.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 10.0, right: 10.0),
-                        child: LinearProgressIndicator(
-                          value: widget.tarea.avance, // Cambia por el avance global
-                          backgroundColor: Colors.blue[50],
-                          color: Colors.blue,
-                          minHeight: 10,
-                        ),
-                      ),
-                      Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
-                      SizedBox(height: 10.0),
-                      Row(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(width: 10),
-                          Expanded(
-                            flex: 5,
-                            child: ElevatedButton(
-                              onPressed: ()=>_onCambiaAvance(0.0),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: widget.tarea.avance == 0.0 ? Colors.grey[600]: Colors.blue[900] ,
-                                foregroundColor: theme.colorScheme.surfaceContainerLowest,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+                            child: Text(
+                              'Información detallada de la tarea.',
+                              style: theme.textTheme.titleMedium!.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
-                              child: Text(widget.tarea.avance == 0.0 ? '0' : '', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
                             ),
                           ),
-                          SizedBox(width: 8.0),
-                          Expanded(
-                            flex: 25,
-                            child: ElevatedButton(
-                              onPressed: ()=>_onCambiaAvance(0.2),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: widget.tarea.avance >= 0.2 && widget.tarea.avance > 0 ? Colors.blue[900] : Colors.blue[700] ,
-                                foregroundColor: theme.colorScheme.surfaceContainerLowest,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                              ),
-                              child: Text('20%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                          Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Avance ${_porcetajeFormat.format(widget.tarea.avance)}',
+                                  style: theme.textTheme.bodyLarge!.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Spacer(),
+                                SizedBox(width: 10.0),
+                                Text(
+                                  'Costo por hora: ${_currencyFormat.format(widget.tarea.costoPorHora)},',
+                                  style: theme.textTheme.bodyLarge!.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(width: 14.0),
+                                Text(
+                                  'Horas: ${(widget.tarea.horasTrabajadas * widget.tarea.avance).toStringAsFixed(2)}, ',
+                                  style: theme.textTheme.bodyLarge!.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(width: 14.0),
+                                Text(
+                                  'Total MO: ${_currencyFormat.format(widget.tarea.costoTotalManoObra)}',
+                                  style: theme.textTheme.bodyLarge!.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(width: 14.0),
+                                if(_totalGastos > 0.0)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 14.0),
+                                  child: Text(
+                                    'Total Gasto: ${_currencyFormat.format(_totalGastos)}',
+                                    style: theme.textTheme.bodyLarge!.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
                           ),
-                          SizedBox(width: 8.0),
-                          Expanded(
-                            flex: 25,
-                            child: ElevatedButton(
-                              onPressed: ()=>_onCambiaAvance(0.4),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: widget.tarea.avance >= 0.4 ? Colors.blue[900] : Colors.blue[700],
-                                foregroundColor: theme.colorScheme.surfaceContainerLowest,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                              ),
-                              child: Text('40%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                          Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 10.0, right: 10.0),
+                            child: LinearProgressIndicator(
+                              value: widget.tarea.avance, // Cambia por el avance global
+                              backgroundColor: Colors.blue[50],
+                              color: Colors.blue,
+                              minHeight: 10,
                             ),
                           ),
-                          SizedBox(width: 8.0),
-                          Expanded(
-                            flex: 25,
-                            child: ElevatedButton(
-                              onPressed: ()=>_onCambiaAvance(0.6),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: widget.tarea.avance >= 0.6 ? Colors.blue[900] : Colors.blue[700],
-                                foregroundColor: theme.colorScheme.surfaceContainerLowest,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                          Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
+                          SizedBox(height: 10.0),
+                          Row(
+                            children: [
+                              SizedBox(width: 10),
+                              Expanded(
+                                flex: 5,
+                                child: ElevatedButton(
+                                  onPressed: ()=>_onCambiaAvance(0.0),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: widget.tarea.avance == 0.0 ? Colors.grey[600]: Colors.blue[900] ,
+                                    foregroundColor: theme.colorScheme.surfaceContainerLowest,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                  ),
+                                  child: Text(widget.tarea.avance == 0.0 ? '0' : '', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                                ),
                               ),
-                              child: Text('60%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
-                            ),
-                          ),
-                          SizedBox(width: 8.0),
-                          Expanded(
-                            flex: 25,
-                            child: ElevatedButton(
-                              onPressed: ()=>_onCambiaAvance(0.8),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: widget.tarea.avance >= 0.8 ? Colors.blue[900] : Colors.blue[700],
-                                foregroundColor: theme.colorScheme.surfaceContainerLowest,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                              SizedBox(width: 8.0),
+                              Expanded(
+                                flex: 25,
+                                child: ElevatedButton(
+                                  onPressed: ()=>_onCambiaAvance(0.2),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: widget.tarea.avance >= 0.2 && widget.tarea.avance > 0 ? Colors.blue[900] : Colors.blue[700] ,
+                                    foregroundColor: theme.colorScheme.surfaceContainerLowest,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                  ),
+                                  child: Text('20%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                                ),
                               ),
-                              child: Text('80%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
-                            ),
-                          ),
-                          SizedBox(width: 8.0),
-                          Expanded(
-                            flex: 25,
-                            child: ElevatedButton(
-                              onPressed: ()=>_onCambiaAvance(1.0),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: widget.tarea.avance >= 1 ? Colors.blue[900] : Colors.blue[700],
-                                foregroundColor: theme.colorScheme.surfaceContainerLowest,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                              SizedBox(width: 8.0),
+                              Expanded(
+                                flex: 25,
+                                child: ElevatedButton(
+                                  onPressed: ()=>_onCambiaAvance(0.4),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: widget.tarea.avance >= 0.4 ? Colors.blue[900] : Colors.blue[700],
+                                    foregroundColor: theme.colorScheme.surfaceContainerLowest,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                  ),
+                                  child: Text('40%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                                ),
                               ),
-                              child: Text('100%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
-                            ),
+                              SizedBox(width: 8.0),
+                              Expanded(
+                                flex: 25,
+                                child: ElevatedButton(
+                                  onPressed: ()=>_onCambiaAvance(0.6),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: widget.tarea.avance >= 0.6 ? Colors.blue[900] : Colors.blue[700],
+                                    foregroundColor: theme.colorScheme.surfaceContainerLowest,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                  ),
+                                  child: Text('60%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                                ),
+                              ),
+                              SizedBox(width: 8.0),
+                              Expanded(
+                                flex: 25,
+                                child: ElevatedButton(
+                                  onPressed: ()=>_onCambiaAvance(0.8),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: widget.tarea.avance >= 0.8 ? Colors.blue[900] : Colors.blue[700],
+                                    foregroundColor: theme.colorScheme.surfaceContainerLowest,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                  ),
+                                  child: Text('80%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                                ),
+                              ),
+                              SizedBox(width: 8.0),
+                              Expanded(
+                                flex: 25,
+                                child: ElevatedButton(
+                                  onPressed: ()=>_onCambiaAvance(1.0),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: widget.tarea.avance >= 1 ? Colors.blue[900] : Colors.blue[700],
+                                    foregroundColor: theme.colorScheme.surfaceContainerLowest,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                  ),
+                                  child: Text('100%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                                ),
+                              ),
+                              SizedBox(width: 10.0),
+                            ],
                           ),
-                          SizedBox(width: 10.0),
+                          SizedBox(height: 10),
+                          Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
                         ],
                       ),
-                      SizedBox(height: 10),
-                      Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
-                      SizedBox(height: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
-                        ),
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
                         child: Container(
+                          padding: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceBright,
+                            color: theme.colorScheme.primary,
                           ),
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
+                              SizedBox(height: 10),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.surfaceBright,
+                                ),
+                                child: Column(
                                   children: [
-                                    Text(
-                                      'Gastos',
-                                      style: theme.textTheme.bodyLarge!.copyWith(
-                                        fontWeight: FontWeight.bold,
+                                    Container(
+                                      padding: const EdgeInsets.only(top: 12.0, bottom: 12.0, left: 26.0, right: 26.0),
+                                      decoration: BoxDecoration(
+                                        color: theme.colorScheme.secondaryContainer,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Gastos',
+                                            style: theme.textTheme.titleMedium!.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Spacer(),
+                                          SizedBox(width: 10.0),
+                                          ElevatedButton.icon(
+                                            onPressed: _onAgregarGasto,
+                                            label: SizedBox(
+                                              width: 70,
+                                              child: Center(child: Text('Gasto'))
+                                            ),
+                                            icon: Icon(Icons.add),
+                                          )
+                                        ],
                                       ),
                                     ),
-                                    Spacer(),
-                                    SizedBox(width: 10.0),
-                                    ElevatedButton.icon(
-                                      onPressed: _onAgregarGasto,
-                                      label: SizedBox(
-                                        width: 70,
-                                        child: Center(child: Text('Gasto'))
+                                    Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
+                                    Query(
+                                      options: QueryOptions(
+                                        document: gql(VTipoGastoQueries.getByTarea),
+                                        variables: {
+                                          'idtarea': widget.tarea.idtarea,
+                                        },
                                       ),
-                                      icon: Icon(Icons.add),
-                                    )
+                                      builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+                                        if (result.hasException) {
+                                          return Text('Error al cargar los gastos');
+                                        }
+                                        if (result.isLoading) {
+                                          return SizedBox(
+                                            height: 100,
+                                            width: double.infinity,
+                                            child: Center(
+                                              child: CircularProgressIndicator(),
+                                            ),
+                                          );
+                                        }
+                                        final gastos =  VTareaGasto.fromJsonList(result.data?['VTareaGastosByTarea'] ?? []);
+                                        
+                                        _totalGastos = gastos.fold(0.0, (sum, gasto) => sum + gasto.costo);
+                                      
+                                        if(gastos.isEmpty) {
+                                          return Container(
+                                              padding: EdgeInsets.all(20.0),
+                                              child: Center(
+                                                child: Text(
+                                                  'No hay gastos asociados a la tarea.',
+                                                  style: theme.textTheme.bodyMedium!.copyWith(
+                                                    color: theme.colorScheme.onSurfaceVariant,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                        }
+                                        return Column(
+                                          children: [
+                                            for (var gasto in gastos) 
+                                              Container(
+                                                padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                                                decoration: BoxDecoration(
+                                                  border: Border(
+                                                    bottom: BorderSide(
+                                                      color: theme.colorScheme.outline,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: ListTile(
+                                                  title: Text(
+                                                    '${gasto.code} ${gasto.tipoGastoNombre}',
+                                                    style: theme.textTheme.bodyMedium,
+                                                  ),
+                                                  subtitle: Text(
+                                                    gasto.tipoGastoDescripcion,
+                                                    style: theme.textTheme.bodySmall!.copyWith(
+                                                      color: theme.colorScheme.outline,
+                                                    ),
+                                                  ),
+                                                  trailing: Text(
+                                                    _currencyFormat.format(gasto.costo),
+                                                    style: theme.textTheme.bodyLarge!.copyWith(
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
+                                              Container(
+                                                padding: EdgeInsets.symmetric(horizontal: 26.0, vertical: 10.0),
+                                                decoration: BoxDecoration(
+                                                  color: theme.colorScheme.secondaryContainer
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    Text(
+                                                      'Total Gastos: ',
+                                                      style: theme.textTheme.bodyLarge!.copyWith(
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 10.0),
+                                                    Text(
+                                                      _currencyFormat.format(_totalGastos),
+                                                      style: theme.textTheme.bodyLarge!.copyWith(
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                          ]
+                                        );
+                                      }
+                                    ),
+                                    Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
                                   ],
                                 ),
                               ),
-                              Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
+                              SizedBox(height: 20.0),
                               Container(
-                                padding: EdgeInsets.all(20.0),
-                                child: Center(
-                                  child: Text(
-                                    'No hay gastos asociados a la tarea.',
-                                    style: theme.textTheme.bodyMedium!.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
-                                    ),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.primary,
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.surfaceBright,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16.0),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Materiales',
+                                              style: theme.textTheme.bodyLarge!.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Spacer(),
+                                            SizedBox(width: 10.0),
+                                            ElevatedButton.icon(
+                                              onPressed: _onAgregarMaterial,
+                                              label: SizedBox(
+                                                width: 70,
+                                                child: Center(child: Text('Material')),
+                                              ),
+                                              icon: Icon(Icons.add),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
+                                      Container(
+                                        padding: EdgeInsets.all(20.0),
+                                        child: Center(
+                                          child: Text(
+                                            'No hay materiales asociados a la tarea.',
+                                            style: theme.textTheme.bodyMedium!.copyWith(
+                                              color: theme.colorScheme.onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                              Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
+                              SizedBox(height: 100.0),
                             ],
                           ),
                         ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceBright,
-                          ),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Materiales',
-                                      style: theme.textTheme.bodyLarge!.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Spacer(),
-                                    SizedBox(width: 10.0),
-                                    ElevatedButton.icon(
-                                      onPressed: _onAgregarMaterial,
-                                      label: SizedBox(
-                                        width: 70,
-                                        child: Center(child: Text('Material')),
-                                      ),
-                                      icon: Icon(Icons.add),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
-                              Container(
-                                padding: EdgeInsets.all(20.0),
-                                child: Center(
-                                  child: Text(
-                                    'No hay materiales asociados a la tarea.',
-                                    style: theme.textTheme.bodyMedium!.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            SizedBox(height: 100),
           ],
         ),
       ),

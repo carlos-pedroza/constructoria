@@ -50,6 +50,16 @@ class TareaGasto {
     };
   }
 
+  Map<String, dynamic> create() {
+    return {
+      "idtarea": idtarea,
+      "id_tipo_gasto": idTipoGasto,
+      "costo": costo,
+      "creado": DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado)
+    };
+  }
+
+
   @override
   String toString() {
     return '$idTipoGasto\t$costo\t${DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado)}';
