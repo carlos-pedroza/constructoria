@@ -1,3 +1,5 @@
+import 'package:constructoria/domain/entities/tarea.dart';
+import 'package:constructoria/domain/entities/tarea_gasto.dart';
 import 'package:intl/intl.dart';
 
 class VTareaGasto {
@@ -66,6 +68,16 @@ class VTareaGasto {
 
   static List<VTareaGasto> fromJsonList(List<dynamic> jsonList) {
     return jsonList.map((json) => VTareaGasto.fromJson(json)).toList();
+  }
+
+  TareaGasto toTareaGasto() {
+    return TareaGasto(
+      idtareaGasto: idtareaGasto,
+      idtarea: idtarea,
+      idTipoGasto: idTipoGasto,
+      costo: costo,
+      creado: creado,
+    );
   }
 
   Map<String, dynamic> toJson() {

@@ -27,9 +27,9 @@ class Tarea {
   DateTime fechaFin;
   int idempleado;
   final String? empleado;
-  final int idestadoTarea;
+  int idestadoTarea;
   double avance;
-  final EstadoTarea? estadoTarea;
+  EstadoTarea? estadoTarea;
   final double costoPorHora;
   int orden;
 

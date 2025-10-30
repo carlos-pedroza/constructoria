@@ -28,6 +28,25 @@ class EstadoTarea {
     return jsonList.map((json) => EstadoTarea.fromJson(json)).toList();
   }
 
+  static String estadoToString(int estadoId) {
+    switch (estadoId) {
+      case pendiente:
+        return 'Pendiente';
+      case enProgreso:
+        return 'En Progreso';
+      case enRevision:
+        return 'En Revisión';
+      case completada:
+        return 'Completada';
+      case bloqueada:
+        return 'Bloqueada';
+      case cancelada:
+        return 'Cancelada';
+      default:
+        return 'Desconocido';
+    }
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'idestado_tarea': idestadoTarea,

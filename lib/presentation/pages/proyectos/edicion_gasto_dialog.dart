@@ -2,18 +2,18 @@ import 'package:constructoria/cors/wait_tool.dart';
 import 'package:constructoria/domain/entities/tarea.dart';
 import 'package:constructoria/domain/entities/tarea_gasto.dart';
 import 'package:constructoria/domain/entities/tipo_gasto.dart';
-import 'package:constructoria/domain/repositories/tarea_gasto_queries.dart';
 import 'package:constructoria/domain/repositories/tipo_gasto_queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class EdicionGastoDialog extends StatefulWidget {
-  const EdicionGastoDialog({super.key, required this.client, required this.titulo, required this.tarea, required this.gasto});
+  const EdicionGastoDialog({super.key, required this.client, required this.titulo, required this.tarea, required this.gasto, required this.onChanged});
 
   final GraphQLClient client;
   final String titulo;
   final Tarea tarea;
   final TareaGasto gasto;
+  final void Function() onChanged;
 
   @override
   State<EdicionGastoDialog> createState() => _EdicionGastoDialogState();
@@ -35,6 +35,7 @@ class _EdicionGastoDialogState extends State<EdicionGastoDialog> {
           titulo: widget.titulo,
           tarea: widget.tarea,
           gasto: widget.gasto,
+          onChanged: widget.onChanged,
         ),
         actions: <Widget>[],
       ),
@@ -43,12 +44,13 @@ class _EdicionGastoDialogState extends State<EdicionGastoDialog> {
 }
 
 class AgregarGastoComponent extends StatefulWidget {
-  const AgregarGastoComponent({super.key, required this.client, required this.titulo, required this.tarea, required this.gasto});
+  const AgregarGastoComponent({super.key, required this.client, required this.titulo, required this.tarea, required this.gasto, required this.onChanged});
 
   final GraphQLClient client;
   final String titulo;
   final Tarea tarea;
   final TareaGasto gasto;
+  final void Function() onChanged;
 
   @override
   State<AgregarGastoComponent> createState() => _AgregarGastoComponentState();
@@ -62,7 +64,7 @@ class _AgregarGastoComponentState extends State<AgregarGastoComponent> {
   late double _dialogWidth;
   late double _dialogHeight;
   var _isSaving = false;
-  int? _idTipoGasto;
+  int _idTipoGasto = 0;
 
   @override
   void didChangeDependencies() {
@@ -81,8 +83,7 @@ class _AgregarGastoComponentState extends State<AgregarGastoComponent> {
   @override
   void initState() {
     super.initState();
-    _costoController.text = widget.gasto.costo.toString();
-    _idTipoGasto = widget.gasto.idTipoGasto;
+    _idTipoGasto = 0;
   }
 
   @override
@@ -110,14 +111,10 @@ class _AgregarGastoComponentState extends State<AgregarGastoComponent> {
                     );
                   }
                   final tiposGasto =  TipoGasto.fromJsonList(result.data?['tipoGastos'] ?? []);
+                  tiposGasto.insert(0, TipoGasto(idTipoGasto: 0,codigo: '', nombre: 'Seleccione un tipo de gasto', descripcion: '', costo: 0.0));
     
                   if(tiposGasto.isEmpty) {
                     return Text('No hay tipos de gasto disponibles');
-                  }
-                  if(widget.gasto.idTipoGasto == null) {
-                    widget.gasto.idTipoGasto = tiposGasto.first.idTipoGasto!;
-                    widget.gasto.costo = tiposGasto.first.costo;
-                    _costoController.text = tiposGasto.first.costo.toString();
                   }
     
                   return DropdownButtonFormField<int>(
@@ -182,29 +179,31 @@ class _AgregarGastoComponentState extends State<AgregarGastoComponent> {
                   ),
                   Mutation(
                     options: MutationOptions(
-                      document: gql(TareaGastoQueries.create),
+                      document: gql(widget.gasto.query),
                       onCompleted: (dynamic resultData) {
                         if(resultData != null) {
                           setState(() {
                             _isSaving = false;
                           });
+                          widget.onChanged();
                           Navigator.of(context).pop();
                         }
+                      },
+                      onError: (error) {
+                        setState(() {
+                          _isSaving = false;
+                        });
+                        print('Error al guardar el gasto: $error');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error al guardar el gasto:Desconocido')),
+                        );
                       },
                     ),
                     builder: (RunMutation runMutation, QueryResult? result) {
                       return !_isSaving 
                       ? TextButton(
                           child: Text('Guardar'),
-                          onPressed: () {
-                            // Lógica para guardar el gasto editado
-                            setState(() {
-                              _isSaving = true;
-                            });
-                            widget.gasto.idTipoGasto = _idTipoGasto;
-                            widget.gasto.costo = double.tryParse(_costoController.text) ?? 0;
-                            runMutation(widget.gasto.create());
-                          },
+                          onPressed: ()=>_onSave(runMutation),
                         )
                       : SizedBox(
                           width: 100,
@@ -219,5 +218,14 @@ class _AgregarGastoComponentState extends State<AgregarGastoComponent> {
         ),
       ),
     );
+  }
+
+  void _onSave(runMutation) {
+    setState(() {
+      _isSaving = true;
+    });
+    widget.gasto.idTipoGasto = _idTipoGasto;
+    widget.gasto.costo = double.tryParse(_costoController.text) ?? 0;
+    runMutation(widget.gasto.data());
   }
 }

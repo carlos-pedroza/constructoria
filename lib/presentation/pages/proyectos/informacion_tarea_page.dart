@@ -1,6 +1,11 @@
+import 'package:constructoria/cors/dialog_Ask.dart';
+import 'package:constructoria/cors/snak.dart';
+import 'package:constructoria/domain/entities/estado_tarea.dart';
 import 'package:constructoria/domain/entities/tarea.dart';
 import 'package:constructoria/domain/entities/tarea_gasto.dart';
 import 'package:constructoria/domain/entities/v_tarea_gasto.dart';
+import 'package:constructoria/domain/repositories/tarea_queries.dart';
+import 'package:constructoria/domain/repositories/tipo_gasto_queries.dart';
 import 'package:constructoria/domain/repositories/v_tarea_gasto.queries.dart';
 import 'package:constructoria/presentation/pages/globales/title_page_component.dart';
 import 'package:constructoria/presentation/pages/proyectos/edicion_gasto_dialog.dart';
@@ -23,6 +28,14 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
   final _porcetajeFormat = NumberFormat.percentPattern();
   final _currencyFormat = NumberFormat.currency(locale: 'es_MX', symbol: '\$');
   var _totalGastos = 0.0;
+  late Tarea _tarea;
+  var _changeEstado = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tarea = widget.tarea;
+  }
 
 
   @override
@@ -44,20 +57,299 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                   ),
                 ),
               ),
-              child: ListTile(
-                title: Text(
-                  '${widget.tarea.code} ${widget.tarea.descripcion}',
-                  style: theme.textTheme.titleLarge!.copyWith(
-                    fontWeight: FontWeight.bold,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ListTile(
+                      title: Text(
+                        '${_tarea.code} ${_tarea.descripcion}',
+                        style: theme.textTheme.titleLarge!.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${_dateFormat.format(_tarea.fechaInicio)} - ${_dateFormat.format(_tarea.fechaFin)}      Asignado: ${_tarea.empleado ?? "No asignado"}',
+                        style: theme.textTheme.titleSmall!.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                subtitle: Text(
-                  '${_dateFormat.format(widget.tarea.fechaInicio)} - ${_dateFormat.format(widget.tarea.fechaFin)}      Asignado: ${widget.tarea.empleado ?? "No asignado"}',
-                  style: theme.textTheme.titleSmall!.copyWith(
-                    fontWeight: FontWeight.bold,
+                  InkWell(
+                    onTap: _onChangeEstado,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Text(
+                        _tarea.estadoTarea?.nombre ?? '-',
+                        style: theme.textTheme.bodyLarge!.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
+            ),
+            if(_changeEstado)
+            Mutation(
+              options: MutationOptions(
+                document: gql(TareaQueries.updateTarea),
+                onCompleted: (data) {
+                  if(data == null) return;
+                  setState(() {
+                    _changeEstado = false;
+                  });
+                },
+                onError: (error) {
+                  Snak.show(
+                    context: context, 
+                    message: 'Error al actualizar el estado de la tarea.',
+                    backcolor: theme.colorScheme.error,
+                    style: theme.textTheme.bodyLarge!.copyWith(
+                      color: theme.colorScheme.surfaceContainerLowest
+                    ),
+                  );
+                },
+              ),
+              builder: (RunMutation runMutation, QueryResult? mutationResult) {
+                return Container(
+                  padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                  color: theme.colorScheme.secondary,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            _tarea.estadoTarea = EstadoTarea(
+                              idestadoTarea: EstadoTarea.pendiente,
+                              nombre: EstadoTarea.estadoToString(EstadoTarea.pendiente),
+                              descripcion: '',
+                            );
+                            _tarea.idestadoTarea = EstadoTarea.pendiente;
+                            runMutation(_tarea.updateJson(_tarea.orden));
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    EstadoTarea.estadoToString(EstadoTarea.pendiente),
+                                    style: theme.textTheme.bodyLarge!.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.onPrimaryContainer,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10.0),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            _tarea.estadoTarea = EstadoTarea(
+                              idestadoTarea: EstadoTarea.enProgreso,
+                              nombre: EstadoTarea.estadoToString(EstadoTarea.enProgreso),
+                              descripcion: '',
+                            );
+                            _tarea.idestadoTarea = EstadoTarea.enProgreso;
+                            runMutation(_tarea.updateJson(_tarea.orden));
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    EstadoTarea.estadoToString(EstadoTarea.enProgreso),
+                                    style: theme.textTheme.bodyLarge!.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.onPrimaryContainer,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10.0),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {             
+                            _tarea.estadoTarea = EstadoTarea(
+                              idestadoTarea: EstadoTarea.enRevision,
+                              nombre: EstadoTarea.estadoToString(EstadoTarea.enRevision),
+                              descripcion: '',
+                            );
+                            _tarea.idestadoTarea = EstadoTarea.enRevision;
+                            runMutation(_tarea.updateJson(_tarea.orden));
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    EstadoTarea.estadoToString(EstadoTarea.enRevision),
+                                    style: theme.textTheme.bodyLarge!.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.onPrimaryContainer,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10.0),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            _tarea.estadoTarea = EstadoTarea(
+                              idestadoTarea: EstadoTarea.completada,
+                              nombre: EstadoTarea.estadoToString(EstadoTarea.completada),
+                              descripcion: '',
+                            );
+                            _tarea.idestadoTarea = EstadoTarea.completada;
+                            runMutation(_tarea.updateJson(_tarea.orden));
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    EstadoTarea.estadoToString(EstadoTarea.completada),
+                                    style: theme.textTheme.bodyLarge!.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.onPrimaryContainer,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10.0),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            _tarea.estadoTarea = EstadoTarea(
+                              idestadoTarea: EstadoTarea.bloqueada,
+                              nombre: EstadoTarea.estadoToString(EstadoTarea.bloqueada),
+                              descripcion: '',
+                            );
+                            _tarea.idestadoTarea = EstadoTarea.bloqueada;
+                            runMutation(_tarea.updateJson(_tarea.orden));
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    EstadoTarea.estadoToString(EstadoTarea.bloqueada),
+                                    style: theme.textTheme.bodyLarge!.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.onPrimaryContainer,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10.0),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            _tarea.estadoTarea = EstadoTarea(
+                              idestadoTarea: EstadoTarea.cancelada,
+                              nombre: EstadoTarea.estadoToString(EstadoTarea.cancelada),
+                              descripcion: '',
+                            );
+                            _tarea.idestadoTarea = EstadoTarea.cancelada;
+                            runMutation(_tarea.updateJson(_tarea.orden));
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    EstadoTarea.estadoToString(EstadoTarea.cancelada),
+                                    style: theme.textTheme.bodyLarge!.copyWith(
+                                      fontWeight: FontWeight.bold,      
+                                      color: theme.colorScheme.onPrimaryContainer,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10.0),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _changeEstado = false;
+                          });
+                        },
+                        icon: Icon(Icons.close, color: theme.colorScheme.surfaceContainerLowest),
+                      ),
+                    ],
+                  ),
+                );
+              }
             ),
             Expanded(
               child: Container(
@@ -93,7 +385,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Avance ${_porcetajeFormat.format(widget.tarea.avance)}',
+                                  'Avance ${_porcetajeFormat.format(_tarea.avance)}',
                                   style: theme.textTheme.bodyLarge!.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -101,21 +393,21 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                                 Spacer(),
                                 SizedBox(width: 10.0),
                                 Text(
-                                  'Costo por hora: ${_currencyFormat.format(widget.tarea.costoPorHora)},',
+                                  'Costo por hora: ${_currencyFormat.format(_tarea.costoPorHora)},',
                                   style: theme.textTheme.bodyLarge!.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 SizedBox(width: 14.0),
                                 Text(
-                                  'Horas: ${(widget.tarea.horasTrabajadas * widget.tarea.avance).toStringAsFixed(2)}, ',
+                                  'Horas: ${(widget.tarea.horasTrabajadas * _tarea.avance).toStringAsFixed(2)}, ',
                                   style: theme.textTheme.bodyLarge!.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 SizedBox(width: 14.0),
                                 Text(
-                                  'Total MO: ${_currencyFormat.format(widget.tarea.costoTotalManoObra)}',
+                                  'Total MO: ${_currencyFormat.format(_tarea.costoTotalManoObra)}',
                                   style: theme.textTheme.bodyLarge!.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -138,7 +430,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                           Padding(
                             padding: const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 10.0, right: 10.0),
                             child: LinearProgressIndicator(
-                              value: widget.tarea.avance, // Cambia por el avance global
+                              value: _tarea.avance, // Cambia por el avance global
                               backgroundColor: Colors.blue[50],
                               color: Colors.blue,
                               minHeight: 10,
@@ -146,88 +438,107 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                           ),
                           Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
                           SizedBox(height: 10.0),
-                          Row(
-                            children: [
-                              SizedBox(width: 10),
-                              Expanded(
-                                flex: 5,
-                                child: ElevatedButton(
-                                  onPressed: ()=>_onCambiaAvance(0.0),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: widget.tarea.avance == 0.0 ? Colors.grey[600]: Colors.blue[900] ,
-                                    foregroundColor: theme.colorScheme.surfaceContainerLowest,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                          Mutation(
+                            options: MutationOptions(
+                              document: gql(TareaQueries.updateTarea),
+                              onCompleted: (data) {
+                              },
+                              onError: (error) {
+                                Snak.show(
+                                  context: context, 
+                                  message: 'Error al actualizar el estado de la tarea.',
+                                  backcolor: theme.colorScheme.error,
+                                  style: theme.textTheme.bodyLarge!.copyWith(
+                                    color: theme.colorScheme.surfaceContainerLowest
                                   ),
-                                  child: Text(widget.tarea.avance == 0.0 ? '0' : '', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
-                                ),
-                              ),
-                              SizedBox(width: 8.0),
-                              Expanded(
-                                flex: 25,
-                                child: ElevatedButton(
-                                  onPressed: ()=>_onCambiaAvance(0.2),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: widget.tarea.avance >= 0.2 && widget.tarea.avance > 0 ? Colors.blue[900] : Colors.blue[700] ,
-                                    foregroundColor: theme.colorScheme.surfaceContainerLowest,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                );
+                              },
+                            ),
+                            builder: (RunMutation runMutation, QueryResult? mutationResult) {
+                              return Row(
+                                children: [
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    flex: 5,
+                                    child: ElevatedButton(
+                                      onPressed: ()=>_onCambiaAvance(0.0, runMutation),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: _tarea.avance == 0.0 ? Colors.grey[600]: Colors.blue[900] ,
+                                        foregroundColor: theme.colorScheme.surfaceContainerLowest,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                      ),
+                                      child: Text(_tarea.avance == 0.0 ? '0' : '', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                                    ),
                                   ),
-                                  child: Text('20%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
-                                ),
-                              ),
-                              SizedBox(width: 8.0),
-                              Expanded(
-                                flex: 25,
-                                child: ElevatedButton(
-                                  onPressed: ()=>_onCambiaAvance(0.4),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: widget.tarea.avance >= 0.4 ? Colors.blue[900] : Colors.blue[700],
-                                    foregroundColor: theme.colorScheme.surfaceContainerLowest,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                  SizedBox(width: 8.0),
+                                  Expanded(
+                                    flex: 25,
+                                    child: ElevatedButton(
+                                      onPressed: ()=>_onCambiaAvance(0.2, runMutation),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: _tarea.avance >= 0.2 && _tarea.avance > 0 ? Colors.blue[900] : Colors.blue[700] ,
+                                        foregroundColor: theme.colorScheme.surfaceContainerLowest,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                      ),
+                                      child: Text('20%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                                    ),
                                   ),
-                                  child: Text('40%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
-                                ),
-                              ),
-                              SizedBox(width: 8.0),
-                              Expanded(
-                                flex: 25,
-                                child: ElevatedButton(
-                                  onPressed: ()=>_onCambiaAvance(0.6),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: widget.tarea.avance >= 0.6 ? Colors.blue[900] : Colors.blue[700],
-                                    foregroundColor: theme.colorScheme.surfaceContainerLowest,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                  SizedBox(width: 8.0),
+                                  Expanded(
+                                    flex: 25,
+                                    child: ElevatedButton(
+                                      onPressed: ()=>_onCambiaAvance(0.4, runMutation),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: _tarea.avance >= 0.4 ? Colors.blue[900] : Colors.blue[700],
+                                        foregroundColor: theme.colorScheme.surfaceContainerLowest,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                      ),
+                                      child: Text('40%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                                    ),
                                   ),
-                                  child: Text('60%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
-                                ),
-                              ),
-                              SizedBox(width: 8.0),
-                              Expanded(
-                                flex: 25,
-                                child: ElevatedButton(
-                                  onPressed: ()=>_onCambiaAvance(0.8),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: widget.tarea.avance >= 0.8 ? Colors.blue[900] : Colors.blue[700],
-                                    foregroundColor: theme.colorScheme.surfaceContainerLowest,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                  SizedBox(width: 8.0),
+                                  Expanded(
+                                    flex: 25,
+                                    child: ElevatedButton(
+                                      onPressed: ()=>_onCambiaAvance(0.6, runMutation),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: _tarea.avance >= 0.6 ? Colors.blue[900] : Colors.blue[700],
+                                        foregroundColor: theme.colorScheme.surfaceContainerLowest,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                      ),
+                                      child: Text('60%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                                    ),
                                   ),
-                                  child: Text('80%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
-                                ),
-                              ),
-                              SizedBox(width: 8.0),
-                              Expanded(
-                                flex: 25,
-                                child: ElevatedButton(
-                                  onPressed: ()=>_onCambiaAvance(1.0),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: widget.tarea.avance >= 1 ? Colors.blue[900] : Colors.blue[700],
-                                    foregroundColor: theme.colorScheme.surfaceContainerLowest,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                  SizedBox(width: 8.0),
+                                  Expanded(
+                                    flex: 25,
+                                    child: ElevatedButton(
+                                      onPressed: ()=>_onCambiaAvance(0.8, runMutation),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: _tarea.avance >= 0.8 ? Colors.blue[900] : Colors.blue[700],
+                                        foregroundColor: theme.colorScheme.surfaceContainerLowest,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                      ),
+                                      child: Text('80%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                                    ),
                                   ),
-                                  child: Text('100%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
-                                ),
-                              ),
-                              SizedBox(width: 10.0),
-                            ],
+                                  SizedBox(width: 8.0),
+                                  Expanded(
+                                    flex: 25,
+                                    child: ElevatedButton(
+                                      onPressed: ()=>_onCambiaAvance(1.0, runMutation),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: _tarea.avance >= 1 ? Colors.blue[900] : Colors.blue[700],
+                                        foregroundColor: theme.colorScheme.surfaceContainerLowest,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                      ),
+                                      child: Text('100%', style: TextStyle(color: theme.colorScheme.surfaceContainerLowest)),
+                                    ),
+                                  ),
+                                  SizedBox(width: 10.0),
+                                ],
+                              );
+                            }
                           ),
                           SizedBox(height: 10),
                           Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
@@ -245,140 +556,14 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               SizedBox(height: 10),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.surfaceBright,
-                                ),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.only(top: 12.0, bottom: 12.0, left: 26.0, right: 26.0),
-                                      decoration: BoxDecoration(
-                                        color: theme.colorScheme.secondaryContainer,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Gastos',
-                                            style: theme.textTheme.titleMedium!.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Spacer(),
-                                          SizedBox(width: 10.0),
-                                          ElevatedButton.icon(
-                                            onPressed: _onAgregarGasto,
-                                            label: SizedBox(
-                                              width: 70,
-                                              child: Center(child: Text('Gasto'))
-                                            ),
-                                            icon: Icon(Icons.add),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
-                                    Query(
-                                      options: QueryOptions(
-                                        document: gql(VTipoGastoQueries.getByTarea),
-                                        variables: {
-                                          'idtarea': widget.tarea.idtarea,
-                                        },
-                                      ),
-                                      builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
-                                        if (result.hasException) {
-                                          return Text('Error al cargar los gastos');
-                                        }
-                                        if (result.isLoading) {
-                                          return SizedBox(
-                                            height: 100,
-                                            width: double.infinity,
-                                            child: Center(
-                                              child: CircularProgressIndicator(),
-                                            ),
-                                          );
-                                        }
-                                        final gastos =  VTareaGasto.fromJsonList(result.data?['VTareaGastosByTarea'] ?? []);
-                                        
-                                        _totalGastos = gastos.fold(0.0, (sum, gasto) => sum + gasto.costo);
-                                      
-                                        if(gastos.isEmpty) {
-                                          return Container(
-                                              padding: EdgeInsets.all(20.0),
-                                              child: Center(
-                                                child: Text(
-                                                  'No hay gastos asociados a la tarea.',
-                                                  style: theme.textTheme.bodyMedium!.copyWith(
-                                                    color: theme.colorScheme.onSurfaceVariant,
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                        }
-                                        return Column(
-                                          children: [
-                                            for (var gasto in gastos) 
-                                              Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-                                                decoration: BoxDecoration(
-                                                  border: Border(
-                                                    bottom: BorderSide(
-                                                      color: theme.colorScheme.outline,
-                                                    ),
-                                                  ),
-                                                ),
-                                                child: ListTile(
-                                                  title: Text(
-                                                    '${gasto.code} ${gasto.tipoGastoNombre}',
-                                                    style: theme.textTheme.bodyMedium,
-                                                  ),
-                                                  subtitle: Text(
-                                                    gasto.tipoGastoDescripcion,
-                                                    style: theme.textTheme.bodySmall!.copyWith(
-                                                      color: theme.colorScheme.outline,
-                                                    ),
-                                                  ),
-                                                  trailing: Text(
-                                                    _currencyFormat.format(gasto.costo),
-                                                    style: theme.textTheme.bodyLarge!.copyWith(
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
-                                              Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 26.0, vertical: 10.0),
-                                                decoration: BoxDecoration(
-                                                  color: theme.colorScheme.secondaryContainer
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.end,
-                                                  children: [
-                                                    Text(
-                                                      'Total Gastos: ',
-                                                      style: theme.textTheme.bodyLarge!.copyWith(
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    SizedBox(width: 10.0),
-                                                    Text(
-                                                      _currencyFormat.format(_totalGastos),
-                                                      style: theme.textTheme.bodyLarge!.copyWith(
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              )
-                                          ]
-                                        );
-                                      }
-                                    ),
-                                    Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
-                                  ],
-                                ),
+                              InformacionTareaGastosComponent(
+                                client: widget.client,
+                                tarea: _tarea,
+                                getTotalGasto: (double total) {
+                                  setState(() {
+                                    _totalGastos = total;
+                                  });
+                                },
                               ),
                               SizedBox(height: 20.0),
                               Container(
@@ -451,13 +636,260 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
     Navigator.of(context).pop();
   }
 
-  void _onCambiaAvance(double nuevoAvance) {
+  void _onCambiaAvance(double nuevoAvance, runMutation) {
     setState(() {
-      widget.tarea.avance = nuevoAvance;
+      _tarea.avance = nuevoAvance;
     });
+    runMutation(_tarea.updateJson(_tarea.orden));
   }
 
-  void _onAgregarGasto() {
+  void _onAgregarMaterial() {
+  }
+
+  void _onChangeEstado() {
+    setState(() {
+      _changeEstado = true;
+    });
+  }
+}
+
+class InformacionTareaGastosComponent extends StatefulWidget {
+  const InformacionTareaGastosComponent({super.key, required this.client, required this.tarea, required this.getTotalGasto});
+
+  final GraphQLClient client;
+  final Tarea tarea;
+  final void Function(double total) getTotalGasto;
+
+  @override
+  State<InformacionTareaGastosComponent> createState() => _InformacionTareaGastosComponentState();
+}
+
+class _InformacionTareaGastosComponentState extends State<InformacionTareaGastosComponent> {
+  final _currencyFormat = NumberFormat.currency(locale: 'es_MX', symbol: '\$');
+  var _totalGastos = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    var theme = Theme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceBright,
+      ),
+      child: Column(
+        children: [
+          Query(
+            options: QueryOptions(
+              document: gql(VTipoGastoQueries.getByTarea),
+              variables: {
+                'idtarea': widget.tarea.idtarea,
+              },
+              fetchPolicy: FetchPolicy.noCache,
+              onComplete: (data) {
+                refreshGastoTotal();
+              }
+            ),
+            builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+              if (result.hasException) {
+                return Text('Error al cargar los gastos');
+              }
+              if (result.isLoading) {
+                return SizedBox(
+                  height: 100,
+                  width: double.infinity,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              final gastos =  VTareaGasto.fromJsonList(result.data?['VTareaGastosByTarea'] ?? []);
+              
+              _totalGastos = gastos.fold(0.0, (sum, gasto) => sum + gasto.costo);
+            
+              if(gastos.isEmpty) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _headerComponent(theme, refetch),
+                    Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
+                    Container(
+                        padding: EdgeInsets.all(20.0),
+                        child: Center(
+                          child: Text(
+                            'No hay gastos asociados a la tarea.',
+                            style: theme.textTheme.bodyMedium!.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              }
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _headerComponent(theme, refetch),
+                  Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
+                  for (var gasto in gastos) 
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: theme.colorScheme.outline,
+                          ),
+                        ),
+                      ),
+                      child: ListTile(
+                        leading: Mutation(
+                          options: MutationOptions(
+                            document: gql(TipoGastoQueries.delete),
+                            onCompleted: (data) {
+                              if(data == null) return;
+                              refreshGastoTotal();
+                            },
+                          ),
+                          builder: (RunMutation runMutation, QueryResult? mutationResult) {
+                            return PopupMenuButton<String>(
+                              icon: Icon(Icons.more_vert),
+                              onSelected: (value) {
+                                if (value == 'editar') {
+                                  _onEditarGasto(gasto.toTareaGasto(), refetch);
+                                } else if (value == 'eliminar') {
+                                  _onEliminarGasto(gasto.toTareaGasto(), runMutation, refetch);
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                PopupMenuItem(
+                                  value: 'editar',
+                                  child: Text('Editar'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'eliminar',
+                                  child: Text('Eliminar'),
+                                ),
+                              ],
+                            );
+                          }
+                        ),
+                        title: Text(
+                          '${gasto.code} ${gasto.tipoGastoNombre}',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        subtitle: Text(
+                          gasto.tipoGastoDescripcion,
+                          style: theme.textTheme.bodySmall!.copyWith(
+                            color: theme.colorScheme.outline,
+                          ),
+                        ),
+                        trailing: Text(
+                          _currencyFormat.format(gasto.tipoGastoCosto),
+                          style: theme.textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.bold,  
+                          ),
+                        ),
+                      ),
+                    ),
+                    Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 26.0, vertical: 10.0),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.secondaryContainer
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Total Gastos: ',
+                            style: theme.textTheme.bodyLarge!.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(width: 10.0),
+                          Text(
+                            _currencyFormat.format(_totalGastos),
+                            style: theme.textTheme.bodyLarge!.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                ]
+              );
+            }
+          ),
+          Divider(thickness: 1.0, height: 1, color: theme.colorScheme.outline),
+        ],
+      ),
+    );
+  }
+
+  Widget _headerComponent(ThemeData theme, refetch) {
+    return Container(
+        padding: const EdgeInsets.only(top: 12.0, bottom: 12.0, left: 26.0, right: 26.0),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.secondaryContainer,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(
+              'Gastos',
+              style: theme.textTheme.titleMedium!.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Spacer(),
+            SizedBox(width: 10.0),
+            ElevatedButton.icon(
+              onPressed: ()=>_onAgregarGasto(refetch),
+              label: SizedBox(
+                width: 70,
+                child: Center(child: Text('Gasto'))
+              ),
+              icon: Icon(Icons.add),
+            )
+          ],
+        ),
+      );
+  }
+
+  void _onEditarGasto(TareaGasto gasto, refetch) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return EdicionGastoDialog(
+          client: widget.client,
+          titulo: 'Editar Gasto',
+          tarea: widget.tarea,
+          gasto: gasto,
+          onChanged: () {
+            refetch!();
+          },
+        );
+      },
+    );
+  }
+
+  void _onEliminarGasto(TareaGasto gasto, runMutation, refetch) {
+    DialogAsk.confirm(
+      context: context,
+      title: "Eliminar Gasto",
+      content: Text('¿Estás seguro de que deseas eliminar este gasto?'),
+      onYes: () => _eliminarGasto(gasto, runMutation, refetch),
+      onNo: () => {},
+    );
+  }
+
+  void _eliminarGasto(TareaGasto gasto, runMutation, refetch) {
+    runMutation({
+      'id': gasto.idtareaGasto,
+    });
+    refetch!();
+  }
+
+  void _onAgregarGasto(refetch) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -466,11 +898,17 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
           titulo: 'Agregar Gasto',
           tarea: widget.tarea,
           gasto: TareaGasto.empty(widget.tarea),
+          onChanged: () {
+            refetch!();
+          },
         );
       },
     );
   }
 
-  void _onAgregarMaterial() {
+  void refreshGastoTotal() async {
+    await Future.delayed(Duration(seconds: 1));
+    widget.getTotalGasto(_totalGastos);
   }
+
 }

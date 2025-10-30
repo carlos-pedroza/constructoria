@@ -1,4 +1,5 @@
 import 'package:constructoria/domain/entities/tarea.dart';
+import 'package:constructoria/domain/repositories/tarea_gasto_queries.dart';
 import 'package:intl/intl.dart';
 
 class TareaGasto {
@@ -15,6 +16,14 @@ class TareaGasto {
   int? idTipoGasto;
   double costo;
   DateTime creado;
+
+  String get query {
+    if(idtareaGasto == null) {
+      return TareaGastoQueries.create;
+    } else {
+      return TareaGastoQueries.update;
+    }
+  }
 
   factory TareaGasto.fromJson(dynamic json) {
     return TareaGasto(
@@ -40,6 +49,14 @@ class TareaGasto {
     return jsonList.map((json) => TareaGasto.fromJson(json)).toList();
   }
 
+  Map<String, dynamic> data() {
+    if(idtareaGasto == null) {
+      return create();
+    } else {
+      return toJson();
+    }
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'idtarea_gasto': idtareaGasto,
@@ -58,7 +75,6 @@ class TareaGasto {
       "creado": DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado)
     };
   }
-
 
   @override
   String toString() {
