@@ -1,3 +1,5 @@
+import 'package:constructoria/domain/entities/tarea.dart';
+import 'package:constructoria/domain/repositories/tarea_material_queries.dart';
 import 'package:intl/intl.dart';
 
 class TareaMaterial {
@@ -17,6 +19,14 @@ class TareaMaterial {
   double costo;
   DateTime creado;
 
+  String get query {
+    if(idtareaMaterial == null) {
+      return TareaMaterialQueries.create;
+    } else {
+      return TareaMaterialQueries.update;
+    }
+  }
+
   factory TareaMaterial.fromJson(dynamic json) {
     return TareaMaterial(
       idtareaMaterial: json['idtarea_material'] as int?,
@@ -30,6 +40,51 @@ class TareaMaterial {
 
   static List<TareaMaterial> fromJsonList(List<dynamic> jsonList) {
     return jsonList.map((json) => TareaMaterial.fromJson(json)).toList();
+  }
+
+  factory TareaMaterial.empty(Tarea tarea) {
+    return TareaMaterial(
+      idtareaMaterial: null,
+      idtarea: tarea.idtarea!,
+      idMaterial: 0,
+      cantidad: 0,
+      costo: 0.0,
+      creado: DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> data() {
+    if(idtareaMaterial == null) {
+      return create();
+    } else {
+      return update();
+    }
+  }
+
+
+  Map<String, dynamic> create() {
+    return {
+      "input": {
+        "idtarea": idtarea,
+        "id_material": idMaterial,
+        "cantidad": cantidad,
+        "costo": costo,
+        "creado": DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado)
+      }
+    };
+  }
+
+  Map<String, dynamic> update() {
+    return {
+      "id": idtareaMaterial,
+      "input": {
+        "idtarea": idtarea,
+        "id_material": idMaterial,
+        "cantidad": cantidad,
+        "costo": costo,
+        "creado": DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado)
+      }
+    };
   }
 
   Map<String, dynamic> toJson() {
