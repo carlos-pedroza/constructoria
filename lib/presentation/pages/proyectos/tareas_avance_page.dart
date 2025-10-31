@@ -1,10 +1,16 @@
 import 'package:constructoria/cors/dialog_Ask.dart';
 import 'package:constructoria/domain/entities/proyecto.dart';
 import 'package:constructoria/domain/entities/tarea.dart';
+import 'package:constructoria/domain/entities/tarea_material.dart';
+import 'package:constructoria/domain/entities/v_tarea_gasto.dart';
+import 'package:constructoria/domain/entities/v_tarea_material.dart';
+import 'package:constructoria/domain/repositories/tarea_material_queries.dart';
 import 'package:constructoria/domain/repositories/tarea_queries.dart';
+import 'package:constructoria/domain/repositories/v_tarea_gasto.queries.dart';
 import 'package:constructoria/presentation/pages/proyectos/informacion_tarea_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:intl/intl.dart';
 
 class TareasAvancePage extends StatefulWidget {
   const TareasAvancePage({super.key, required this.client, required this.proyecto, required this.onBack});
@@ -107,25 +113,25 @@ class _TareasAvancePageState extends State<TareasAvancePage> {
                             Row(
                               children: [
                                 Text(
-                                  '75%',  
+                                  '0%',  
                                   style: theme.textTheme.titleLarge?.copyWith(
                                     color: theme.colorScheme.inverseSurface,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 Spacer(),
-                                Text('Gastos: \$12,500', style: theme.textTheme.titleMedium),
+                                Text('Gastos: \$0.0', style: theme.textTheme.titleMedium),
                                 const SizedBox(width: 30),
-                                Text('Materiales: \$32,000', style: theme.textTheme.titleMedium),
+                                Text('Materiales: \$0.0', style: theme.textTheme.titleMedium),
                                 const SizedBox(width: 30),
-                                Text('Mano de obra: \$12,000', style: theme.textTheme.titleMedium),
+                                Text('Mano de obra: \$0.0', style: theme.textTheme.titleMedium),
                                 const SizedBox(width: 30),
-                                Text('Total: \$44,500', style: theme.textTheme.titleMedium),
+                                Text('Total: \$0.0', style: theme.textTheme.titleMedium),
                               ],
                             ),
                             const SizedBox(height: 12),
                             LinearProgressIndicator(
-                              value: 0.75, // Cambia por el avance global
+                              value: 0.0, // Cambia por el avance global
                               backgroundColor: Colors.blue[50],
                               color: Colors.blue,
                               minHeight: 10,
@@ -193,10 +199,11 @@ class _TareaCard extends StatefulWidget {
 }
 
 class _TareaCardState extends State<_TareaCard> {
+  final _currencyFormatter = NumberFormat.currency(locale: 'es_MX', symbol: '\$');
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final totalGastos = widget.gastos.values.fold(0, (a, b) => a + b);
     return Container(
       width: 300,
       padding: const EdgeInsets.all(16),
@@ -253,63 +260,122 @@ class _TareaCardState extends State<_TareaCard> {
           const SizedBox(height: 4),
           Text('Avance: ${(widget.tarea.avance * 100).toInt()}%', style: Theme.of(context).textTheme.bodySmall),
           const Divider(height: 20),
-          Text('Gastos', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-          ...widget.gastos.entries.map((e) => Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(e.key),
-              Text('\$${e.value}'),
-            ],
-          )),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('\$$totalGastos', style: TextStyle(fontWeight: FontWeight.bold)),
-            ],
+          Query(
+            options: QueryOptions(
+              document: gql(VTipoGastoQueries.getByTarea),
+              variables: {
+                'idtarea': widget.tarea.idtarea,
+              },
+              fetchPolicy: FetchPolicy.noCache,
+              onComplete: (data) {
+                refreshGastoTotal();
+              }
+            ),
+            builder: (result, {fetchMore, refetch}) {
+              if (result.isLoading) {
+                return SizedBox(
+                  height: 100,
+                  child: Center(child: CircularProgressIndicator())
+                );
+              }
+              if (result.hasException) {
+                return SizedBox(
+                  height: 100,
+                  child: Center(child: Text('Error al cargar los gastos'))
+                );
+              }
+              final gastos = VTareaGasto.fromJsonList(result.data?['VTareaGastosByTarea'] as List);
+
+              final totalGastos = gastos.fold(0.0, (sum, gasto) => sum + gasto.tipoGastoCosto);
+
+              return Column(
+                children: [
+                  Text('Gastos', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                  for (var gasto in gastos) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('${gasto.tipoGastoCodigo}  ${gasto.tipoGastoNombre}'),
+                        Text(_currencyFormatter.format(gasto.tipoGastoCosto)),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    Divider(thickness: 1, height: 1, color: Colors.grey[100]),
+                  ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(_currencyFormatter.format(totalGastos), style: TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ],
+              );
+            }
           ),
           const SizedBox(height: 8),
-          ElevatedButton(
-            onPressed: _onAgregarGasto,
-            style: ElevatedButton.styleFrom(
-              minimumSize: Size(120, 32),
-              padding: EdgeInsets.symmetric(horizontal: 8),
-            ),
-            child: Text('Agregar gasto'),
-          ),
           const Divider(height: 20),
-          Text('Materiales', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-          ...widget.materiales.entries.map((e) => Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(e.key),
-              Text('\$${e.value}'),
-            ],
-          )),
-          ElevatedButton(
-            onPressed: _onAgregarMaterial,
-            style: ElevatedButton.styleFrom(
-              minimumSize: Size(120, 32),
-              padding: EdgeInsets.symmetric(horizontal: 8),
+          Query(
+            options: QueryOptions(
+              document: gql(TareaMaterialQueries.getByTarea),
+              variables: {
+                'idtarea': widget.tarea.idtarea,
+              },
+              fetchPolicy: FetchPolicy.noCache,
             ),
-            child: const Text('Agregar material'),
+            builder: (result, {fetchMore, refetch}) {
+              if (result.isLoading) {
+                return SizedBox(
+                  height: 100,
+                  child: Center(child: CircularProgressIndicator())
+                );
+              }
+              if (result.hasException) {
+                return SizedBox(
+                  height: 100,
+                  child: Center(child: Text('Error al cargar los materiales'))
+                );
+              }
+              final materiales = VTareaMaterial.fromJsonList(result.data?['vTareaMaterialByTarea'] as List);
+
+              final totalMateriales = materiales.fold(0.0, (sum, material) => sum + material.costo);
+
+              return Column(
+                children: 
+                [
+                  Text('Materiales', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                  for (var material in materiales) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('${material.codigo} ${material.descripcion}  Cantidad: ${material.cantidad}'),
+                        Text(_currencyFormatter.format(material.costo)),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    Divider(thickness: 1, height: 1, color: Colors.grey[100]),
+                  ],
+                  const Divider(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(_currencyFormatter.format(totalMateriales), style: TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ]
+              );
+            }
           ),
           const Divider(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Total Mano de obra:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('\$$totalGastos', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('\$0.0', style: TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
-          const Divider(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('\$$totalGastos', style: TextStyle(fontWeight: FontWeight.bold)),
-            ],
-          ),
+          const SizedBox(height: 8),
         ],
       ),
     );
@@ -352,4 +418,6 @@ class _TareaCardState extends State<_TareaCard> {
       onOk: () {}
     );
   }
+  
+  void refreshGastoTotal() {}
 }

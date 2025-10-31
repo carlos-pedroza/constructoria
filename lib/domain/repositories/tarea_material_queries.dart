@@ -64,7 +64,7 @@ class TareaMaterialQueries {
         idtarea
         id_material
         cantidad
-        costol
+        costo
         creado
         nombre
         descripcion
@@ -91,7 +91,7 @@ class TareaMaterialQueries {
         idtarea
         id_material
         cantidad
-        costol
+        costo
         creado
         nombre
         descripcion

@@ -1,9 +1,8 @@
 import 'package:constructoria/cors/wait_tool.dart';
+import 'package:constructoria/domain/entities/material_entidad.dart';
 import 'package:constructoria/domain/entities/tarea.dart';
 import 'package:constructoria/domain/entities/tarea_material.dart';
-import 'package:constructoria/domain/entities/v_tarea_material.dart';
-import 'package:constructoria/domain/entities/tipo_gasto.dart';
-import 'package:constructoria/domain/repositories/tipo_gasto_queries.dart';
+import 'package:constructoria/domain/repositories/material_queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -59,6 +58,7 @@ class AgregarMaterialComponent extends StatefulWidget {
 
 class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
   final _formKey = GlobalKey<FormState>();
+  final _cantidadController = TextEditingController();
   final _costoController = TextEditingController();
   late double _totalWidth;
   late double _totalHeight;
@@ -66,6 +66,8 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
   late double _dialogHeight;
   var _isSaving = false;
   int _idTipoMaterial = 0;
+  var _initialized = false;
+  late List<MaterialEntidad> _materiales;
 
   @override
   void didChangeDependencies() {
@@ -84,7 +86,23 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
   @override
   void initState() {
     super.initState();
-    _idTipoMaterial = 0;
+    if(widget.tareaMaterial.idtareaMaterial == null) {
+      _idTipoMaterial = 0;
+      _cantidadController.text = '';
+      _costoController.text = '';
+    } else {
+      _idTipoMaterial = widget.tareaMaterial.idMaterial;
+      _cantidadController.text = widget.tareaMaterial.cantidad.toString();
+      _costoController.text = widget.tareaMaterial.costo.toString();
+    }
+    _materiales = [];
+  }
+
+  @override
+  void dispose() {
+    _cantidadController.dispose();
+    _costoController.dispose();
+    super.dispose();
   }
 
   @override
@@ -100,52 +118,78 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
               SizedBox(height: 10),
               Query(
                 options: QueryOptions(
-                  document: gql(TipoGastoQueries.getAll),
+                  document: gql(MaterialQueries.getAll),
                 ),
                 builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
-                  if (result.hasException) {
-                    return Text('Error al cargar los tipos de gasto');
+                  
+                  if(_initialized) {
+
+                    if (result.hasException) {
+                      return Text('Error al cargar los materiales');
+                    }
+                    if (result.isLoading) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    _materiales =  MaterialEntidad.fromJsonList(result.data?['materials'] ?? []);
+                    _materiales.insert(0, MaterialEntidad(idMaterial: 0,codigo: '', nombre: 'Seleccione un material', descripcion: '', unidad: '',  costo: 0.0));
+      
+                    if(_materiales.isEmpty) {
+                      return Text('No hay materiales disponibles');
+                    }
+                    
                   }
-                  if (result.isLoading) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  final tiposGasto =  TipoGasto.fromJsonList(result.data?['tipoGastos'] ?? []);
-                  tiposGasto.insert(0, TipoGasto(idTipoGasto: 0,codigo: '', nombre: 'Seleccione un tipo de gasto', descripcion: '', costo: 0.0));
-    
-                  if(tiposGasto.isEmpty) {
-                    return Text('No hay tipos de gasto disponibles');
-                  }
-    
+                  _initialized = true;
                   return DropdownButtonFormField<int>(
                     initialValue: _idTipoMaterial,
                     decoration: InputDecoration(
-                      labelText: 'Tipo de Gasto',
+                      labelText: 'Material',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    items: tiposGasto.map<DropdownMenuItem<int>>((tipo) {
+                    items: _materiales.map<DropdownMenuItem<int>>((tipo) {
                       return DropdownMenuItem<int>(
-                        value: tipo.idTipoGasto,
-                        child: Text(tipo.nombre),
+                        value: tipo.idMaterial,
+                        child: Text('${tipo.nombre} (${tipo.unidad})'),
                       );
                     }).toList(),
                     onChanged: (int? newValue) {
                       setState(() {
                         _idTipoMaterial = newValue!;
-                        _costoController.text = tiposGasto.firstWhere((tipo) => tipo.idTipoGasto == newValue).costo.toString();
+                        _costoController.text = _materiales.firstWhere((tipo) => tipo.idMaterial == newValue).costo.toString();
                       });
                     },
                     validator: (value) {
                       if (value == null) {
-                        return 'Por favor seleccione un tipo de gasto';
+                        return 'Por favor seleccione un material';
                       }
                       return null;
                     },
                   );
                 }
+              ),
+              SizedBox(height: 16),
+              TextFormField(
+                controller: _cantidadController,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.confirmation_num),
+                  labelText: 'Cantidad',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingrese una cantidad';
+                  }
+                  if (int.tryParse(value) == null) {
+                    return 'Por favor ingrese un número válido';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 16),
               TextFormField(
@@ -194,9 +238,9 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
                         setState(() {
                           _isSaving = false;
                         });
-                        print('Error al guardar el gasto: $error');
+                        print('Error al guardar el material: $error');
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error al guardar el gasto:Desconocido')),
+                          SnackBar(content: Text('Error al guardar el material: Desconocido')),
                         );
                       },
                     ),
@@ -226,6 +270,7 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
       _isSaving = true;
     });
     widget.tareaMaterial.idMaterial = _idTipoMaterial;
+    widget.tareaMaterial.cantidad = int.tryParse(_cantidadController.text) ?? 0;
     widget.tareaMaterial.costo = double.tryParse(_costoController.text) ?? 0;
     runMutation(widget.tareaMaterial.data());
   }

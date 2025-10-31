@@ -83,7 +83,13 @@ class _AgregarGastoComponentState extends State<AgregarGastoComponent> {
   @override
   void initState() {
     super.initState();
-    _idTipoGasto = 0;
+    if(widget.gasto.idtareaGasto == null) {
+      _idTipoGasto = 0;
+      _costoController.text = '';
+    } else {
+      _idTipoGasto = widget.gasto.idTipoGasto!;
+      _costoController.text = widget.gasto.costo.toString();
+    }
   }
 
   @override
