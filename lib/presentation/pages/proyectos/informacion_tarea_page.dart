@@ -1,6 +1,6 @@
 import 'package:constructoria/cors/snak.dart';
 import 'package:constructoria/domain/entities/estado_tarea.dart';
-import 'package:constructoria/domain/entities/tarea.dart';
+import 'package:constructoria/domain/entities/v_tarea.dart';
 import 'package:constructoria/domain/repositories/tarea_queries.dart';
 import 'package:constructoria/presentation/pages/globales/title_page_component.dart';
 import 'package:constructoria/presentation/pages/proyectos/Informacion_tarea_gastos_component.dart';
@@ -10,10 +10,11 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 
 class InformacionTareaPage extends StatefulWidget {
-  const InformacionTareaPage({super.key, required this.client, required this.tarea});
+  const InformacionTareaPage({super.key, required this.client, required this.tarea, required this.refetch});
 
   final GraphQLClient client;
-  final Tarea tarea;
+  final VTarea tarea;
+  final refetch;
 
   @override
   State<InformacionTareaPage> createState() => _InformacionTareaPageState();
@@ -25,7 +26,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
   final _currencyFormat = NumberFormat.currency(locale: 'es_MX', symbol: '\$');
   var _totalGastos = 0.0;
   var _totalMateriales = 0.0;
-  late Tarea _tarea;
+  late VTarea _tarea;
   var _changeEstado = false;
 
   @override
@@ -59,13 +60,13 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                   Expanded(
                     child: ListTile(
                       title: Text(
-                        '${_tarea.code} ${_tarea.descripcion}',
+                        '${_tarea.code} ${_tarea.tareaDescripcion}',
                         style: theme.textTheme.titleLarge!.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       subtitle: Text(
-                        '${_dateFormat.format(_tarea.fechaInicio)} - ${_dateFormat.format(_tarea.fechaFin)}      Asignado: ${_tarea.empleado ?? "No asignado"}',
+                        '${_dateFormat.format(_tarea.fechaInicio)} - ${_dateFormat.format(_tarea.fechaFin)}  Asignado: ${_tarea.responsable}',
                         style: theme.textTheme.titleSmall!.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -81,7 +82,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: Text(
-                        _tarea.estadoTarea?.nombre ?? '-',
+                        _tarea.estadoTareaNombre,
                         style: theme.textTheme.bodyLarge!.copyWith(
                           fontWeight: FontWeight.bold,
                           color: theme.colorScheme.onPrimaryContainer,
@@ -101,6 +102,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                   setState(() {
                     _changeEstado = false;
                   });
+                  widget.refetch();
                 },
                 onError: (error) {
                   Snak.show(
@@ -121,15 +123,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                     children: [
                       Expanded(
                         child: InkWell(
-                          onTap: () {
-                            _tarea.estadoTarea = EstadoTarea(
-                              idestadoTarea: EstadoTarea.pendiente,
-                              nombre: EstadoTarea.estadoToString(EstadoTarea.pendiente),
-                              descripcion: '',
-                            );
-                            _tarea.idestadoTarea = EstadoTarea.pendiente;
-                            runMutation(_tarea.updateJson(_tarea.orden));
-                          },
+                          onTap: () => changeTareaEstado(EstadoTarea.getEstadoTarea(EstadoTarea.pendiente), runMutation),
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
                             decoration: BoxDecoration(
@@ -157,15 +151,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                       SizedBox(width: 10.0),
                       Expanded(
                         child: InkWell(
-                          onTap: () {
-                            _tarea.estadoTarea = EstadoTarea(
-                              idestadoTarea: EstadoTarea.enProgreso,
-                              nombre: EstadoTarea.estadoToString(EstadoTarea.enProgreso),
-                              descripcion: '',
-                            );
-                            _tarea.idestadoTarea = EstadoTarea.enProgreso;
-                            runMutation(_tarea.updateJson(_tarea.orden));
-                          },
+                          onTap: () => changeTareaEstado(EstadoTarea.getEstadoTarea(EstadoTarea.enProgreso), runMutation),
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
                             decoration: BoxDecoration(
@@ -193,15 +179,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                       SizedBox(width: 10.0),
                       Expanded(
                         child: InkWell(
-                          onTap: () {             
-                            _tarea.estadoTarea = EstadoTarea(
-                              idestadoTarea: EstadoTarea.enRevision,
-                              nombre: EstadoTarea.estadoToString(EstadoTarea.enRevision),
-                              descripcion: '',
-                            );
-                            _tarea.idestadoTarea = EstadoTarea.enRevision;
-                            runMutation(_tarea.updateJson(_tarea.orden));
-                          },
+                          onTap: () => changeTareaEstado(EstadoTarea.getEstadoTarea(EstadoTarea.enRevision), runMutation),
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
                             decoration: BoxDecoration(
@@ -229,15 +207,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                       SizedBox(width: 10.0),
                       Expanded(
                         child: InkWell(
-                          onTap: () {
-                            _tarea.estadoTarea = EstadoTarea(
-                              idestadoTarea: EstadoTarea.completada,
-                              nombre: EstadoTarea.estadoToString(EstadoTarea.completada),
-                              descripcion: '',
-                            );
-                            _tarea.idestadoTarea = EstadoTarea.completada;
-                            runMutation(_tarea.updateJson(_tarea.orden));
-                          },
+                          onTap: () => changeTareaEstado(EstadoTarea.getEstadoTarea(EstadoTarea.completada), runMutation),
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
                             decoration: BoxDecoration(
@@ -265,15 +235,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                       SizedBox(width: 10.0),
                       Expanded(
                         child: InkWell(
-                          onTap: () {
-                            _tarea.estadoTarea = EstadoTarea(
-                              idestadoTarea: EstadoTarea.bloqueada,
-                              nombre: EstadoTarea.estadoToString(EstadoTarea.bloqueada),
-                              descripcion: '',
-                            );
-                            _tarea.idestadoTarea = EstadoTarea.bloqueada;
-                            runMutation(_tarea.updateJson(_tarea.orden));
-                          },
+                          onTap: () => changeTareaEstado(EstadoTarea.getEstadoTarea(EstadoTarea.bloqueada), runMutation),
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
                             decoration: BoxDecoration(
@@ -301,15 +263,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                       SizedBox(width: 10.0),
                       Expanded(
                         child: InkWell(
-                          onTap: () {
-                            _tarea.estadoTarea = EstadoTarea(
-                              idestadoTarea: EstadoTarea.cancelada,
-                              nombre: EstadoTarea.estadoToString(EstadoTarea.cancelada),
-                              descripcion: '',
-                            );
-                            _tarea.idestadoTarea = EstadoTarea.cancelada;
-                            runMutation(_tarea.updateJson(_tarea.orden));
-                          },
+                          onTap: () => changeTareaEstado(EstadoTarea.getEstadoTarea(EstadoTarea.cancelada), runMutation),
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
                             decoration: BoxDecoration(
@@ -397,14 +351,14 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                                 ),
                                 SizedBox(width: 14.0),
                                 Text(
-                                  'Horas: ${(widget.tarea.horasTrabajadas * _tarea.avance).toStringAsFixed(2)}, ',
+                                  'Horas: ${widget.tarea.horasTrabajadas}',
                                   style: theme.textTheme.bodyLarge!.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 SizedBox(width: 14.0),
                                 Text(
-                                  'Total MO: ${_currencyFormat.format(_tarea.costoTotalManoObra)}',
+                                  'Total MO: ${_currencyFormat.format(_tarea.totalManoObraAvance)}',
                                   style: theme.textTheme.bodyLarge!.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -566,21 +520,23 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                               SizedBox(height: 10),
                               InformacionTareaGastosComponent(
                                 client: widget.client,
-                                tarea: _tarea,
+                                tarea: _tarea.toTarea(),
                                 getTotalGasto: (double total) {
                                   setState(() {
                                     _totalGastos = total;
                                   });
+                                  widget.refetch();
                                 },
                               ),
                               SizedBox(height: 20.0),
                               InformacionTareaMaterialesComponent(
                                 client: widget.client, 
-                                tarea: _tarea, 
+                                tarea: _tarea.toTarea(), 
                                 changeTotalMateriales: (double total){
                                   setState(() {
                                     _totalMateriales = total;
                                   });
+                                  widget.refetch();
                                 },
                               ),
                               SizedBox(height: 100.0),
@@ -607,13 +563,30 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
     setState(() {
       _tarea.avance = nuevoAvance;
     });
-    runMutation(_tarea.updateJson(_tarea.orden));
+    runMutation(_tarea.toTarea().update());
+    widget.refetch();
   }
 
   void _onChangeEstado() {
     setState(() {
       _changeEstado = true;
     });
+    widget.refetch();
+  }
+
+  void changeTareaEstado(EstadoTarea nuevoEstado, RunMutation runMutation) {
+    var tarea = _tarea.toTarea();
+    tarea.estadoTarea = EstadoTarea(
+      idestadoTarea: nuevoEstado.idestadoTarea,
+      nombre: nuevoEstado.nombre,
+      descripcion: nuevoEstado.descripcion,
+    );
+    tarea.idestadoTarea = nuevoEstado.idestadoTarea!;
+    setState(() {
+      _tarea.estadoTareaNombre = nuevoEstado.nombre;
+      _tarea.idestadoTarea = nuevoEstado.idestadoTarea!;
+    });
+    runMutation(tarea.update());
   }
 }
 

@@ -1,9 +1,12 @@
 import 'package:constructoria/cors/dialog_Ask.dart';
+import 'package:constructoria/cors/wait_tool.dart';
 import 'package:constructoria/domain/entities/proyecto.dart';
-import 'package:constructoria/domain/entities/tarea.dart';
-import 'package:constructoria/domain/entities/tarea_material.dart';
+import 'package:constructoria/domain/entities/proyecto_mano_obra.dart';
+import 'package:constructoria/domain/entities/resumen_proyecto.dart';
+import 'package:constructoria/domain/entities/v_tarea.dart';
 import 'package:constructoria/domain/entities/v_tarea_gasto.dart';
 import 'package:constructoria/domain/entities/v_tarea_material.dart';
+import 'package:constructoria/domain/repositories/proyecto_queries.dart';
 import 'package:constructoria/domain/repositories/tarea_material_queries.dart';
 import 'package:constructoria/domain/repositories/tarea_queries.dart';
 import 'package:constructoria/domain/repositories/v_tarea_gasto.queries.dart';
@@ -77,7 +80,7 @@ class _TareasAvancePageState extends State<TareasAvancePage> {
           Expanded(
             child: Query(
               options: QueryOptions(
-                document: gql(TareaQueries.getAllTareas),
+                document: gql(TareaQueries.vTareas),
                 variables: {
                   'idproyecto': widget.proyecto.idproyecto,
                 },
@@ -90,7 +93,7 @@ class _TareasAvancePageState extends State<TareasAvancePage> {
                 if (result.hasException) {
                   return Center(child: Text('Error al cargar las tareas'));
                 }
-                final tareas = Tarea.fromJsonList(result.data?['tareas'] as List);
+                final tareas = VTarea.fromJsonList(result.data?['vTareas'] as List);
                
                 return Container(
                   decoration: BoxDecoration(
@@ -107,37 +110,7 @@ class _TareasAvancePageState extends State<TareasAvancePage> {
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  '0%',  
-                                  style: theme.textTheme.titleLarge?.copyWith(
-                                    color: theme.colorScheme.inverseSurface,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Spacer(),
-                                Text('Gastos: \$0.0', style: theme.textTheme.titleMedium),
-                                const SizedBox(width: 30),
-                                Text('Materiales: \$0.0', style: theme.textTheme.titleMedium),
-                                const SizedBox(width: 30),
-                                Text('Mano de obra: \$0.0', style: theme.textTheme.titleMedium),
-                                const SizedBox(width: 30),
-                                Text('Total: \$0.0', style: theme.textTheme.titleMedium),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            LinearProgressIndicator(
-                              value: 0.0, // Cambia por el avance global
-                              backgroundColor: Colors.blue[50],
-                              color: Colors.blue,
-                              minHeight: 10,
-                            ),
-                          ],
-                        ),
+                        child: ProyectoResumenAvanceComponent(proyecto: widget.proyecto),
                       ),
                       Expanded(
                         child: Container(
@@ -163,6 +136,7 @@ class _TareasAvancePageState extends State<TareasAvancePage> {
                                   tarea: tarea,
                                   gastos: {'Transporte material': 500, 'Comida personal': 300},
                                   materiales: {'Cemento (5 sacos)': 1200, 'Varilla (20 pzas)': 2000},
+                                  refetch: refetch,
                                 ),
                               );
                             },
@@ -187,12 +161,14 @@ class _TareaCard extends StatefulWidget {
     required this.tarea,
     required this.gastos,
     required this.materiales,
+    required this.refetch,
   });
 
   final GraphQLClient client;
-  final Tarea tarea;
+  final VTarea tarea;
   final Map<String, int> gastos;
   final Map<String, int> materiales;
+  final refetch;
 
   @override
   State<_TareaCard> createState() => _TareaCardState();
@@ -222,7 +198,7 @@ class _TareaCardState extends State<_TareaCard> {
                   children: [
                     Text('${widget.tarea.orden}:', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: theme.colorScheme.primary)),
                     SizedBox(width: 8),
-                    Text(widget.tarea.descripcion, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    Text(widget.tarea.tareaDescripcion, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                   ],
                 )),
               const SizedBox(width: 8),
@@ -232,7 +208,7 @@ class _TareaCardState extends State<_TareaCard> {
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text(widget.tarea.estadoTarea?.nombre ?? '', style: TextStyle(fontSize: 12)),
+                child: Text(widget.tarea.estadoTareaNombre, style: TextStyle(fontSize: 12)),
               ),
               IconButton(
                 onPressed: _onTareaComment, 
@@ -242,7 +218,7 @@ class _TareaCardState extends State<_TareaCard> {
           ),
           Row(
             children: [
-              Expanded(child: Text('Responsable: ${widget.tarea.empleado}', style: Theme.of(context).textTheme.bodyMedium)),
+              Expanded(child: Text('Responsable: ${widget.tarea.empleadoNombre} ${widget.tarea.apellidoPaterno} ${widget.tarea.apellidoMaterno}', style: Theme.of(context).textTheme.bodyMedium)),
               SizedBox(width: 8),
               IconButton(
                 onPressed: _onEditProgress,
@@ -288,33 +264,54 @@ class _TareaCardState extends State<_TareaCard> {
 
               final totalGastos = gastos.fold(0.0, (sum, gasto) => sum + gasto.tipoGastoCosto);
 
-              return Column(
-                children: [
-                  Text('Gastos', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                  for (var gasto in gastos) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('${gasto.tipoGastoCodigo}  ${gasto.tipoGastoNombre}'),
-                        Text(_currencyFormatter.format(gasto.tipoGastoCosto)),
-                      ],
+              return Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
+                      child: Text('Gastos', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
                     ),
-                    SizedBox(height: 4),
-                    Divider(thickness: 1, height: 1, color: Colors.grey[100]),
+                    Divider(thickness: 3, height: 16, color: theme.colorScheme.surfaceContainerLowest),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, right: 16, top: 4.0, bottom: 16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (var gasto in gastos) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('${gasto.tipoGastoCodigo}  ${gasto.tipoGastoNombre}'),
+                                Text(_currencyFormatter.format(gasto.tipoGastoCosto)),
+                              ],
+                            ),
+                            SizedBox(height: 4),
+                            Divider(thickness: 1, height: 1, color: theme.colorScheme.outlineVariant),
+                          ],
+                          SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('', style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text(_currencyFormatter.format(totalGastos), style: TextStyle(fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ]
+                      ),
+                    ),
                   ],
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(_currencyFormatter.format(totalGastos), style: TextStyle(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ],
+                ),
               );
             }
           ),
           const SizedBox(height: 8),
-          const Divider(height: 20),
           Query(
             options: QueryOptions(
               document: gql(TareaMaterialQueries.getByTarea),
@@ -340,40 +337,68 @@ class _TareaCardState extends State<_TareaCard> {
 
               final totalMateriales = materiales.fold(0.0, (sum, material) => sum + material.costo);
 
-              return Column(
-                children: 
-                [
-                  Text('Materiales', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                  for (var material in materiales) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('${material.codigo} ${material.descripcion}  Cantidad: ${material.cantidad}'),
-                        Text(_currencyFormatter.format(material.costo)),
-                      ],
+              return Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: 
+                  [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
+                      child: Text('Materiales', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
                     ),
-                    SizedBox(height: 4),
-                    Divider(thickness: 1, height: 1, color: Colors.grey[100]),
-                  ],
-                  const Divider(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Total:', style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(_currencyFormatter.format(totalMateriales), style: TextStyle(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ]
+                    Divider(thickness: 3, height: 16, color: theme.colorScheme.surfaceContainerLowest),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, right: 16, top: 4.0, bottom: 16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (var material in materiales) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('${material.codigo} ${material.descripcion}  Cantidad: ${material.cantidad}'),
+                                Text(_currencyFormatter.format(material.costo)),
+                              ],
+                            ),
+                            SizedBox(height: 4),
+                            Divider(thickness: 1, height: 1, color: theme.colorScheme.outlineVariant),
+                          ],
+                          SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('', style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text(_currencyFormatter.format(totalMateriales), style: TextStyle(fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ]
+                      ),
+                    ),
+                  ]
+                ),
               );
             }
           ),
-          const Divider(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Total Mano de obra:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('\$0.0', style: TextStyle(fontWeight: FontWeight.bold)),
-            ],
+          SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Total Mano de obra:', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(_currencyFormatter.format(widget.tarea.totalManoObraAvance), style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
         ],
@@ -387,6 +412,7 @@ class _TareaCardState extends State<_TareaCard> {
         builder: (context) => InformacionTareaPage(
           client: widget.client,
           tarea: widget.tarea,
+          refetch: widget.refetch,
         ),
       ),
     );
@@ -400,24 +426,125 @@ class _TareaCardState extends State<_TareaCard> {
       onOk: () {}
     );
   }
-
-  void _onAgregarGasto() {
-    DialogAsk.simple(
-      context: context, 
-      title: 'Agregar Gasto', 
-      content: Text('Sección de agregar gasto en construcción...'), 
-      onOk: () {}
-    );
-  }
-
-  void _onAgregarMaterial() {
-    DialogAsk.simple(
-      context: context, 
-      title: 'Agregar Material', 
-      content: Text('Sección de agregar material en construcción...'), 
-      onOk: () {}
-    );
-  }
   
   void refreshGastoTotal() {}
+}
+
+class ProyectoResumenAvanceComponent extends StatefulWidget {
+  const ProyectoResumenAvanceComponent({super.key, required this.proyecto});
+
+  final Proyecto proyecto;
+
+  @override
+  State<ProyectoResumenAvanceComponent> createState() => _ProyectoResumenAvanceComponentState();
+}
+
+class _ProyectoResumenAvanceComponentState extends State<ProyectoResumenAvanceComponent> {
+  final _currencyFormatter = NumberFormat.currency(locale: 'es_MX', symbol: '\$');
+  final _percentFormatter = NumberFormat.percentPattern('es_MX');
+
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Query(
+      options: QueryOptions(
+        document: gql(ProyectoQueries.getResumenProyecto),
+        variables: {
+          'idproyecto': widget.proyecto.idproyecto,
+        },
+        fetchPolicy: FetchPolicy.noCache,
+      ),
+      builder:(result, {fetchMore, refetch}) {
+        if (result.isLoading) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(width: 100, child: WaitTool()),
+            ],
+          );  
+        }
+        if (result.hasException) {
+          return Center(child: Text('Error al cargar el resumen del proyecto'));
+        }
+        final resumen = ResumenProyecto.fromJson(result.data?['getResumenProyecto']);
+        final _subTotal = resumen.totalGasto + resumen.totalMaterial;
+
+        return Column(
+          children: [
+            Row(
+              children: [
+                Text(
+                  _percentFormatter.format(resumen.porcentajeAvance),  
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: theme.colorScheme.inverseSurface,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Spacer(),
+                Text('Gastos: ${_currencyFormatter.format(resumen.totalGasto)}', style: theme.textTheme.titleMedium),
+                const SizedBox(width: 30),
+                Text('Materiales: ${_currencyFormatter.format(resumen.totalMaterial)}', style: theme.textTheme.titleMedium),
+                const SizedBox(width: 30),
+                TotalManoObraComponent(
+                  idproyecto: widget.proyecto.idproyecto!,
+                  subTotal: _subTotal,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            LinearProgressIndicator(
+              value: resumen.porcentajeAvance, // Cambia por el avance global
+              backgroundColor: Colors.blue[50],
+              color: Colors.blue,
+              minHeight: 10,
+            ),
+          ],
+        );
+      }
+    );
+  }
+}
+
+class TotalManoObraComponent extends StatelessWidget {
+  TotalManoObraComponent({super.key, required this.idproyecto, required this.subTotal});
+
+  final int idproyecto;
+  final double subTotal;
+
+  final _currencyFormatter = NumberFormat.currency(locale: 'es_MX', symbol: '\$');
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Query(
+      options: QueryOptions(
+        document: gql(ProyectoQueries.proyectoManoObraSum),
+        variables: {
+          'idproyecto': idproyecto,
+        },
+        fetchPolicy: FetchPolicy.noCache,
+      ),
+      builder:(result, {fetchMore, refetch}) {
+        if (result.isLoading) {
+          return Container();
+        }
+        if (result.hasException) {
+          return Center(child: Text('Error al cargar el total de mano de obra'));
+        }
+
+        final proyectoManoObra = ProyectoManoObra.fromJsonList(result.data?['proyectoManoObraSum'] as List);
+        final total = subTotal + (proyectoManoObra?.totalManoObraAvance ?? 0.0);
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+              Text('Mano de obra: ${_currencyFormatter.format(proyectoManoObra?.totalManoObraAvance ?? 0.0)}', style: theme.textTheme.titleMedium),
+              const SizedBox(width: 30),
+              Text('Total: ${_currencyFormatter.format(total)}', style: theme.textTheme.titleMedium),
+          ],
+        );
+      }
+    );
+  }
 }

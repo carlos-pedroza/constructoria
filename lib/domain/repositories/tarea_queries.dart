@@ -135,4 +135,30 @@ class TareaQueries {
       removeTarea(id: \$id)
     }
   ''';
+
+  static const String vTareas = r'''
+    query ($idproyecto: Int!){
+      vTareas(idproyecto: $idproyecto) {
+        idtarea
+        idproyecto
+        code
+        tarea_descripcion
+        fecha_inicio
+        fecha_fin
+        idempleado
+        empleado_nombre
+        apellido_paterno
+        apellido_materno
+        costo_por_hora
+        activo
+        idestado_tarea
+        estado_tarea_nombre
+        estado_tarea_descripcion
+        avance
+        total_mano_obra
+        total_mano_obra_avance
+        orden
+      }
+    }
+  ''';
 }

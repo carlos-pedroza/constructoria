@@ -112,4 +112,25 @@ class ProyectoQueries {
     }
   ''';
 
+  static const String getResumenProyecto = r'''
+    query ($idproyecto: Int!) {
+      getResumenProyecto(idproyecto: $idproyecto) {
+        idproyecto
+        porcentaje_avance
+        total_gasto
+        total_material
+      }
+    }
+  ''';
+
+  static const String proyectoManoObraSum = r'''
+    query ($idproyecto: Int!){
+      proyectoManoObraSum(idproyecto: $idproyecto) {
+        idproyecto
+        total_mano_obra
+        total_mano_obra_avance
+      }
+    }
+  ''';
+
 }

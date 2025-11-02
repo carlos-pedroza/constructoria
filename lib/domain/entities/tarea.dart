@@ -153,6 +153,21 @@ class Tarea {
     };
   }
 
+  Map<String, dynamic> update() {
+    return {
+      'id': idtarea,
+      'idproyecto': idproyecto,
+      'code': code,
+      'descripcion': descripcion,
+      'fecha_inicio': DateFormat('yyyy-MM-ddTHH:mm:ss').format(fechaInicio),
+      'fecha_fin': DateFormat('yyyy-MM-ddTHH:mm:ss').format(fechaFin),
+      'idempleado': idempleado,
+      'idestado_tarea': idestadoTarea,
+      'avance': avance,
+      'orden': orden,
+    };
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'idtarea': idtarea,

@@ -59,4 +59,24 @@ class EstadoTarea {
   String toString() {
     return 'EstadoTarea{idestadoTarea: $idestadoTarea, nombre: $nombre, descripcion: $descripcion}';
   }
+
+  static EstadoTarea getEstadoTarea(int id) {
+    switch (id) {
+      case pendiente:
+        return EstadoTarea(idestadoTarea: pendiente, nombre: 'Pendiente', descripcion: '');
+      case enProgreso:
+        return EstadoTarea(idestadoTarea: enProgreso, nombre: 'En Progreso', descripcion: '');
+      case enRevision:
+        return EstadoTarea(idestadoTarea: enRevision, nombre: 'En Revisión', descripcion: '');
+      case completada:
+        return EstadoTarea(idestadoTarea: completada, nombre: 'Completada', descripcion: '');
+      case bloqueada:
+        return EstadoTarea(idestadoTarea: bloqueada, nombre: 'Bloqueada', descripcion: '');
+      case cancelada:
+        return EstadoTarea(idestadoTarea: cancelada, nombre: 'Cancelada', descripcion: '');
+      default:
+        return EstadoTarea(idestadoTarea: 0, nombre: 'Desconocido', descripcion: '');
+    }
+
+  }
 }
