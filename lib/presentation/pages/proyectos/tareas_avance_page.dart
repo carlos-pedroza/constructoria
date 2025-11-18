@@ -1,4 +1,3 @@
-import 'package:constructoria/cors/dialog_Ask.dart';
 import 'package:constructoria/cors/wait_tool.dart';
 import 'package:constructoria/domain/entities/proyecto.dart';
 import 'package:constructoria/domain/entities/proyecto_mano_obra.dart';
@@ -7,10 +6,12 @@ import 'package:constructoria/domain/entities/v_tarea.dart';
 import 'package:constructoria/domain/entities/v_tarea_gasto.dart';
 import 'package:constructoria/domain/entities/v_tarea_material.dart';
 import 'package:constructoria/domain/repositories/proyecto_queries.dart';
+import 'package:constructoria/domain/repositories/tarea_comentario_queries.dart';
 import 'package:constructoria/domain/repositories/tarea_material_queries.dart';
 import 'package:constructoria/domain/repositories/tarea_queries.dart';
 import 'package:constructoria/domain/repositories/v_tarea_gasto.queries.dart';
 import 'package:constructoria/presentation/pages/proyectos/informacion_tarea_page.dart';
+import 'package:constructoria/presentation/pages/proyectos/tarea_comentarios_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
@@ -210,9 +211,28 @@ class _TareaCardState extends State<_TareaCard> {
                 ),
                 child: Text(widget.tarea.estadoTareaNombre, style: TextStyle(fontSize: 12)),
               ),
-              IconButton(
-                onPressed: _onTareaComment, 
-                icon: Icon(Icons.comment, size: 20, color: Colors.blue),
+              Query(
+                options: QueryOptions(
+                  document: gql(TareaComentarioQueries.tieneComentarios),
+                  variables: {
+                    'idtarea': widget.tarea.idtarea,
+                  },
+                  fetchPolicy: FetchPolicy.noCache,
+                ),
+                builder: (result, {fetchMore, refetch}) {
+                  if (result.isLoading) {
+                    return SizedBox();
+                  }
+                  if (result.hasException) {
+                    return SizedBox();
+                  }
+                  final tieneComentarios = result.data?['existeTareaComentarioPorTarea'] as bool;
+
+                  return IconButton(
+                    onPressed: _onTareaComment, 
+                    icon: Icon(Icons.comment, size: 20, color: tieneComentarios ? Colors.blue : theme.colorScheme.onSurfaceVariant),
+                  );
+                }
               )
             ],
           ),
@@ -419,11 +439,14 @@ class _TareaCardState extends State<_TareaCard> {
   }
 
   void _onTareaComment() {
-    DialogAsk.simple(
-      context: context, 
-      title: 'Comentarios', 
-      content: Text('Comentarios de la tarea en construcción...'), 
-      onOk: () {}
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => TareaComentariosPage(
+          client: widget.client,
+          tarea: widget.tarea,
+          refetchTareas: widget.refetch,
+        ),
+      ),
     );
   }
   

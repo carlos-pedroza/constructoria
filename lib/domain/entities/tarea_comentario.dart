@@ -4,7 +4,7 @@ class TareaComentario {
   TareaComentario({
     this.idtareaComentario,
     required this.idtarea,
-    required this.comentario,
+    required this.comentarios,
     required this.idempleado,
     this.empleadoNombre,
     required this.creado,
@@ -12,7 +12,7 @@ class TareaComentario {
 
   int? idtareaComentario;
   int idtarea;
-  String comentario;
+  String comentarios;
   int idempleado;
   String? empleadoNombre;
   DateTime creado;
@@ -21,7 +21,7 @@ class TareaComentario {
     return TareaComentario(
       idtareaComentario: json['idtarea_comentario'] as int?,
       idtarea: json['idtarea'] as int,
-      comentario: json['comentario'] as String? ?? '',
+      comentarios: json['comentarios'] as String? ?? '',
       idempleado: json['idempleado'] as int,
       empleadoNombre: '${json['empleado']?['nombre']} ${json['empleado']?['apellido_paterno']} ${json['empleado']?['apellido_materno']}',
       creado: json['creado'] != null ? DateTime.parse(json['creado']) : DateTime.now(),
@@ -36,7 +36,7 @@ class TareaComentario {
     return TareaComentario(
       idtareaComentario: null,
       idtarea: idtarea,
-      comentario: '',
+      comentarios: '',
       idempleado: idempleado,
       creado: DateTime.now(),
     );
@@ -46,7 +46,7 @@ class TareaComentario {
     if(idtareaComentario == null) {
       return {
         "idtarea": idtarea,
-        "comentarios": comentario,
+        "comentarios": comentarios,
         "idempleado": idtarea,
         "creado": "2025-11-16T13:41:00Z"
       };
@@ -54,7 +54,7 @@ class TareaComentario {
     return {
       'idtarea_comentario': idtareaComentario,
       'idtarea': idtarea,
-      'comentario': comentario,
+      'comentarios': comentarios,
       'idempleado': idempleado,
       'creado': DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado),
     };
@@ -62,6 +62,6 @@ class TareaComentario {
 
   @override
   String toString() {
-    return '$idtareaComentario\t$idtarea\t$comentario\t${DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado)}';
+    return '$idtareaComentario\t$idtarea\t$comentarios\t${DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado)}';
   }
 }
