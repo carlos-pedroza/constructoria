@@ -1,6 +1,7 @@
 import 'package:constructoria/domain/entities/tipo_persona.dart';
 import 'package:constructoria/domain/entities/tipo_cuenta.dart';
 import 'package:constructoria/domain/entities/moneda.dart';
+import 'package:constructoria/domain/repositories/proveedor_queries.dart';
 class Proveedor {
     static Proveedor empty() {
       return Proveedor(
@@ -156,5 +157,112 @@ class Proveedor {
 
   static List<Proveedor> fromJsonList(List<dynamic> jsonList) {
     return jsonList.map((json) => Proveedor.fromJson(json)).toList();
+  }
+
+  String get query {
+    if(idProveedor != null && idProveedor! > 0) {
+      return ProveedorQueries.createProveedor;
+    }
+    return ProveedorQueries.updateProveedor;
+  }
+
+  Map<String, dynamic> data() {
+    if(idProveedor != null && idProveedor! > 0) {
+      return update();
+    }
+    return create();
+  }
+
+  Map<String, dynamic> create() {
+    return {
+      "input": {
+        "rfc": rfc,
+        "razon_social": razonSocial,
+        "nombre_comercial": nombreComercial,
+        "id_tipo_persona": idTipoPersona,
+        "telefono": telefono,
+        "correo_electronico": correoElectronico,
+        "pagina_web": paginaWeb,
+        "contacto_nombre": contactoNombre,
+        "contacto_puesto": contactoPuesto,
+        "calle": calle,
+        "numero_exterior": numeroExterior,
+        "numero_interior": numeroInterior,
+        "colonia": colonia,
+        "municipio": municipio,
+        "estado": estado,
+        "pais": pais,
+        "codigo_postal": codigoPostal,
+        "banco": banco,
+        "cuenta_bancaria": cuentaBancaria,
+        "clabe": clabe,
+        "id_tipo_cuenta": idTipoCuenta,
+        "id_moneda": idMoneda,
+        "uso_cfdi": usoCfdi,
+        "metodo_pago": metodoPago,
+        "forma_pago": formaPago,
+        "dias_credito": diasCredito,
+        "limite_credito": limiteCredito,
+        "retencion_iva": retencionIva,
+        "retencion_isr": retencionIsr,
+        "activo": activo,
+        "notas": notas,
+        "responsable_legal_nombre": responsableLegalNombre,
+        "responsable_legal_puesto": responsableLegalPuesto,
+        "responsable_legal_telefono": responsableLegalTelefono,
+        "responsable_legal_correo": responsableLegalCorreo,
+        "responsable_legal_identificacion": responsableLegalIdentificacion,
+        "responsable_legal_rfc": responsableLegalRfc,
+        "creado_por": 1,
+        "actualizado_por": 1
+      }
+    };
+  }
+
+  Map<String, dynamic> update() {
+    return {
+      "id_proveedor": idProveedor,
+      "input": {
+        "rfc": rfc,
+        "razon_social": razonSocial,
+        "nombre_comercial": nombreComercial,
+        "id_tipo_persona": idTipoPersona,
+        "telefono": telefono,
+        "correo_electronico": correoElectronico,
+        "pagina_web": paginaWeb,
+        "contacto_nombre": contactoNombre,
+        "contacto_puesto": contactoPuesto,
+        "calle": calle,
+        "numero_exterior": numeroExterior,
+        "numero_interior": numeroInterior,
+        "colonia": colonia,
+        "municipio": municipio,
+        "estado": estado,
+        "pais": pais,
+        "codigo_postal": codigoPostal,
+        "banco": banco,
+        "cuenta_bancaria": cuentaBancaria,
+        "clabe": clabe,
+        "id_tipo_cuenta": idTipoCuenta,
+        "id_moneda": idMoneda,
+        "uso_cfdi": usoCfdi,
+        "metodo_pago": metodoPago,
+        "forma_pago": formaPago,
+        "dias_credito": diasCredito,
+        "limite_credito": limiteCredito,
+        "retencion_iva": retencionIva,
+        "retencion_isr": retencionIsr,
+        "activo": activo,
+        "notas": notas,
+        "responsable_legal_nombre": responsableLegalNombre,
+        "responsable_legal_puesto": responsableLegalPuesto,
+        "responsable_legal_telefono": responsableLegalTelefono,
+        "responsable_legal_correo": responsableLegalCorreo,
+        "responsable_legal_identificacion": responsableLegalIdentificacion,
+        "responsable_legal_rfc": responsableLegalRfc,
+        "creado_por": 1,
+        "actualizado_por": 1
+      }
+    };
   }
 }

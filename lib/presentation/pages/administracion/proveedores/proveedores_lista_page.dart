@@ -101,10 +101,6 @@ class _ProveedoresListaPageState extends State<ProveedoresListaPage> {
                     child: Text('Tipo', style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
                   ),
                   Expanded(
-                    flex: 100,
-                    child: Text('Cuenta', style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  ),
-                  Expanded(
                     flex: 80,
                     child: Text('Moneda', style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
                   ),
@@ -171,10 +167,6 @@ class _ProveedoresListaPageState extends State<ProveedoresListaPage> {
                           Expanded(
                             flex: 100,
                             child: Text(proveedor.tipoPersona?.descripcion ?? ''),
-                          ),
-                          Expanded(
-                            flex: 100,
-                            child: Text(proveedor.tipoCuenta?.descripcion ?? ''),
                           ),
                           Expanded(
                             flex: 80,

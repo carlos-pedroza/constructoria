@@ -79,10 +79,9 @@ class _ProveedoresPageState extends State<ProveedoresPage> {
                   ProveedorPage(
                     client: widget.client,
                     proveedor: _proveedor,
-                    refetch: _refetch,
-                    onSave: _onSave,
-                    onBack: _onBack,
-                    onDelete: _onDelete,
+                    onSave: ()=>_onSave(_refetch),
+                    onBack: ()=>_onBack(),
+                    onDelete: ()=>_onDelete(_refetch),
                   ),
                 ],
               ),
