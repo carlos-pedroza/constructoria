@@ -152,8 +152,9 @@ class _ProveedorPageState extends State<ProveedorPage> {
   }
 
   void _guardarProveedor(runMutation) async {
-    setState(() { _saving = true; });
     final auth = await SecurityAuth.get();
+    setState(() { _saving = true; });
+
     var proveedor = Proveedor(
       idProveedor: widget.proveedor.idProveedor,
       rfc: _rfcController.text,
@@ -263,12 +264,8 @@ class _ProveedorPageState extends State<ProveedorPage> {
                             onError: (error) {
                               setState(() { _saving = false; });
                               Snak.show(
-                                context: context,
-                                message: 'Error al guardar el proveedor',
-                                backcolor: theme.colorScheme.error,
-                                style: theme.textTheme.bodyMedium!.copyWith(
-                                  color: theme.colorScheme.surfaceContainerLowest,
-                                ),
+                                context: context, 
+                                message: message
                               );
                             },
                           ),
@@ -292,19 +289,6 @@ class _ProveedorPageState extends State<ProveedorPage> {
                         Mutation(
                           options: MutationOptions(
                             document: gql(ProveedorQueries.removeProveedor),
-                            onCompleted: (data) {
-                              widget.onDelete();
-                            },
-                            onError: (error) {
-                              Snak.show(
-                                context: context,
-                                message: 'Error al eliminar el proveedor',
-                                backcolor: theme.colorScheme.error,
-                                style: theme.textTheme.bodyMedium!.copyWith(
-                                  color: theme.colorScheme.surfaceContainerLowest,
-                                ),
-                              );
-                            },
                           ),
                           builder: (runMutation, result) {
                             return TextButton.icon(
