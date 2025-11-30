@@ -1,4 +1,3 @@
-import 'package:constructoria/domain/entities/tarea.dart';
 import 'package:constructoria/domain/entities/tarea_gasto.dart';
 import 'package:intl/intl.dart';
 
