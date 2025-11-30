@@ -3,13 +3,6 @@ import 'package:constructoria/domain/entities/tipo_cuenta.dart';
 import 'package:constructoria/domain/entities/moneda.dart';
 import 'package:constructoria/domain/repositories/proveedor_queries.dart';
 class Proveedor {
-    static Proveedor empty() {
-      return Proveedor(
-        rfc: '',
-        razonSocial: '',
-        idTipoPersona: 0,
-      );
-    }
   final int? idProveedor;
   final String rfc;
   final String razonSocial;
@@ -57,7 +50,7 @@ class Proveedor {
   final int actualizadoPor;
 
   Proveedor({
-    this.idProveedor = 0,
+    this.idProveedor,
     this.rfc = '',
     this.razonSocial = '',
     this.nombreComercial = '',
@@ -107,7 +100,7 @@ class Proveedor {
 
   factory Proveedor.fromJson(Map<String, dynamic> json) {
     return Proveedor(
-      idProveedor: json['id_proveedor'] ?? 0,
+      idProveedor: json['id_proveedor'],
       rfc: json['rfc'] ?? '',
       razonSocial: json['razon_social'] ?? '',
       nombreComercial: json['nombre_comercial'] ?? '',
@@ -159,18 +152,26 @@ class Proveedor {
     return jsonList.map((json) => Proveedor.fromJson(json)).toList();
   }
 
+  static Proveedor empty() {
+    return Proveedor(
+      rfc: '',
+      razonSocial: '',
+      idTipoPersona: 0,
+    );
+  }
+
   String get query {
-    if(idProveedor != null && idProveedor! > 0) {
+    if(idProveedor == null) {
       return ProveedorQueries.createProveedor;
     }
     return ProveedorQueries.updateProveedor;
   }
 
   Map<String, dynamic> data() {
-    if(idProveedor != null && idProveedor! > 0) {
-      return update();
+    if(idProveedor == null) {
+      return create();
     }
-    return create();
+    return update();  
   }
 
   Map<String, dynamic> create() {

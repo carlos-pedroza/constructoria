@@ -1,3 +1,4 @@
+import 'package:constructoria/cors/dialog_Ask.dart';
 import 'package:constructoria/cors/snak.dart';
 import 'package:constructoria/cors/wait_tool.dart';
 import 'package:constructoria/domain/entities/proveedor.dart';
@@ -6,6 +7,7 @@ import 'package:constructoria/domain/entities/tipo_persona.dart';
 import 'package:constructoria/domain/entities/tipo_cuenta.dart';
 import 'package:constructoria/domain/entities/moneda.dart';
 import 'package:constructoria/domain/repositories/proveedor_queries.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -113,6 +115,43 @@ class _ProveedorPageState extends State<ProveedorPage> {
     _tipoPersona = p.tipoPersona?.idTipoPersona;
     _tipoCuenta = p.tipoCuenta?.idTipoCuenta;
     _moneda = p.moneda?.idMoneda;
+    if (!kReleaseMode) {
+      _dataDummy();
+    }
+  }
+
+  void _dataDummy() {
+    _rfcController.text = 'XAXX010101000';
+    _razonSocialController.text = 'Proveedor de Prueba S.A. de C.V.';
+    _nombreComercialController.text = 'Proveedor Prueba';
+    _telefonoController.text = '5555555555';
+    _correoElectronicoController.text = 'proveedor@prueba.com';
+    _paginaWebController.text = 'www.proveedorprueba.com';
+    _contactoNombreController.text = 'Juan Pérez';
+    _contactoPuestoController.text = 'Gerente de Compras';
+    _calleController.text = 'Av. Siempre Viva';
+    _numeroExteriorController.text = '123';
+    _numeroInteriorController.text = 'A';
+    _coloniaController.text = 'Centro';
+    _municipioController.text = 'Ciudad de México';
+    _estadoController.text = 'CDMX';
+    _paisController.text = 'México';
+    _codigoPostalController.text = '01000';
+    _bancoController.text = 'Banco de Prueba';
+    _cuentaBancariaController.text = '1234567890';
+    _clabeController.text = '012345678901234567';
+    _usoCfdiController.text = 'G03';
+    _metodoPagoController.text = 'PUE';
+    _formaPagoController.text = '03';
+    _diasCreditoController.text = '30';
+    _limiteCreditoController.text = '10000.00';
+    _notasController.text = 'Este es un proveedor de prueba.';
+    _responsableLegalNombreController.text = 'Ana López';
+    _responsableLegalPuestoController.text = 'Representante';
+    _responsableLegalTelefonoController.text = '5555555556';
+    _responsableLegalCorreoController.text = 'ana@ejemplo.com';
+    _responsableLegalIdentificacionController.text = 'INE';
+    _responsableLegalRfcController.text = 'LOAA800101XXX';
   }
 
   @override
@@ -202,8 +241,16 @@ class _ProveedorPageState extends State<ProveedorPage> {
 
   void _eliminarProveedor(runMutation) async {
     if(widget.proveedor.idProveedor == null) return;
-    widget.onDelete();
-    runMutation({'id_proveedor': widget.proveedor.idProveedor});
+    DialogAsk.confirm(
+      context: context,
+      title: 'Eliminar Proveedor',
+      content: Text('¿Está seguro de que desea eliminar este proveedor?'),
+      onYes: () {
+        widget.onDelete();
+        runMutation({'id_proveedor': widget.proveedor.idProveedor});
+      },
+      onNo: () { },
+    );
   }
 
   @override
@@ -265,7 +312,7 @@ class _ProveedorPageState extends State<ProveedorPage> {
                               setState(() { _saving = false; });
                               Snak.show(
                                 context: context, 
-                                message: message
+                                message: 'Error al guardar el proveedor',
                               );
                             },
                           ),
