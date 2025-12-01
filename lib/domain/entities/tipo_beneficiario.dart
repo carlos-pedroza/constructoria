@@ -9,6 +9,9 @@ class TipoBeneficiario {
   final String clave;
   final String descripcion;
 
+  static const proveedor = 1;
+  static const empleado = 2; 
+
   factory TipoBeneficiario.fromJson(dynamic json) {
     return TipoBeneficiario(
       idTipoBeneficiario: json['id_tipo_beneficiario'] as int?,

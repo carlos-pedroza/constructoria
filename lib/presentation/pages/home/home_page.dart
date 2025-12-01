@@ -2,6 +2,7 @@ import 'package:constructoria/domain/entities/security_auth.dart';
 import 'package:constructoria/presentation/pages/administracion/administracion_page.dart';
 import 'package:constructoria/presentation/pages/home/login/login_page.dart'
     show LoginPage;
+import 'package:constructoria/presentation/pages/pagos/pagos_page.dart';
 import 'package:constructoria/presentation/pages/proyectos/proyectos_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -37,6 +38,7 @@ class _HomePageState extends State<HomePage> {
   static const _pageHome = 1;
   static const _pageTrabajadores = 2;
   static const _pageProyectos = 3;
+  static const _pagePagos = 4;
 
   late AuthLink? _authLink;
   late GraphQLClient? _client;
@@ -91,7 +93,12 @@ class _HomePageState extends State<HomePage> {
           _pageController.jumpToPage(_pageProyectos);
         });
       }),
-      _MenuItem(Icons.payments, 'Pagos', () {}),
+      _MenuItem(Icons.payments, 'Pagos', () {
+        setState(() {
+          selectedIndex = 4;
+          _pageController.jumpToPage(_pagePagos);
+        });
+      }),
       _MenuItem(Icons.receipt_long, 'Informes', () {}),
     ];
 
@@ -211,6 +218,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   AdministracionPage(client: _client!),
                                   ProyectosPage(client: _client!),
+                                  PagosPage(client: _client!),
                                 ],
                               ),
                             ),

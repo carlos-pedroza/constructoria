@@ -1,3 +1,5 @@
+import 'package:constructoria/domain/entities/pago.dart';
+
 class PagoDetalle {
   PagoDetalle({
     this.idpago,
@@ -131,6 +133,32 @@ class PagoDetalle {
       'aprobado_por': aprobadoPor,
       'aprobador_nombre': aprobadorNombre,
     };
+  }
+
+  Pago toPago() {
+    return Pago(
+      idpago: idpago,
+      idTipoBeneficiario: idTipoBeneficiario,
+      beneficiarioId: beneficiarioId,
+      monto: monto,
+      idMoneda: idMoneda,
+      idMetodoPago: idMetodoPago,
+      idEstatusPago: idEstatusPago,
+      fechaProgramada: fechaProgramada,
+      fechaPago: fechaPago,
+      idFormaPagoSat: idFormaPagoSat,
+      referenciaBancaria: referenciaBancaria,
+      cuentaOrigen: cuentaOrigen,
+      cuentaDestino: cuentaDestino,
+      documentoUrl: documentoUrl,
+      comprobantePagoUrl: comprobantePagoUrl,
+      idProyecto: idProyecto,
+      concepto: concepto,
+      notas: notas,
+      creadoEn: creadoEn,
+      actualizadoEn: actualizadoEn,
+      aprobadoPor: aprobadoPor,
+    );
   }
 
   @override

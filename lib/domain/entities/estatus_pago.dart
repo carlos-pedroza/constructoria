@@ -1,5 +1,5 @@
 import 'package:constructoria/domain/repositories/estatus_pago_queries.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:flutter/material.dart';
 
 class EstatusPago {
   EstatusPago({
@@ -11,6 +11,14 @@ class EstatusPago {
   int? idEstatusPago;
   final String clave;
   final String descripcion;
+
+  static const ingresdo = 1;
+  static const pendiente = 2;
+  static const aprobado = 3;
+  static const pagado = 4;
+  static const conciliado = 5;
+  static const cancelado = 6;
+  
 
   String get Query {
     if (idEstatusPago == null) {
@@ -65,5 +73,24 @@ class EstatusPago {
   @override
   String toString() {
     return 'EstatusPago{idEstatusPago: $idEstatusPago, clave: $clave, descripcion: $descripcion}';
+  }
+
+  static Color getColor(int idEstatusPago) {
+    switch (idEstatusPago) {
+      case ingresdo:
+        return Colors.blue;
+      case pendiente:
+        return Colors.orange;
+      case aprobado:
+        return Colors.green;
+      case pagado:
+        return Colors.teal;
+      case conciliado:
+        return Colors.tealAccent;
+      case cancelado:
+        return Colors.grey;
+      default:
+        return Colors.grey;
+    }
   }
 }
