@@ -1,7 +1,7 @@
 import 'package:constructoria/domain/entities/estatus_pago.dart';
 import 'package:constructoria/domain/entities/pago_detalle.dart';
-import 'package:constructoria/domain/entities/tipo_beneficiario.dart';
 import 'package:constructoria/domain/repositories/pago_queries.dart';
+import 'package:constructoria/presentation/pages/pagos/pago_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
@@ -94,47 +94,57 @@ class _PagosPageState extends State<PagosPage> {
                 ),
               ),
               Expanded(
-                child: ListView.separated(
-                  itemCount: pagos.length,
-                  separatorBuilder: (context, index) => Divider(
-                    color: theme.colorScheme.outline,
-                    height: 1,
-                  ),
-                  itemBuilder: (context, index) {
-                    final pago = pagos[index];
-                    return Card(
-                      elevation: 3,
-                      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      color: theme.colorScheme.surfaceContainerLowest,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: EstatusPago.getColor(pago.idEstatusPago),
-                            child: Icon(Icons.paid, color: theme.colorScheme.onPrimary),
+                  child: ListView.builder(
+                    itemCount: pagos.length,
+                    itemBuilder: (context, index) {
+                      final pago = pagos[index];
+                      return InkWell(
+                        onTap: () => _onOpenPago(pago),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(top: 2, left: 2, right: 2),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surfaceContainerLowest,
+                            border: Border.all(
+                              color: EstatusPago.getColor(pago.idEstatusPago),
+                              width: 1,
+                            ),
                           ),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  pago.concepto,
-                                  style: theme.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              Text(
-                                _formatCurrency.format(pago.monto),
-                                style: theme.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          subtitle: Column(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: EstatusPago.getColor(pago.idEstatusPago),
+                                    ),
+                                    padding: const EdgeInsets.all(8),
+                                    child: Icon(Icons.paid, color: theme.colorScheme.onPrimary, size: 24),
+                                  ),
+                                  SizedBox(width: 12),
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          pago.concepto,
+                                          style: theme.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        SizedBox(width: 8),
+                                        Icon(Icons.visibility, size: 20, color: theme.colorScheme.outline),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatCurrency.format(pago.monto),
+                                    style: theme.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
                               Wrap(
                                 spacing: 8,
                                 runSpacing: 4,
@@ -200,13 +210,11 @@ class _PagosPageState extends State<PagosPage> {
                               Text('Notas: ${pago.notas}', style: theme.textTheme.bodyMedium),
                             ],
                           ),
-                          isThreeLine: true,
                         ),
-                      ),
-                    );
-                  },
-                ),
-              )
+                      );
+                    },
+                  ),
+                )
             ],
           );
         }
@@ -216,5 +224,16 @@ class _PagosPageState extends State<PagosPage> {
 
   void _onAddProyecto() {
 
+  }
+  
+  void _onOpenPago(PagoDetalle pago) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PagoPage(
+          client: widget.client, 
+          pago: pago.toPago(),
+        )
+      ),
+    );
   }
 }
