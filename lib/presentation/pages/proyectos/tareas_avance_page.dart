@@ -50,7 +50,7 @@ class _TareasAvancePageState extends State<TareasAvancePage> {
               children: [
                 IconButton(
                     onPressed: widget.onBack,
-                    icon: Icon(Icons.arrow_back),
+                    icon: Icon(Icons.list_alt_rounded, size: 30),
                 ),
                 SizedBox(width: 20),
                 Icon(

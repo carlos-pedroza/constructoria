@@ -12,7 +12,7 @@ class EstatusPago {
   final String clave;
   final String descripcion;
 
-  static const ingresdo = 1;
+  static const ingresado = 1;
   static const pendiente = 2;
   static const aprobado = 3;
   static const pagado = 4;
@@ -70,6 +70,63 @@ class EstatusPago {
     };
   }
 
+  static String  displayName(int idEstatusPago) {
+    switch (idEstatusPago) {
+      case ingresado:
+        return 'Ingresado';
+      case pendiente:
+        return 'Pendiente de Aprobación';
+      case aprobado:
+        return 'Aprobado';
+      case pagado:
+        return 'Pagado';
+      case conciliado:
+        return 'Conciliado';
+      case cancelado:
+        return 'Cancelado';
+      default:
+        return '';
+    }
+  }
+
+  static int nextId(int idEstatusPago) {
+    switch (idEstatusPago) {
+      case ingresado:
+        return pendiente;
+      case pendiente:
+        return aprobado;
+      case aprobado:
+        return pagado;
+      case pagado:
+        return conciliado;
+      case conciliado :
+        return conciliado;
+      case cancelado:
+        return cancelado;
+      default:
+        return 0;
+    }
+  }
+
+  static String nextEstatus(int idEstatusPago) {
+    switch (idEstatusPago) {
+      case ingresado:
+        return 'Cambiar a pendiente de aprobación';
+      case pendiente:
+        return 'Aprobar Pago';
+      case aprobado:
+        return 'Marcar como Pagado';
+      case pagado:
+        return 'Cambiar a pago Conciliado';
+      case conciliado:
+        return 'Conciliado';
+      case cancelado:
+        return 'Cancelado';
+      default:
+        return '';
+    }
+  }
+
   @override
   String toString() {
     return 'EstatusPago{idEstatusPago: $idEstatusPago, clave: $clave, descripcion: $descripcion}';
@@ -77,8 +134,8 @@ class EstatusPago {
 
   static Color getColor(int idEstatusPago) {
     switch (idEstatusPago) {
-      case ingresdo:
-        return Colors.blue;
+      case ingresado:
+        return Colors.blueGrey;
       case pendiente:
         return Colors.orange;
       case aprobado:
@@ -86,7 +143,7 @@ class EstatusPago {
       case pagado:
         return Colors.teal;
       case conciliado:
-        return Colors.tealAccent;
+        return Colors.blueAccent;
       case cancelado:
         return Colors.grey;
       default:

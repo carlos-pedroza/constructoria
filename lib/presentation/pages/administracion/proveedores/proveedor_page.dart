@@ -285,7 +285,7 @@ class _ProveedorPageState extends State<ProveedorPage> {
                       children: [
                         IconButton(
                           onPressed: widget.onBack,
-                          icon: const Icon(Icons.arrow_back),
+                           icon: Icon(Icons.list_alt_rounded, size: 30),
                         ),
                         const SizedBox(width: 20),
                         const Icon(Icons.business, size: 40),

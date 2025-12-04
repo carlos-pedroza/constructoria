@@ -1,3 +1,4 @@
+import 'package:constructoria/domain/entities/estatus_pago.dart';
 import 'package:constructoria/domain/entities/pago.dart';
 
 class PagoDetalle {
@@ -94,6 +95,40 @@ class PagoDetalle {
       moneda: json['moneda'] as String?,
       aprobadoPor: json['aprobado_por'] as int?,
       aprobadorNombre: json['aprobador_nombre'] as String?,
+    );
+  }
+
+  factory PagoDetalle.empty() {
+    return PagoDetalle(
+      idpago: null,
+      idTipoBeneficiario: 0,
+      beneficiarioId: 0,
+      monto: 0.0,
+      idMoneda: 0,
+      idMetodoPago: 0,
+      idEstatusPago: EstatusPago.ingresado,
+      fechaProgramada: DateTime.now(),
+      fechaPago: DateTime.now(),
+      idFormaPagoSat: 0,
+      referenciaBancaria: '',
+      cuentaOrigen: '',
+      cuentaDestino: '',
+      documentoUrl: '',
+      comprobantePagoUrl: '',
+      idProyecto: null,
+      nombreProyecto: null,
+      concepto: '',
+      notas: '',
+      creadoEn: DateTime.now(),
+      actualizadoEn: DateTime.now(),
+      beneficiarioNombre: null,
+      tipoBeneficiario: null,
+      metodoPago: null,
+      estatusPago: null,
+      formaPagoSat: null,
+      moneda: null,
+      aprobadoPor: null,
+      aprobadorNombre: null,
     );
   }
 

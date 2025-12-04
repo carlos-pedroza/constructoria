@@ -23,7 +23,7 @@ class _PagosPageState extends State<PagosPage> {
   @override
   void initState() {
     super.initState();
-    _idEstatusPago = EstatusPago.ingresdo;
+    _idEstatusPago = EstatusPago.ingresado;
   }
 
   @override
@@ -71,7 +71,7 @@ class _PagosPageState extends State<PagosPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          Icons.work,
+                          Icons.money,
                           color: theme.colorScheme.inverseSurface,
                         ),
                         const SizedBox(width: 8),
@@ -223,7 +223,15 @@ class _PagosPageState extends State<PagosPage> {
   }
 
   void _onAddProyecto() {
-
+    final pago = PagoDetalle.empty();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PagoPage(
+          client: widget.client, 
+          pago: pago.toPago(),
+        )
+      ),
+    );
   }
   
   void _onOpenPago(PagoDetalle pago) {

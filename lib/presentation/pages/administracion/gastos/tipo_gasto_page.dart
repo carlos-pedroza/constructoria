@@ -84,7 +84,7 @@ class _TipoGastoPageState extends State<TipoGastoPage> {
                       children: [
                         IconButton(
                           onPressed: widget.onBack,
-                          icon: Icon(Icons.arrow_back),
+                          icon: Icon(Icons.list_alt_rounded, size: 30),
                         ),
                         SizedBox(width: 20),
                         Icon(Icons.work, size: 40),
