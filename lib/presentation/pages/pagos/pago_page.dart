@@ -1,3 +1,4 @@
+import 'package:constructoria/cors/dialog_Ask.dart';
 import 'package:constructoria/cors/wait_tool.dart';
 import 'package:constructoria/domain/entities/tipo_beneficiario.dart';
 import 'package:constructoria/presentation/pages/globales/title_page_component.dart';
@@ -189,30 +190,28 @@ class _PagoPageState extends State<PagoPage> {
     runMutation({'input': _pago});
   }
 
-  void _cambiarEstatus() {
-    setState(() {
-      // Ciclo de estatus
-      switch (_estatusPago) {
-        case EstatusPago.ingresado:
-          _estatusPago = EstatusPago.pendiente;
-          break;
-        case EstatusPago.pendiente:
-          _estatusPago = EstatusPago.aprobado;
-          break;
-        case EstatusPago.aprobado:
-          _estatusPago = EstatusPago.pagado;
-          break;
-        case EstatusPago.pagado:
-          _estatusPago = EstatusPago.conciliado;
-          break;
-        case EstatusPago.conciliado:
-          _estatusPago = EstatusPago.cancelado;
-          break;
-        case EstatusPago.cancelado:
-        default:
-          _estatusPago = EstatusPago.ingresado;
-      }
-    });
+  void _onCambiarEstatus(runMutation) {
+    DialogAsk.confirm(
+      context: context, 
+      title: 'Cambiar Estatus de Pago', 
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '¿Desea cambiar el estatus de este pago?',
+            style: Theme.of(context).textTheme.titleMedium!,
+          ),
+        ],
+      ),
+      onYes: ()=>_cambiarEstatus(runMutation), 
+      onNo: () {}
+    );
+  }
+
+  void _cambiarEstatus(runMutation) {
+    setState(() { _saving = true; });
+    widget.pago.idEstatusPago = EstatusPago.nextId( widget.pago.idEstatusPago);
+    runMutation({'input': widget.pago});
   }
 
   // Widget _sectionTitle(BuildContext context, String title) {
@@ -285,7 +284,7 @@ class _PagoPageState extends State<PagoPage> {
                     ),
                     padding: const EdgeInsets.all(20),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Row(
                           mainAxisSize: MainAxisSize.min,
@@ -309,24 +308,45 @@ class _PagoPageState extends State<PagoPage> {
                             ),
                           ],
                         ),
+                        Spacer(),
+                        if(widget.pago.idEstatusPago != EstatusPago.cancelado)
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if(widget.pago.idpago != null)
-                            Container(
-                              margin: EdgeInsets.only(left: 40, right: 20), 
-                              width: MediaQuery.of( context).size.width * 0.25,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: EstatusPago.getColor(EstatusPago.nextId(_estatusPago)),
-                                ),
-                                onPressed: _cambiarEstatus,
-                                child: Text(EstatusPago.nextEstatus(_estatusPago), style: theme.textTheme.titleMedium!.copyWith(
-                                  color: theme.colorScheme.surfaceContainerLowest
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                ),
+                            Mutation(
+                              options: MutationOptions(
+                                document: gql(PagoQueries.createPago), // Cambia por la mutation de eliminar si existe
+                                onCompleted: (data) {
+                                  if(data == null) return;
+                                  setState(() { _saving = false; });
+                                  widget.onSave(_pago!);
+                                  Navigator.of(context).pop();
+                                },
+                                onError: (error) {
+                                  setState(() { _saving = false; });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Error al cambiar estatus del pago')),
+                                  );
+                                },
                               ),
+                              builder: (runMutation, result) {
+                                return Container(
+                                  margin: EdgeInsets.only(left: 40, right: 20), 
+                                  width: MediaQuery.of( context).size.width * 0.25,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: EstatusPago.getColor(EstatusPago.nextId(_estatusPago)),
+                                    ),
+                                    onPressed: ()=> _onCambiarEstatus(runMutation),
+                                    child: Text(EstatusPago.nextEstatus(_estatusPago), style: theme.textTheme.titleMedium!.copyWith(
+                                      color: theme.colorScheme.surfaceContainerLowest
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                );
+                              }
                             ),
                             Mutation(
                               options: MutationOptions(
@@ -335,6 +355,9 @@ class _PagoPageState extends State<PagoPage> {
                                   if(data == null) return;
                                   setState(() { _saving = false; });
                                   widget.onSave(_pago!);
+                                  if(widget.pago.idpago == null) {
+                                    Navigator.of(context).pop();
+                                  }
                                 },
                                 onError: (error) {
                                   setState(() { _saving = false; });
@@ -363,17 +386,36 @@ class _PagoPageState extends State<PagoPage> {
                             Mutation(
                               options: MutationOptions(
                                 document: gql(PagoQueries.createPago), // Cambia por la mutation de eliminar si existe
+                                onCompleted: (data) {
+                                  if(data == null) return;
+                                  setState(() { _saving = false; });
+                                  widget.onDelete(_pago!);
+                                  Navigator.of(context).pop();
+                                },
+                                onError: (error) {
+                                  setState(() { _saving = false; });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Error al cancelar el pago')),
+                                  );
+                                },
                               ),
                               builder: (runMutation, result) {
-                                return TextButton.icon(
-                                  onPressed:()=>widget.onDelete(_pago!),
-                                  icon: const Icon(Icons.delete),
-                                  label: Text(
-                                    'Cancelar pago',
-                                    style: theme.textTheme.bodyMedium!.copyWith(
-                                      color: theme.colorScheme.error,
+                                return Column(
+                                  children: [
+                                    if (_saving)
+                                      SizedBox(width: 120)
+                                    else
+                                    TextButton.icon(
+                                      onPressed: ()=>_onCancelarPago(runMutation),
+                                      icon: const Icon(Icons.block_flipped, color: Colors.red),
+                                      label: Text(
+                                        'Cancelar pago',
+                                        style: theme.textTheme.bodyMedium!.copyWith(
+                                          color: theme.colorScheme.error,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 );
                               }
                             )
@@ -400,7 +442,40 @@ class _PagoPageState extends State<PagoPage> {
                         ),
                         SizedBox(height: 16),
                         Row(children: [
-                          Expanded(flex: 600, child: _textField(_referenciaBancariaController, 'Referencia Bancaria')),
+                          Expanded(flex: 300, child: _textField(_referenciaBancariaController, 'Referencia Bancaria')),
+                          Expanded(
+                            flex: 300,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8, right: 8),
+                              child: Query(
+                                options: QueryOptions(document: gql(ProveedorQueries.monedas)),
+                                builder: (result, {fetchMore, refetch}) {
+                                  if (result.isLoading) {
+                                    return SizedBox(width: 100, child: Center(child: WaitTool()));
+                                  }
+                                  if (result.hasException) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(6.0),
+                                      child: Text('Error Moneda'),
+                                    );
+                                  }
+                                  var monedas = result.data?['monedas'] ?? [];
+                                  monedas.removeWhere((p) => p['id_moneda'] == 0);
+                                  monedas.insert(0, {'id_moneda': 0, 'descripcion': 'Seleccione Moneda'});
+                                            
+                                  return DropdownButtonFormField<int>(
+                                    initialValue: _moneda,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Moneda',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    items: [for (var m in monedas) DropdownMenuItem(value: m['id_moneda'], child: Text(m['descripcion']))],
+                                    onChanged: (val) { setState(() { _moneda = val!; }); },
+                                  );
+                                }
+                              ),
+                            ),
+                          ),
                           Expanded(flex: 300, child: _textField(_montoController, 'Monto', keyboardType: TextInputType.number)),
                         ]),
                         SizedBox(height: 16),
@@ -719,5 +794,33 @@ class _PagoPageState extends State<PagoPage> {
 
   void _onClose() {
     Navigator.of(context).pop();
+  }
+
+  void _onCancelarPago(runMutation) {
+    DialogAsk.confirm(
+      context: context, 
+      title: 'Cancelar Pago', 
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.warning_amber_rounded, size: 48, color: Colors.red),
+          SizedBox(height: 16),
+          Text(
+            '¿Está seguro que desea cancelar este pago? Esta acción no se puede deshacer.',
+            style: Theme.of(context).textTheme.titleMedium!.copyWith(
+              color: Theme.of(context).colorScheme.error,
+            ),
+          ),
+        ],
+      ),
+      onYes: ()=>_cancelPago(runMutation), 
+      onNo: () {}
+    );
+  }
+
+  void _cancelPago(runMutation) {
+    setState(() { _saving = true; });
+    widget.pago.idEstatusPago = EstatusPago.cancelado;
+    runMutation({'input': widget.pago});
   }
 }

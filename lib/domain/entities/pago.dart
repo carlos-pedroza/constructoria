@@ -29,7 +29,7 @@ class Pago {
   final double monto;
   final int idMoneda;
   final int idMetodoPago;
-  final int idEstatusPago;
+  int idEstatusPago;
   final DateTime fechaProgramada;
   final DateTime fechaPago;
   final int idFormaPagoSat;

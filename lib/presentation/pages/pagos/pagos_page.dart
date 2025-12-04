@@ -173,6 +173,7 @@ class _PagosPageState extends State<PagosPage> {
                       else
                       Expanded(
                         child: ListView.builder(
+                          padding: const EdgeInsets.only(bottom: 100),
                           itemCount: pagos.length,
                           itemBuilder: (context, index) {
                             final pago = pagos[index];
