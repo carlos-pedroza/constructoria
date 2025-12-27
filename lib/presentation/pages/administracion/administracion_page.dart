@@ -26,178 +26,178 @@ class _AdministracionPageState extends State<AdministracionPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceBright,
-                border: Border(
-                  bottom: BorderSide(
-                    color: theme.colorScheme.outline,
-                    width: 1,
-                  ),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceBright,
+              border: Border(
+                bottom: BorderSide(
+                  color: theme.colorScheme.outline,
+                  width: 1,
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.admin_panel_settings,
-                        color: theme.colorScheme.inverseSurface,
-                      ),
-                      const SizedBox(width: 8),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
-                        child: Text(
-                          'Administración',
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            color: theme.colorScheme.inverseSurface,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                  SizedBox(width: 20),
-                ],
-              ),
             ),
-            Expanded(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  Padding(
-                    padding: EdgeInsetsGeometry.all(20),
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.people,
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                      title: Text(
-                        'Gestión de Trabajadores',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onSecondaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Text(
-                        'Agregar, editar o eliminar trabajadores',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSecondaryContainer,
-                        ),
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios,
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                      tileColor: theme.colorScheme.secondaryContainer,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      onTap: _onTapTrabajadores,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.admin_panel_settings,
+                      color: theme.colorScheme.inverseSurface,
                     ),
-                  ),
-                  Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
-                  Padding(
-                    padding: EdgeInsetsGeometry.all(20),
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.paid,
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                      title: Text(
-                        'Información de Gastos',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onSecondaryContainer,
-                          fontWeight: FontWeight.bold,
+                    const SizedBox(width: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
+                      child: Text(
+                        'Administración',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          color: theme.colorScheme.inverseSurface,
                         ),
                       ),
-                      subtitle: Text(
-                        'Información y gestión de gastos',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSecondaryContainer,
-                        ),
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios,
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                      tileColor: theme.colorScheme.secondaryContainer,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      onTap: _onTapTipoGastos,
                     ),
-                  ),
-                  Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
-                  Padding(
-                    padding: EdgeInsetsGeometry.all(20),
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.request_page_rounded,
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                      title: Text(
-                        'Gestión de Materiales',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onSecondaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Text(
-                        'Gestión de materiales y suministros',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSecondaryContainer,
-                        ),
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios,
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                      tileColor: theme.colorScheme.secondaryContainer,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      onTap: _onTapMateriales,
-                    ),
-                  ),
-                  Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
-                  Padding(
-                    padding: EdgeInsetsGeometry.all(20),
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.inventory,
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                      title: Text(
-                        'Gestión de Proveedores',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onSecondaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Text(
-                        'Gestión de proveedores y contratistas',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSecondaryContainer,
-                        ),
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios,
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                      tileColor: theme.colorScheme.secondaryContainer,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      onTap: _onTapProveedores,
-                    ),
-                  ),
-                  Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
-                ],
-              ),
+                  ],
+                ),
+                Spacer(),
+                SizedBox(width: 20),
+              ],
             ),
+          ),
+          Expanded(
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                Padding(
+                  padding: EdgeInsetsGeometry.all(20),
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.people,
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                    title: Text(
+                      'Gestión de Trabajadores',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.onSecondaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Agregar, editar o eliminar trabajadores',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                    tileColor: theme.colorScheme.secondaryContainer,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    onTap: _onTapTrabajadores,
+                  ),
+                ),
+                Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
+                Padding(
+                  padding: EdgeInsetsGeometry.all(20),
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.paid,
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                    title: Text(
+                      'Información de Gastos',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.onSecondaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Información y gestión de gastos',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                    tileColor: theme.colorScheme.secondaryContainer,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    onTap: _onTapTipoGastos,
+                  ),
+                ),
+                Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
+                Padding(
+                  padding: EdgeInsetsGeometry.all(20),
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.request_page_rounded,
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                    title: Text(
+                      'Gestión de Materiales',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.onSecondaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Gestión de materiales y suministros',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                    tileColor: theme.colorScheme.secondaryContainer,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    onTap: _onTapMateriales,
+                  ),
+                ),
+                Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
+                Padding(
+                  padding: EdgeInsetsGeometry.all(20),
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.inventory,
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                    title: Text(
+                      'Gestión de Proveedores',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.onSecondaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Gestión de proveedores y contratistas',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                    tileColor: theme.colorScheme.secondaryContainer,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    onTap: _onTapProveedores,
+                  ),
+                ),
+                Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
+              ],
+            ),
+          ),
         ],
       ),
     );
