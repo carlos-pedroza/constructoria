@@ -1,5 +1,7 @@
+import 'package:constructoria/cors/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class InformesPage extends StatefulWidget {
   const InformesPage({super.key, required this.client});
@@ -11,6 +13,9 @@ class InformesPage extends StatefulWidget {
 }
 
 class _InformesPageState extends State<InformesPage> {
+  final _puestoController = TextEditingController();
+  final _filtroExtraController = TextEditingController();
+  final _filtroProveedorController = TextEditingController();
   var _showWorkers = false;
   var _showProviders = false;
   var _showProjectsProgress = false;
@@ -129,23 +134,37 @@ class _InformesPageState extends State<InformesPage> {
                         Text('Buscar trabajador', style: theme.textTheme.titleMedium),
                         const SizedBox(height: 16),
                         TextFormField(
-                          decoration: const InputDecoration(
+                          controller: _puestoController,
+                          decoration: InputDecoration(
                             labelText: 'Puesto',
                             border: OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                _puestoController.clear();
+                              }, 
+                              icon: Icon(Icons.clear),
+                            )
                           ),
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
-                          decoration: const InputDecoration(
-                            labelText: 'Otra información del empleado',
+                          controller: _filtroExtraController,
+                          decoration: InputDecoration(
+                            labelText: 'Otra información del trabajador',
                             border: OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                _filtroExtraController.clear();
+                              }, 
+                              icon: Icon(Icons.clear),
+                            )
                           ),
                         ),
                         const SizedBox(height: 24),
                         Align(
                           alignment: Alignment.centerRight,
                           child: ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: _onTapTrabajadores,
                             icon: const Icon(Icons.open_in_new),
                             label: const Text('Abrir'),
                             style: ElevatedButton.styleFrom(
@@ -188,9 +207,63 @@ class _InformesPageState extends State<InformesPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    onTap: _onTapProveedores,
+                    onTap: () {
+                      setState(() {
+                        _showProviders = !_showProviders;
+                      });
+                    },
                   ),
                 ),
+                if(_showProviders) ...[
+                  Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
+                  Container(
+                    padding: const EdgeInsets.all(26),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.shadow.withOpacity(0.04),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Buscar proveedor', style: theme.textTheme.titleMedium),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _filtroProveedorController,
+                          decoration: InputDecoration(
+                            labelText: 'Filtro',
+                            border: OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                _filtroProveedorController.clear();
+                              }, 
+                              icon: Icon(Icons.clear),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton.icon(
+                            onPressed: _onTapProveedores,
+                            icon: const Icon(Icons.open_in_new),
+                            label: const Text('Abrir'),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              textStyle: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
                 TitleBarComponent(icon: Icons.work, title: 'Proyectos'),     
                 Padding(
@@ -368,10 +441,29 @@ class _InformesPageState extends State<InformesPage> {
     );
   }
 
-  void _onTapTrabajadores() {
+  void _onTapTrabajadores() async {
+    final urlInforme = await Constants.informeTrabajadoresUrl(
+      puesto: _puestoController.text,
+      filtroExtra: _filtroExtraController.text,
+    );
+    final uri = Uri.parse(urlInforme);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, webOnlyWindowName: '_blank');
+    } else {
+      // Maneja el error
+    }
   }
 
-  void _onTapProveedores() {
+  void _onTapProveedores() async {
+    final urlInforme = await Constants.informeProveedoresUrl(
+      filtro: _filtroProveedorController.text,
+    );
+    final uri = Uri.parse(urlInforme);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, webOnlyWindowName: '_blank');
+    } else {
+      // Maneja el error
+    }
   }
 }
 
