@@ -1,4 +1,5 @@
 import 'package:constructoria/cors/constants.dart';
+import 'package:constructoria/cors/dialog_Ask.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -295,7 +296,7 @@ class _InformesPageState extends State<InformesPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    onTap: _onTapProveedores,
+                    onTap: _onTapAvanceProyectos,
                   ),
                 ),
                 Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
@@ -328,7 +329,7 @@ class _InformesPageState extends State<InformesPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    onTap: _onTapProveedores,
+                    onTap: _onTapAvanceProyectos,
                   ),
                 ),
                 Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
@@ -361,7 +362,7 @@ class _InformesPageState extends State<InformesPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    onTap: _onTapProveedores,
+                    onTap: _onTapAvanceProyectos,
                   ),
                 ),
                 Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
@@ -395,7 +396,7 @@ class _InformesPageState extends State<InformesPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    onTap: _onTapProveedores,
+                    onTap: _onTapAvanceProyectos,
                   ),
                 ),
                 Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
@@ -428,7 +429,7 @@ class _InformesPageState extends State<InformesPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    onTap: _onTapProveedores,
+                    onTap: _onTapAvanceProyectos,
                   ),
                 ),
                 Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
@@ -464,6 +465,21 @@ class _InformesPageState extends State<InformesPage> {
     } else {
       // Maneja el error
     }
+  }
+
+  void _onTapAvanceProyectos() {
+    DialogAsk.simple(
+      context: context, 
+      title: 'Informe', 
+      content: Column(
+        children: [
+          Icon(Icons.construction, size: 80, color: Colors.orange),
+          SizedBox(height: 20),
+          Text('Funcionalidad en construcción'),
+        ],
+      ), 
+      onOk: () {},
+    );
   }
 }
 
