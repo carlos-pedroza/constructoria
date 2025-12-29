@@ -1,6 +1,7 @@
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class Constants {
   static const String baseUrlProd = 'https://api.allgaze.com';
@@ -29,7 +30,9 @@ class Constants {
     String safeFiltro = filtroExtra.isEmpty ? '[empty]' : filtroExtra;
 
     // Calcular expiración: hora actual + 10 minutos, formato dd-MM-yyyy-HH-mm-ss
-    final expired = DateTime.now().add(const Duration(minutes: 10));
+    tz.initializeTimeZones();
+    final mexico = tz.getLocation('America/Mexico_City');
+    final expired = tz.TZDateTime.now(mexico).add(const Duration(minutes: 10));
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String expiration =
       '${twoDigits(expired.day)}-${twoDigits(expired.month)}-${expired.year}-${twoDigits(expired.hour)}-${twoDigits(expired.minute)}-${twoDigits(expired.second)}';
@@ -51,7 +54,9 @@ class Constants {
     String safeFiltro = filtro.isEmpty ? '[empty]' : filtro;
 
     // Calcular expiración: hora actual + 10 minutos, formato dd-MM-yyyy-HH-mm-ss
-    final expired = DateTime.now().add(const Duration(minutes: 10));
+    tz.initializeTimeZones();
+    final mexico = tz.getLocation('America/Mexico_City');
+    final expired = tz.TZDateTime.now(mexico).add(const Duration(minutes: 10));
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String expiration =
       '${twoDigits(expired.day)}-${twoDigits(expired.month)}-${expired.year}-${twoDigits(expired.hour)}-${twoDigits(expired.minute)}-${twoDigits(expired.second)}';

@@ -472,6 +472,7 @@ class _InformesPageState extends State<InformesPage> {
       context: context, 
       title: 'Informe', 
       content: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.construction, size: 80, color: Colors.orange),
           SizedBox(height: 20),
