@@ -31,8 +31,8 @@ class Constants {
 
     // Calcular expiración: hora actual + 10 minutos, formato dd-MM-yyyy-HH-mm-ss
     tz.initializeTimeZones();
-    final mexico = tz.getLocation('America/Mexico_City');
-    final expired = tz.TZDateTime.now(mexico).add(const Duration(minutes: 10));
+    final utc = tz.getLocation('Etc/UTC');
+    final expired = tz.TZDateTime.now(utc).add(const Duration(minutes: 10));
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String expiration =
       '${twoDigits(expired.day)}-${twoDigits(expired.month)}-${expired.year}-${twoDigits(expired.hour)}-${twoDigits(expired.minute)}-${twoDigits(expired.second)}';
@@ -55,8 +55,8 @@ class Constants {
 
     // Calcular expiración: hora actual + 10 minutos, formato dd-MM-yyyy-HH-mm-ss
     tz.initializeTimeZones();
-    final mexico = tz.getLocation('America/Mexico_City');
-    final expired = tz.TZDateTime.now(mexico).add(const Duration(minutes: 10));
+    final utc = tz.getLocation('Etc/UTC');
+    final expired = tz.TZDateTime.now(utc).add(const Duration(minutes: 10));
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String expiration =
       '${twoDigits(expired.day)}-${twoDigits(expired.month)}-${expired.year}-${twoDigits(expired.hour)}-${twoDigits(expired.minute)}-${twoDigits(expired.second)}';
