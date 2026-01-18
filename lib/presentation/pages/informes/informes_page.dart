@@ -357,7 +357,7 @@ class _InformesPageState extends State<InformesPage> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: ElevatedButton.icon(
-                              onPressed: _onTapGastosProyectosOpen,
+                              onPressed: _onTapAvanceProyectosOpen,
                               icon: const Icon(Icons.open_in_new),
                               label: const Text('Abrir'),
                               style: ElevatedButton.styleFrom(
@@ -400,9 +400,76 @@ class _InformesPageState extends State<InformesPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      onTap: _onConstruction,
+                      onTap: _onTapGastosProyectos,
                     ),
                   ),
+                  if(_showProjectsExpenses) ...[
+                    Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
+                    Container(
+                      padding: const EdgeInsets.all(26),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.colorScheme.shadow.withOpacity(0.04),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Proyecto', style: theme.textTheme.titleMedium),
+                          const SizedBox(height: 16),
+                          Query(
+                            options: QueryOptions(document: gql(ProyectoQueries.getAllProyectos)),
+                            builder: (result, {fetchMore, refetch}) {
+                              if (result.isLoading) {
+                                return SizedBox(width: 100, child: Center(child: CircularProgressIndicator()));
+                              }
+                              if (result.hasException) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(6.0),
+                                  child: Text('Error al cargar proyectos'),
+                                );
+                              }
+                              var proyectos = result.data?['getAllProyectos'] ?? [];
+                              proyectos.removeWhere((p) => p['idproyecto'] == 0);
+                              proyectos.insert(0, {'idproyecto': 0, 'nombre': 'Todos los proyectos'});
+                              return DropdownButtonFormField<int>(
+                                initialValue: _proyectoSeleccionado,
+                                decoration: const InputDecoration(
+                                  labelText: 'Proyecto',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: [for (var p in proyectos) DropdownMenuItem(value: p['idproyecto'], child: Text(p['nombre']))],
+                                onChanged: (val) {
+                                  setState(() {
+                                    _proyectoSeleccionado = val!;
+                                  });
+                                },
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 24),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton.icon(
+                              onPressed: _onTapGastosProyectosOpen,
+                              icon: const Icon(Icons.open_in_new),
+                              label: const Text('Abrir'),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                textStyle: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
                   Padding(
                     padding: EdgeInsetsGeometry.all(20),
@@ -433,9 +500,76 @@ class _InformesPageState extends State<InformesPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      onTap: _onConstruction,
+                      onTap: _onTapMaterialesProyectos,
                     ),
                   ),
+                  if(_showProjectsMaterials) ...[
+                    Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
+                    Container(
+                      padding: const EdgeInsets.all(26),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.colorScheme.shadow.withOpacity(0.04),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Proyecto', style: theme.textTheme.titleMedium),
+                          const SizedBox(height: 16),
+                          Query(
+                            options: QueryOptions(document: gql(ProyectoQueries.getAllProyectos)),
+                            builder: (result, {fetchMore, refetch}) {
+                              if (result.isLoading) {
+                                return SizedBox(width: 100, child: Center(child: CircularProgressIndicator()));
+                              }
+                              if (result.hasException) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(6.0),
+                                  child: Text('Error al cargar proyectos'),
+                                );
+                              }
+                              var proyectos = result.data?['getAllProyectos'] ?? [];
+                              proyectos.removeWhere((p) => p['idproyecto'] == 0);
+                              proyectos.insert(0, {'idproyecto': 0, 'nombre': 'Todos los proyectos'});
+                              return DropdownButtonFormField<int>(
+                                initialValue: _proyectoSeleccionado,
+                                decoration: const InputDecoration(
+                                  labelText: 'Proyecto',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: [for (var p in proyectos) DropdownMenuItem(value: p['idproyecto'], child: Text(p['nombre']))],
+                                onChanged: (val) {
+                                  setState(() {
+                                    _proyectoSeleccionado = val!;
+                                  });
+                                },
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 24),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton.icon(
+                              onPressed: _onTapMaterialesProyectosOpen,
+                              icon: const Icon(Icons.open_in_new),
+                              label: const Text('Abrir'),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                textStyle: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
                   TitleBarComponent(icon: Icons.work, title: 'Pagos'),   
                   Padding(
@@ -545,8 +679,44 @@ class _InformesPageState extends State<InformesPage> {
     });
   }
 
-  void _onTapGastosProyectosOpen() async {
+  void _onTapAvanceProyectosOpen() async {
     final urlInforme = await Constants.informeProyectosAvanceUrl(
+      idproyecto: _proyectoSeleccionado,
+    );
+    final uri = Uri.parse(urlInforme);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, webOnlyWindowName: '_blank');
+    } else {
+      // Maneja el error
+    }
+  }
+
+  void _onTapGastosProyectos() {
+    setState(() {
+      _showProjectsExpenses = !_showProjectsExpenses;
+    });
+  }
+
+  void _onTapGastosProyectosOpen() async {
+    final urlInforme = await Constants.informeProyectosGastosUrl(
+      idproyecto: _proyectoSeleccionado,
+    );
+    final uri = Uri.parse(urlInforme);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, webOnlyWindowName: '_blank');
+    } else {
+      // Maneja el error
+    }
+  }
+
+  void _onTapMaterialesProyectos() {
+    setState(() {
+      _showProjectsMaterials = !_showProjectsMaterials;
+    });
+  }
+
+  void _onTapMaterialesProyectosOpen() async {
+    final urlInforme = await Constants.informeProyectosMaterialesUrl(
       idproyecto: _proyectoSeleccionado,
     );
     final uri = Uri.parse(urlInforme);
