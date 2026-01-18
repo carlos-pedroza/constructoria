@@ -18,7 +18,7 @@ class _InformesPageState extends State<InformesPage> {
   final _puestoController = TextEditingController();
   final _filtroExtraController = TextEditingController();
   final _filtroProveedorController = TextEditingController();
-  int? _proyectoSeleccionado;
+  var _proyectoSeleccionado = 0;
   var _showWorkers = false;
   var _showProviders = false;
   var _showProjectsProgress = false;
@@ -547,7 +547,7 @@ class _InformesPageState extends State<InformesPage> {
 
   void _onTapGastosProyectosOpen() async {
     final urlInforme = await Constants.informeProyectosAvanceUrl(
-      idproyecto: _proyectoSeleccionado ?? 0,
+      idproyecto: _proyectoSeleccionado,
     );
     final uri = Uri.parse(urlInforme);
     if (await canLaunchUrl(uri)) {
