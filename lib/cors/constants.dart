@@ -8,6 +8,8 @@ class Constants {
 
   static const String _informeTrabajadoresPath = '/empleados/pdf';
   static const String _informeProveedoresPath = '/proveedores/pdf';
+  static const String _informeProyectosAvancePath = '/proyectos/avance';
+
 
   static Future<String> getBaseUrl() async {
     var prefs = await SharedPreferences.getInstance();
@@ -61,6 +63,28 @@ class Constants {
     cParam = Uri.encodeComponent(cParam);
 
     return '$baseUrl$_informeProveedoresPath?c=$cParam';
+  }
+
+  static Future<String> informeProyectosAvanceUrl({
+    required int idproyecto,
+  }) async {
+    final baseUrl = await getBaseUrl();
+
+    // Usar '[empty]' si está vacío
+    String safeFiltro = idproyecto == 0 ? '[empty]' : idproyecto.toString();
+
+    // Calcular expiración: hora actual + 10 minutos, formato dd-MM-yyyy-HH-mm-ss
+    final expired = DateTime.now().toUtc().add(const Duration(minutes: 10));
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String expiration =
+      '${twoDigits(expired.day)}-${twoDigits(expired.month)}-${expired.year}-${twoDigits(expired.hour)}-${twoDigits(expired.minute)}-${twoDigits(expired.second)}';
+
+    // Concatenar filtro y expiración, codificar en base64
+    String concat = '$safeFiltro|$expiration';
+    String cParam = base64Encode(concat.codeUnits);
+    cParam = Uri.encodeComponent(cParam);
+
+    return '$baseUrl$_informeProyectosAvancePath?c=$cParam';
   }
 
   static Future<void> setBaseUrl(String pbaseUrl) async {
