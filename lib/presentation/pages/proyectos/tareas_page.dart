@@ -152,6 +152,11 @@ class _TareasPageState extends State<TareasPage> {
                   label: Text('Tarea'),
                 ),
                 SizedBox(width: 20),
+                IconButton(
+                  onPressed: widget.onBack, 
+                  icon: Icon(Icons.close),
+                ),
+                SizedBox(width: 10),
               ],
             ),
           ),

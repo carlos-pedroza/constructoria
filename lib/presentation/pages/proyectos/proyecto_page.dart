@@ -234,6 +234,12 @@ class _ProyectoPageState extends State<ProyectoPage> {
                               );
                             }
                           ),
+                        SizedBox(width: 20),
+                        IconButton(
+                          onPressed: widget.onBack, 
+                          icon: Icon(Icons.close),
+                        ),
+                        SizedBox(width: 10),
                       ],
                     ),
                   ],

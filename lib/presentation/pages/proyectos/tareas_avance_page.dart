@@ -47,6 +47,7 @@ class _TareasAvancePageState extends State<TareasAvancePage> {
               ),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 IconButton(
                     onPressed: widget.onBack,
@@ -75,6 +76,13 @@ class _TareasAvancePageState extends State<TareasAvancePage> {
                     ),
                   ),
                 ),
+                Spacer(),
+                SizedBox(width: 20),
+                IconButton(
+                  onPressed: widget.onBack, 
+                  icon: Icon(Icons.close),
+                ),
+                SizedBox(width: 10),
               ],
             ),
           ),
