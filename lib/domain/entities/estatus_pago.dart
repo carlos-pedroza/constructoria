@@ -43,6 +43,15 @@ class EstatusPago {
     );
   }
 
+  factory EstatusPago.todos() {
+    return EstatusPago(
+      idEstatusPago: 0,
+      clave: 'T',
+      descripcion: 'Todos',
+    );
+  }
+
+
   static List<EstatusPago> fromJsonList(List<dynamic> jsonList) {
     return jsonList.map((json) => EstatusPago.fromJson(json)).toList();
   }
@@ -68,6 +77,91 @@ class EstatusPago {
       'clave': clave,
       'descripcion': descripcion,
     };
+  }
+
+  static List<EstatusPago> getEstatusPagoList() {
+    return [
+      EstatusPago(
+        idEstatusPago: ingresado,
+        clave: 'ING',
+        descripcion: 'Ingresado',
+      ),
+      EstatusPago(
+        idEstatusPago: pendiente,
+        clave: 'PEN',
+        descripcion: 'Pendiente de Aprobación',
+      ),
+      EstatusPago(
+        idEstatusPago: aprobado,
+        clave: 'APR',
+        descripcion: 'Aprobado',
+      ),
+      EstatusPago(
+        idEstatusPago: pagado,
+        clave: 'PAG',
+        descripcion: 'Pagado',
+      ),
+      EstatusPago(
+        idEstatusPago: conciliado,
+        clave: 'CON',
+        descripcion: 'Conciliado',
+      ),
+      EstatusPago(
+        idEstatusPago: cancelado,
+        clave: 'CAN',
+        descripcion: 'Cancelado',
+      ),
+    ];
+  }
+
+  static List<EstatusPago> getEstatusPagoListProceso() {
+    return [
+      EstatusPago(
+        idEstatusPago: 0,
+        clave: 'T',
+        descripcion: 'Todos',
+      ),
+      EstatusPago(
+        idEstatusPago: ingresado,
+        clave: 'ING',
+        descripcion: 'Ingresado',
+      ),
+      EstatusPago(
+        idEstatusPago: pendiente,
+        clave: 'PEN',
+        descripcion: 'Pendiente de Aprobación',
+      ),
+      EstatusPago(
+        idEstatusPago: aprobado,
+        clave: 'APR',
+        descripcion: 'Aprobado',
+      ),
+    ];
+  }
+
+  static List<EstatusPago> getEstatusPagoListPagado() {
+    return [
+      EstatusPago(
+        idEstatusPago: 0,
+        clave: 'T',
+        descripcion: 'Todos',
+      ),
+      EstatusPago(
+        idEstatusPago: pagado,
+        clave: 'PAG',
+        descripcion: 'Pagado',
+      ),
+      EstatusPago(
+        idEstatusPago: conciliado,
+        clave: 'CON',
+        descripcion: 'Conciliado',
+      ),
+      EstatusPago(
+        idEstatusPago: cancelado,
+        clave: 'CAN',
+        descripcion: 'Cancelado',
+      ),
+    ];
   }
 
   static String  displayName(int idEstatusPago) {

@@ -1,8 +1,10 @@
 import 'package:constructoria/cors/constants.dart';
 import 'package:constructoria/cors/dialog_Ask.dart';
+import 'package:constructoria/domain/entities/estatus_pago.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:constructoria/domain/repositories/proyecto_queries.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class InformesPage extends StatefulWidget {
@@ -15,6 +17,7 @@ class InformesPage extends StatefulWidget {
 }
 
 class _InformesPageState extends State<InformesPage> {
+  final _dateFormat = DateFormat('dd/MM/yyyy');
   final _puestoController = TextEditingController();
   final _filtroExtraController = TextEditingController();
   final _filtroProveedorController = TextEditingController();
@@ -26,6 +29,39 @@ class _InformesPageState extends State<InformesPage> {
   var _showProjectsMaterials = false;
   var _showPayments = false;
   var _showPaymentsHistory = false;
+  late DateTime _startDate;
+  late DateTime _endDate;
+  late DateTime _startDateHistorico;
+  late DateTime _endDateHistorico;
+  final _startDatePagosController = TextEditingController();
+  final _endDatePagosController = TextEditingController();
+  final _startDateHistoricoController = TextEditingController();
+  final _endDateHistoricoController = TextEditingController();
+  late EstatusPago _estatusPagoProcesoSeleccionado;
+  late EstatusPago _estatusPagoHistoricoSeleccionado;
+  late List<EstatusPago> _estatusPagosProceso;
+  late List<EstatusPago> _estatusPagosHistorico;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _startDate = DateTime(2025, 1, 1);
+    _startDatePagosController.text = _dateFormat.format(_startDate);
+    _endDate = DateTime.now();
+    _endDatePagosController.text = _dateFormat.format(_endDate);
+
+    _startDateHistorico = DateTime.now().subtract(const Duration(days: 60));
+    _endDateHistorico = DateTime.now();
+    _startDateHistoricoController.text = _dateFormat.format(_startDateHistorico);
+    _endDateHistoricoController.text = _dateFormat.format(_endDateHistorico);
+
+    _estatusPagoProcesoSeleccionado = EstatusPago.todos();
+    _estatusPagoHistoricoSeleccionado = EstatusPago.todos();
+
+    _estatusPagosProceso = EstatusPago.getEstatusPagoListProceso();
+    _estatusPagosHistorico = EstatusPago.getEstatusPagoListPagado();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -191,14 +227,14 @@ class _InformesPageState extends State<InformesPage> {
                         color: theme.colorScheme.onSecondaryContainer,
                       ),
                       title: Text(
-                        'Proveedores por tipo de servicio',
+                        'Listado de Proveedores',
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: theme.colorScheme.onSecondaryContainer,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       subtitle: Text(
-                        'Listado de proveedores filtrados por tipo de servicio',
+                        'Listado de proveedores por filtro',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSecondaryContainer,
                         ),
@@ -601,9 +637,159 @@ class _InformesPageState extends State<InformesPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      onTap: _onConstruction,
+                      onTap: () {
+                        setState(() {
+                          _showPayments = !_showPayments;
+                        });
+                      },
                     ),
                   ),
+                  if(_showPayments) ...[
+                    Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
+                    Container(
+                      padding: const EdgeInsets.all(26),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.colorScheme.shadow.withOpacity(0.04),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Seleccionar estatus y fechas', style: theme.textTheme.titleMedium),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField<int>(
+                                  initialValue: _estatusPagoProcesoSeleccionado.idEstatusPago,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Estatus de pago',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  items: [
+                                    for (var estatus in _estatusPagosProceso)
+                                      DropdownMenuItem(
+                                        value: estatus.idEstatusPago,
+                                        child: Text(estatus.descripcion),
+                                      ),
+                                  ],
+                                  onChanged: (val) {
+                                    setState(() {
+                                      _estatusPagoProcesoSeleccionado.idEstatusPago = val!;
+                                    });
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _startDatePagosController,
+                                  readOnly: true,
+                                  decoration: InputDecoration(
+                                    labelText: 'Fecha inicio',
+                                    border: OutlineInputBorder(),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(Icons.calendar_today),
+                                      onPressed: () async {
+                                        final picked = await showDatePicker(
+                                          context: context,
+                                          initialDate: _startDate,
+                                          firstDate: DateTime(2000),
+                                          lastDate: DateTime(2100),
+                                        );
+                                        if (picked != null) {
+                                          setState(() {
+                                            _startDate = picked;
+                                            _startDatePagosController.text = _dateFormat.format(picked);
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  onTap: () async {
+                                    final picked = await showDatePicker(
+                                      context: context,
+                                      initialDate: _startDate,
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2100),
+                                    );
+                                    if (picked != null) {
+                                      setState(() {
+                                        _startDate = picked;
+                                        _startDatePagosController.text = _dateFormat.format(picked);
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _endDatePagosController,
+                                  readOnly: true,
+                                  decoration: InputDecoration(
+                                    labelText: 'Fecha fin',
+                                    border: OutlineInputBorder(),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(Icons.calendar_today),
+                                      onPressed: () async {
+                                        final picked = await showDatePicker(
+                                          context: context,
+                                          initialDate: _endDate,
+                                          firstDate: DateTime(2000),
+                                          lastDate: DateTime(2100),
+                                        );
+                                        if (picked != null) {
+                                          setState(() {
+                                            _endDate = picked;
+                                            _endDatePagosController.text = _dateFormat.format(picked);
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  onTap: () async {
+                                    final picked = await showDatePicker(
+                                      context: context,
+                                      initialDate: _endDate,
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2100),
+                                    );
+                                    if (picked != null) {
+                                      setState(() {
+                                        _endDate = picked;
+                                        _endDatePagosController.text = _dateFormat.format(picked);
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton.icon(
+                              onPressed: _onTapPagosPorProcesarOpen,
+                              icon: const Icon(Icons.open_in_new),
+                              label: const Text('Abrir'),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                textStyle: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
                   Padding(
                     padding: EdgeInsetsGeometry.all(20),
@@ -634,10 +820,160 @@ class _InformesPageState extends State<InformesPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      onTap: _onConstruction,
+                      onTap: () {
+                        setState(() {
+                          _showPaymentsHistory = !_showPaymentsHistory;
+                        });
+                      },
                     ),
                   ),
                   Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
+                  if(_showPaymentsHistory) ...[
+                    Divider(thickness: 1, height: 1, color: theme.colorScheme.outline),
+                    Container(
+                      padding: const EdgeInsets.all(26),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.colorScheme.shadow.withOpacity(0.04),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Seleccionar estatus y fechas', style: theme.textTheme.titleMedium),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField<int>(
+                                  initialValue: _estatusPagoHistoricoSeleccionado.idEstatusPago,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Estatus de pago',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  items: [
+                                    for (var estatus in _estatusPagosHistorico)
+                                      DropdownMenuItem(
+                                        value: estatus.idEstatusPago,
+                                        child: Text(estatus.descripcion),
+                                      ),
+                                  ],
+                                  onChanged: (val) {
+                                    setState(() {
+                                      _estatusPagoHistoricoSeleccionado.idEstatusPago = val!;
+                                    });
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _startDateHistoricoController,
+                                  readOnly: true,
+                                  decoration: InputDecoration(
+                                    labelText: 'Fecha inicio',
+                                    border: OutlineInputBorder(),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(Icons.calendar_today),
+                                      onPressed: () async {
+                                        final picked = await showDatePicker(
+                                          context: context,
+                                          initialDate: _startDateHistorico,
+                                          firstDate: DateTime(2000),
+                                          lastDate: DateTime(2100),
+                                        );
+                                        if (picked != null) {
+                                          setState(() {
+                                            _startDateHistorico = picked;
+                                            _startDateHistoricoController.text = _dateFormat.format(picked);
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  onTap: () async {
+                                    final picked = await showDatePicker(
+                                      context: context,
+                                      initialDate: _startDateHistorico,
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2100),
+                                    );
+                                    if (picked != null) {
+                                      setState(() {
+                                        _startDateHistorico = picked;
+                                        _startDateHistoricoController.text = _dateFormat.format(picked);
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _endDateHistoricoController,
+                                  readOnly: true,
+                                  decoration: InputDecoration(
+                                    labelText: 'Fecha fin',
+                                    border: OutlineInputBorder(),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(Icons.calendar_today),
+                                      onPressed: () async {
+                                        final picked = await showDatePicker(
+                                          context: context,
+                                          initialDate: _endDateHistorico,
+                                          firstDate: DateTime(2000),
+                                          lastDate: DateTime(2100),
+                                        );
+                                        if (picked != null) {
+                                          setState(() {
+                                            _endDateHistorico = picked;
+                                            _endDateHistoricoController.text = _dateFormat.format(picked);
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  onTap: () async {
+                                    final picked = await showDatePicker(
+                                      context: context,
+                                      initialDate: _endDateHistorico,
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2100),
+                                    );
+                                    if (picked != null) {
+                                      setState(() {
+                                        _endDateHistorico = picked;
+                                        _endDateHistoricoController.text = _dateFormat.format(picked);
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton.icon(
+                              onPressed: _onTapPagosHistoricoOpen,
+                              icon: const Icon(Icons.open_in_new),
+                              label: const Text('Abrir'),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                textStyle: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   SizedBox(height: 100),
                 ],
               ),
@@ -718,6 +1054,35 @@ class _InformesPageState extends State<InformesPage> {
   void _onTapMaterialesProyectosOpen() async {
     final urlInforme = await Constants.informeProyectosMaterialesUrl(
       idproyecto: _proyectoSeleccionado,
+    );
+    final uri = Uri.parse(urlInforme);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, webOnlyWindowName: '_blank');
+    } else {
+      // Maneja el error
+    }
+  }
+
+  void _onTapPagosPorProcesarOpen() async {
+    final urlInforme = await Constants.informePagosUrl(
+      startDate: _startDate,
+      endDate: _endDate,
+      estatus: _estatusPagoProcesoSeleccionado,
+    );
+    final uri = Uri.parse(urlInforme);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, webOnlyWindowName: '_blank');
+    } else {
+      // Maneja el error
+    }
+  }
+
+  void _onTapPagosHistoricoOpen() async {
+    final urlInforme = await Constants.informePagosUrl(
+      startDate: _startDateHistorico,
+      endDate: _endDateHistorico,
+      estatus: _estatusPagoHistoricoSeleccionado,
+      esProceso: false,
     );
     final uri = Uri.parse(urlInforme);
     if (await canLaunchUrl(uri)) {

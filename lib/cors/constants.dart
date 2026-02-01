@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:constructoria/domain/entities/estatus_pago.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Constants {
@@ -11,6 +13,8 @@ class Constants {
   static const String _informeProyectosAvancePath = '/proyectos/avance';
   static const String _informeProyectosGastosPath = '/proyectos/gastos';
   static const String _informeProyectosMaterialesPath = '/proyectos/materiales';
+  static const String _informePagosPorProcesar = '/pagos/proceso';
+  static const String _informePagosHistorico = '/pagos/historico';
 
 
   static Future<String> getBaseUrl() async {
@@ -43,6 +47,31 @@ class Constants {
     cParam = Uri.encodeComponent(cParam);
 
     return '$baseUrl$_informeTrabajadoresPath?c=$cParam';
+  }
+
+  static Future<String> informePagosUrl({DateTime? startDate, DateTime? endDate, EstatusPago? estatus, bool esProceso = true}) async {
+    final baseUrl = await getBaseUrl();
+    final formatDate = DateFormat('yyyy-MM-dd');
+
+    // Calcular expiración: hora actual + 10 minutos, formato dd-MM-yyyy-HH-mm-ss
+    final expired = DateTime.now().toUtc().add(const Duration(minutes: 10));
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String expiration =
+      '${twoDigits(expired.day)}-${twoDigits(expired.month)}-${expired.year}-${twoDigits(expired.hour)}-${twoDigits(expired.minute)}-${twoDigits(expired.second)}';
+
+    // Concatenar expiración y codificar en base64
+    String concat = '[empty]|$expiration';
+    if (startDate != null && endDate != null) {
+      String startStr = formatDate.format(startDate);
+      String endStr = formatDate.format(endDate);
+      concat = '{"startDate": "${startStr}T00:00:00", "endDate": "${endStr}T23:59:59", "estatusPago": ${estatus!.idEstatusPago}}|$expiration';
+    }
+    String cParam = base64Encode(concat.codeUnits);
+    cParam = Uri.encodeComponent(cParam);
+
+    String endpoint = esProceso ? _informePagosPorProcesar : _informePagosHistorico;
+
+    return '$baseUrl$endpoint?c=$cParam';
   }
 
   static Future<String> informeProveedoresUrl({
