@@ -17,48 +17,66 @@ class _LoginMainPageState extends State<LoginMainPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final width = MediaQuery.of(context).size.width;
+    final isMobile = width <= 700;
     return GraphQLProvider(
       client: ValueNotifier(widget.client),
       child: Scaffold(
-        body: Stack(
-          children: [
-            Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: colorScheme.surface,
-                    border: Border(
-                      bottom: BorderSide(color: theme.dividerColor),
+        body: isMobile
+            ? Column(
+                children: [
+                  const SizedBox(height: 40),
+                  Center(
+                    child: SizedBox(
+                      width: width * 0.70,
+                      child: Image.asset(
+                        'assets/images/constructoria.png',
+                        fit: BoxFit.fitWidth,
+                      ),
                     ),
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 10,
+                  Expanded(child: LoginPage(onLogin: _onLogin)),
+                ],
+              )
+            : Stack(
+                children: [
+                  Column(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          border: Border(
+                            bottom: BorderSide(color: theme.dividerColor),
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 10,
+                        ),
+                        width: double.infinity,
+                        child: Text(
+                          '',
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Expanded(child: LoginPage(onLogin: _onLogin)),
+                    ],
                   ),
-                  width: double.infinity,
-                  child: Text(
-                    '',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Container(
+                      margin: EdgeInsets.only(left: 16, top: 22),
+                      height: 140,
+                      child: Image.asset(
+                        'assets/images/constructoria.png',
+                        fit: BoxFit.fitHeight,
+                      ),
                     ),
                   ),
-                ),
-                Expanded(child: LoginPage(onLogin: _onLogin)),
-              ],
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Container(
-                margin: EdgeInsets.only(left: 16, top: 22),
-                height: 140,
-                child: Image.asset(
-                  'assets/images/constructoria.png',
-                  fit: BoxFit.fitHeight,
-                ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

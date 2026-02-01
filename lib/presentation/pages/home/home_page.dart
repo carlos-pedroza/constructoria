@@ -1,7 +1,6 @@
 import 'package:constructoria/domain/entities/security_auth.dart';
 import 'package:constructoria/presentation/pages/administracion/administracion_page.dart';
-import 'package:constructoria/presentation/pages/home/login/login_page.dart'
-    show LoginPage;
+import 'package:constructoria/presentation/pages/home/login/login_page.dart';
 import 'package:constructoria/presentation/pages/informes/informes_page.dart';
 import 'package:constructoria/presentation/pages/pagos/pagos_page.dart';
 import 'package:constructoria/presentation/pages/proyectos/proyectos_page.dart';
@@ -158,7 +157,7 @@ class _HomePageState extends State<HomePage> {
       client: client,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isMobile = constraints.maxWidth < 600;
+          final isMobile = constraints.maxWidth < 700;
           return Scaffold(
             drawer: isMobile ? Drawer(child: menu) : null,
             body: Stack(
