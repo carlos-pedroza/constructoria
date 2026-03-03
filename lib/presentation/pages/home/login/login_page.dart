@@ -28,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     if (!kReleaseMode) {
-      _emailController.text = 'julio@tecjamaya.com.mx';
+      _emailController.text = 'rrc@constructoria.com.mx';
       _passwordController.text = '1234569';
     }
   }

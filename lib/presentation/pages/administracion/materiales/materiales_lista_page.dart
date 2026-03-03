@@ -62,7 +62,7 @@ class _MaterialesListaPageState extends State<MaterialesListaPage> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Materiales',
+                        'Consumibles',
                         style: theme.textTheme.headlineSmall?.copyWith(
                           color: theme.colorScheme.inverseSurface,
                         ),
@@ -71,7 +71,7 @@ class _MaterialesListaPageState extends State<MaterialesListaPage> {
                   ),
                   ElevatedButton.icon(
                     onPressed: () => widget.onAdd(refetch),
-                    label: Text('Agregar Material'),
+                    label: Text('Agregar Consumible'),
                     icon: Icon(Icons.add),
                   ),
                 ],

@@ -166,7 +166,7 @@ class _InformacionTareaMaterialesComponentState extends State<InformacionTareaMa
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Text(
-                            'Total Materiales: ',
+                            'Total Consumibles: ',
                             style: theme.textTheme.bodyLarge!.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -201,7 +201,7 @@ class _InformacionTareaMaterialesComponentState extends State<InformacionTareaMa
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
-              'Materiales',
+              'Consumibles',
               style: theme.textTheme.titleMedium!.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -212,7 +212,7 @@ class _InformacionTareaMaterialesComponentState extends State<InformacionTareaMa
               onPressed: ()=>_onAgregar(refetch),
               label: SizedBox(
                 width: 70,
-                child: Center(child: Text('Material'))
+                child: Center(child: Text('Consumible'))
               ),
               icon: Icon(Icons.add),
             )
@@ -227,7 +227,7 @@ class _InformacionTareaMaterialesComponentState extends State<InformacionTareaMa
       builder: (BuildContext context) {
         return EdicionMaterialDialog(
           client: widget.client,
-          titulo: 'Editar Material',
+          titulo: 'Editar Consumible',
           tarea: widget.tarea,
           material: material,
           onChanged: () {
@@ -241,8 +241,8 @@ class _InformacionTareaMaterialesComponentState extends State<InformacionTareaMa
   void _onEliminar(TareaMaterial material, runMutation, refetch) {
     DialogAsk.confirm(
       context: context,
-      title: "Eliminar Material",
-      content: Text('¿Deseas eliminar este material?'),
+      title: "Eliminar Consumible",
+      content: Text('¿Deseas eliminar este consumible?'),
       onYes: () => _eliminar(material, runMutation, refetch),
       onNo: () => {},
     );
@@ -261,7 +261,7 @@ class _InformacionTareaMaterialesComponentState extends State<InformacionTareaMa
       builder: (BuildContext context) {
         return EdicionMaterialDialog(
           client: widget.client,
-          titulo: 'Agregar Material',
+          titulo: 'Agregar Consumible',
           tarea: widget.tarea,
           material: TareaMaterial.empty(widget.tarea),
           onChanged: () {

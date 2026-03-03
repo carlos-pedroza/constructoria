@@ -76,10 +76,10 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
     _totalHeight = MediaQuery.of(context).size.height;
     if(_totalWidth > 700) {
       _dialogWidth = _totalWidth * 0.6;
-      _dialogHeight = _totalHeight * 0.3;
+      _dialogHeight = _totalHeight * 0.5;
     } else {
       _dialogWidth = _totalWidth * 0.9;
-      _dialogHeight = _totalHeight * 0.3;
+      _dialogHeight = _totalHeight * 0.5;
     }
   }
 
@@ -125,7 +125,7 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
                   if(_initialized) {
 
                     if (result.hasException) {
-                      return Text('Error al cargar los materiales');
+                      return Text('Error al cargar los consumibles');
                     }
                     if (result.isLoading) {
                       return Center(
@@ -133,10 +133,10 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
                       );
                     }
                     _materiales =  MaterialEntidad.fromJsonList(result.data?['materials'] ?? []);
-                    _materiales.insert(0, MaterialEntidad(idMaterial: 0,codigo: '', nombre: 'Seleccione un material', descripcion: '', unidad: '',  costo: 0.0));
+                    _materiales.insert(0, MaterialEntidad(idMaterial: 0,codigo: '', nombre: 'Seleccione un consumible', descripcion: '', unidad: '',  costo: 0.0));
       
                     if(_materiales.isEmpty) {
-                      return Text('No hay materiales disponibles');
+                      return Text('No hay consumibles disponibles');
                     }
                     
                   }
@@ -144,7 +144,7 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
                   return DropdownButtonFormField<int>(
                     initialValue: _idTipoMaterial,
                     decoration: InputDecoration(
-                      labelText: 'Material',
+                      labelText: 'Consumible',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -163,7 +163,7 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
                     },
                     validator: (value) {
                       if (value == null) {
-                        return 'Por favor seleccione un material';
+                        return 'Por favor seleccione un consumible';
                       }
                       return null;
                     },

@@ -107,14 +107,14 @@ class _ProyectosListaPageState extends State<ProyectosListaPage> {
                             flex: 95,
                             child: Text(
                               'Clave',
-                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                              style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                             ),
                           ),
                           Expanded(
                             flex: 150,
                             child: Text(
                               'Nombre',
-                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                              style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                               textAlign: TextAlign.left,
                             ),
                           ),
@@ -122,21 +122,21 @@ class _ProyectosListaPageState extends State<ProyectosListaPage> {
                             flex: 95,
                             child: Text(
                               'Fecha inicio',
-                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                              style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                             ),
                           ),
                           Expanded(
                             flex: 95,
                             child: Text(
                               'Presupuesto',
-                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                              style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                             ),
                           ),
                           Expanded(
                             flex: 95,
                             child: Text(
                               'Estado',
-                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                              style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                             ),
                           ),
                           SizedBox(width: 10),
@@ -170,20 +170,30 @@ class _ProyectosListaPageState extends State<ProyectosListaPage> {
                             SizedBox(width: 10),
                             Expanded(
                               flex: 120,
-                              child: Text(proyecto.claveProyecto),
+                              child: Text(
+                                proyecto.claveProyecto,
+                                style: theme.textTheme.bodyMedium,
+                              ),
                             ),
                             Expanded(
                               flex: 200,
-                              child: Text(proyecto.nombre),
+                              child: Text(
+                                proyecto.nombre,
+                                style: theme.textTheme.bodyMedium,
+                              ),
                             ),
                             Expanded(
                               flex: 100,
-                              child: Text(_formatDate.format(proyecto.fechaInicio)),
+                              child: Text(
+                                _formatDate.format(proyecto.fechaInicio),
+                                style: theme.textTheme.bodySmall,
+                              ),
                             ),
                             Expanded(
                               flex: 100,
                               child: Text(
                                 _formatCurrency.format(proyecto.presupuesto),
+                                style: theme.textTheme.bodySmall,
                                 textAlign: TextAlign.right,
                               ),
                             ),
@@ -191,6 +201,7 @@ class _ProyectosListaPageState extends State<ProyectosListaPage> {
                               flex: 100,
                               child: Text(
                                 proyecto.estado??'-',
+                                style: theme.textTheme.bodySmall,
                                 textAlign: TextAlign.right,
                               ),
                             ),

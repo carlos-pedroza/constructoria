@@ -181,37 +181,37 @@ class _TareasPageState extends State<TareasPage> {
                         SizedBox(width: 140),
                         Expanded(
                           flex: 14,
-                          child: Text('Código', style: theme.textTheme.titleSmall!.copyWith(
+                          child: Text('Código', style: theme.textTheme.bodySmall!.copyWith(
                             color: theme.colorScheme.inverseSurface,
                           )),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          flex: 86,
-                          child: Text('Tarea', style: theme.textTheme.titleSmall!.copyWith(
+                          flex: 130,
+                          child: Text('Tarea', style: theme.textTheme.bodySmall!.copyWith(
                             color: theme.colorScheme.inverseSurface,
-                          )),
+                          ), textAlign: TextAlign.center),
                         ),
                         const SizedBox(width: 8),
                         SizedBox(
                           width: 230,
-                          child: Text('Fecha inicio', style: theme.textTheme.titleSmall!.copyWith(
+                          child: Text('Fecha inicio', style: theme.textTheme.bodySmall!.copyWith(
                             color: theme.colorScheme.inverseSurface,
-                          )),
+                          ), textAlign: TextAlign.center),
                         ),
                         const SizedBox(width: 8),
                         SizedBox(
                           width: 230,
-                          child: Text('Fecha fin', style: theme.textTheme.titleSmall!.copyWith(
+                          child: Text('Fecha fin', style: theme.textTheme.bodySmall!.copyWith(
                             color: theme.colorScheme.inverseSurface,
-                          )),
+                          ), textAlign: TextAlign.center),
                         ),
                         const SizedBox(width: 8),
                         SizedBox(
                           width: 210,
-                          child: Text('Asignado a', style: theme.textTheme.bodyMedium!.copyWith(
+                          child: Text('Asignado a', style: theme.textTheme.bodySmall!.copyWith(
                             color: theme.colorScheme.inverseSurface,
-                          )),
+                          ), textAlign: TextAlign.center),
                         ),
                         const SizedBox(width: 8),
                       ],
@@ -551,7 +551,10 @@ class _TareaItemComponentState extends State<TareaItemComponent> {
             ),
           ),
           const SizedBox(width: 8),
-          SizedBox(
+          Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondaryContainer,
+            ),
             width: 230,
             child: CustomDatePicker(
               label: 'Fecha inicio',

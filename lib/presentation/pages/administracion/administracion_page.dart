@@ -139,14 +139,14 @@ class _AdministracionPageState extends State<AdministracionPage> {
                       color: theme.colorScheme.onSecondaryContainer,
                     ),
                     title: Text(
-                      'Gestión de Materiales',
+                      'Gestión de Consumibles',
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: theme.colorScheme.onSecondaryContainer,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     subtitle: Text(
-                      'Gestión de materiales y suministros',
+                      'Gestión de consumibles y suministros',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSecondaryContainer,
                       ),

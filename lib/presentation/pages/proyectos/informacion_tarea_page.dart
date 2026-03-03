@@ -379,7 +379,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                                 Padding(
                                   padding: const EdgeInsets.only(right: 14.0),
                                   child: Text(
-                                    'Total Materiales: ${_currencyFormat.format(_totalMateriales)}',
+                                    'Total Consumibles: ${_currencyFormat.format(_totalMateriales)}',
                                     style: theme.textTheme.bodyLarge!.copyWith(
                                       fontWeight: FontWeight.bold,
                                     ),
