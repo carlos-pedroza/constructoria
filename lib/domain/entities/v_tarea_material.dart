@@ -5,6 +5,10 @@ class VTareaMaterial {
     required this.idtareaMaterial,
     required this.idtarea,
     required this.idMaterial,
+    required this.idPeriodo,
+    required this.idTipoValor,
+    required this.periodoNombre,
+    required this.tipoValorNombre,
     required this.cantidad,
     required this.costo,
     required this.creado,
@@ -27,6 +31,10 @@ class VTareaMaterial {
   final int idtareaMaterial;
   final int idtarea;
   final int idMaterial;
+  final int idPeriodo;
+  final int idTipoValor;
+  final String periodoNombre;
+  final String tipoValorNombre;
   final double cantidad;
   final double costo;
   final DateTime creado;
@@ -50,6 +58,10 @@ class VTareaMaterial {
       idtareaMaterial: json['idtarea_material'],
       idtarea: json['idtarea'],
       idMaterial: json['id_material'],
+      idPeriodo: json['idperiodo'] as int? ?? 1,
+      idTipoValor: json['idtipo_valor'] as int? ?? 1,
+      periodoNombre: json['periodo_nombre'] as String? ?? '',
+      tipoValorNombre: json['tipo_valor_nombre'] as String? ?? '',
       cantidad: (json['cantidad'] as num).toDouble(),
       costo: (json['costo'] as num).toDouble(),
       creado: DateTime.parse(json['creado']),
@@ -79,6 +91,8 @@ class VTareaMaterial {
       idtareaMaterial: idtareaMaterial,
       idtarea: idtarea,
       idMaterial: idMaterial,
+      idPeriodo: idPeriodo,
+      idTipoValor: idTipoValor,
       cantidad: cantidad.toInt(),
       costo: costo,
       creado: creado,

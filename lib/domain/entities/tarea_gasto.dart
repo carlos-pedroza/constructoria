@@ -7,6 +7,8 @@ class TareaGasto {
     this.idtareaGasto,
     required this.idtarea,
     required this.idTipoGasto,
+    required this.idPeriodo,
+    required this.idTipoValor,
     required this.costo,
     required this.creado,
   });
@@ -14,6 +16,8 @@ class TareaGasto {
   int? idtareaGasto;
   int idtarea;
   int? idTipoGasto;
+  int idPeriodo;
+  int idTipoValor;
   double costo;
   DateTime creado;
 
@@ -30,6 +34,8 @@ class TareaGasto {
       idtareaGasto: json['idtarea_gasto'] as int?,
       idtarea: json['idtarea'] as int,
       idTipoGasto: json['id_tipo_gasto'] as int,
+      idPeriodo: json['idperiodo'] as int? ?? 1,
+      idTipoValor: json['idtipo_valor'] as int? ?? 1,
       costo: json['costo'] != null ? (json['costo'] as num).toDouble() : 0.0,
       creado: json['creado'] != null ? DateTime.parse(json['creado']) : DateTime.now(),
     );
@@ -40,6 +46,8 @@ class TareaGasto {
       idtareaGasto: null,
       idtarea: tarea.idtarea!,
       idTipoGasto: null,
+      idPeriodo: 1,
+      idTipoValor: 1,
       costo: 0.0,
       creado: DateTime.now(),
     );
@@ -53,27 +61,33 @@ class TareaGasto {
     if(idtareaGasto == null) {
       return create();
     } else {
-      return toJson();
+      return update();
     }
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'idtarea_gasto': idtareaGasto,
-      'idtarea': idtarea,
-      'id_tipo_gasto': idTipoGasto,
-      'costo': costo,
-      'creado': DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado),
-    };
-  }
-
   Map<String, dynamic> create() {
-    return {
+    final variables = <String, dynamic>{
       "idtarea": idtarea,
       "id_tipo_gasto": idTipoGasto,
+      "idperiodo": idPeriodo,
+      "idtipo_valor": idTipoValor,
       "costo": costo,
       "creado": DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado)
     };
+    return variables;
+  }
+
+  Map<String, dynamic> update() {
+    final variables = <String, dynamic>{
+      'id': idtareaGasto,
+      'idtarea': idtarea,
+      'id_tipo_gasto': idTipoGasto,
+      'idperiodo': idPeriodo,
+      'idtipo_valor': idTipoValor,
+      'costo': costo,
+      'creado': DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado),
+    };
+    return variables;
   }
 
   @override

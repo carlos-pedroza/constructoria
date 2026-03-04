@@ -6,6 +6,10 @@ class VTareaGasto {
     this.idtareaGasto,
     required this.idtarea,
     required this.idTipoGasto,
+    required this.idPeriodo,
+    required this.idTipoValor,
+    required this.periodoNombre,
+    required this.tipoValorNombre,
     required this.costo,
     required this.creado,
     required this.idproyecto,
@@ -26,6 +30,10 @@ class VTareaGasto {
   int? idtareaGasto;
   int idtarea;
   int idTipoGasto;
+  int idPeriodo;
+  int idTipoValor;
+  String periodoNombre;
+  String tipoValorNombre;
   double costo;
   DateTime creado;
   int idproyecto;
@@ -47,6 +55,10 @@ class VTareaGasto {
       idtareaGasto: json['idtarea_gasto'] as int?,
       idtarea: json['idtarea'] as int,
       idTipoGasto: json['id_tipo_gasto'] as int,
+      idPeriodo: json['idperiodo'] as int? ?? 1,
+      idTipoValor: json['idtipo_valor'] as int? ?? 1,
+      periodoNombre: json['periodo_nombre'] as String? ?? '',
+      tipoValorNombre: json['tipo_valor_nombre'] as String? ?? '',
       costo: json['costo'] != null ? (json['costo'] as num).toDouble() : 0.0,
       creado: json['creado'] != null ? DateTime.parse(json['creado']) : DateTime.now(),
       idproyecto: json['idproyecto'] as int,
@@ -74,6 +86,8 @@ class VTareaGasto {
       idtareaGasto: idtareaGasto,
       idtarea: idtarea,
       idTipoGasto: idTipoGasto,
+      idPeriodo: idPeriodo,
+      idTipoValor: idTipoValor,
       costo: costo,
       creado: creado,
     );
@@ -84,6 +98,10 @@ class VTareaGasto {
       'idtarea_gasto': idtareaGasto,
       'idtarea': idtarea,
       'id_tipo_gasto': idTipoGasto,
+      'idperiodo': idPeriodo,
+      'idtipo_valor': idTipoValor,
+      'periodo_nombre': periodoNombre,
+      'tipo_valor_nombre': tipoValorNombre,
       'costo': costo,
       'creado': DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado),
       'idproyecto': idproyecto,

@@ -1,5 +1,4 @@
 import 'package:constructoria/cors/constants.dart';
-import 'package:constructoria/cors/dialog_Ask.dart';
 import 'package:constructoria/domain/entities/estatus_pago.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -1092,14 +1091,6 @@ class _InformesPageState extends State<InformesPage> {
     }
   }
 
-  void _onConstruction() {
-    DialogAsk.simple(
-      context: context,
-      title: 'En construcción',
-      content: Text('Esta funcionalidad está en construcción.'),
-      onOk: () {},
-    );
-  }
 }
 
 class TitleBarComponent extends StatelessWidget {

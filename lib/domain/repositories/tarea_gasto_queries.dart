@@ -3,18 +3,24 @@ class TareaGastoQueries {
     mutation CreateTareaGasto(
       \$idtarea: Int!,
       \$id_tipo_gasto: Int!,
+      \$idperiodo: Int = 1,
+      \$idtipo_valor: Int = 1,
       \$costo: Float!,
       \$creado: DateTime!
     ) {
       createTareaGasto(
         idtarea: \$idtarea,
         id_tipo_gasto: \$id_tipo_gasto,
+        idperiodo: \$idperiodo,
+        idtipo_valor: \$idtipo_valor,
         costo: \$costo,
         creado: \$creado
       ) {
         idtarea_gasto
         idtarea
         id_tipo_gasto
+        idperiodo
+        idtipo_valor
         costo
         creado
       }
@@ -26,6 +32,8 @@ class TareaGastoQueries {
       \$id: Int!,
       \$idtarea: Int!,
       \$id_tipo_gasto: Int!,
+      \$idperiodo: Int = 1,
+      \$idtipo_valor: Int = 1,
       \$costo: Float!,
       \$creado: DateTime!
     ) {
@@ -33,12 +41,16 @@ class TareaGastoQueries {
         id: \$id,
         idtarea: \$idtarea,
         id_tipo_gasto: \$id_tipo_gasto,
+        idperiodo: \$idperiodo,
+        idtipo_valor: \$idtipo_valor,
         costo: \$costo,
         creado: \$creado
       ) {
         idtarea_gasto
         idtarea
         id_tipo_gasto
+        idperiodo
+        idtipo_valor
         costo
         creado
       }
@@ -57,6 +69,8 @@ class TareaGastoQueries {
         idtarea_gasto
         idtarea
         id_tipo_gasto
+        idperiodo
+        idtipo_valor
         costo
         creado
       }
@@ -69,6 +83,8 @@ class TareaGastoQueries {
         idtarea_gasto
         idtarea
         id_tipo_gasto
+        idperiodo
+        idtipo_valor
         costo
         creado
       }

@@ -5,6 +5,10 @@ class VTipoGastoQueries {
         idtarea_gasto
         idtarea
         id_tipo_gasto
+        idperiodo
+        idtipo_valor
+        periodo_nombre
+        tipo_valor_nombre
         costo
         creado
         idproyecto
@@ -30,6 +34,10 @@ class VTipoGastoQueries {
         idtarea_gasto
         idtarea
         id_tipo_gasto
+        idperiodo
+        idtipo_valor
+        periodo_nombre
+        tipo_valor_nombre
         costo
         creado
         idproyecto
@@ -55,6 +63,10 @@ class VTipoGastoQueries {
         idtarea_gasto
         idtarea
         id_tipo_gasto
+        idperiodo
+        idtipo_valor
+        periodo_nombre
+        tipo_valor_nombre
         costo
         creado
         idproyecto

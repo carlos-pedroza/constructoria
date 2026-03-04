@@ -5,6 +5,8 @@ class TareaMaterialQueries {
         idtarea_material
         idtarea
         id_material
+        idperiodo
+        idtipo_valor
         cantidad
         costo
         creado
@@ -18,6 +20,8 @@ class TareaMaterialQueries {
         idtarea_material
         idtarea
         id_material
+        idperiodo
+        idtipo_valor
         cantidad
         costo
         creado
@@ -37,6 +41,8 @@ class TareaMaterialQueries {
         idtarea_material
         idtarea
         id_material
+        idperiodo
+        idtipo_valor
         cantidad
         costo
         creado
@@ -50,6 +56,8 @@ class TareaMaterialQueries {
         idtarea_material
         idtarea
         id_material
+        idperiodo
+        idtipo_valor
         cantidad
         costo
         creado
@@ -63,6 +71,10 @@ class TareaMaterialQueries {
         idtarea_material
         idtarea
         id_material
+        idperiodo
+        idtipo_valor
+        periodo_nombre
+        tipo_valor_nombre
         cantidad
         costo
         creado
@@ -90,6 +102,10 @@ class TareaMaterialQueries {
         idtarea_material
         idtarea
         id_material
+        idperiodo
+        idtipo_valor
+        periodo_nombre
+        tipo_valor_nombre
         cantidad
         costo
         creado

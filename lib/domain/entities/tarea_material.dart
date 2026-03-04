@@ -7,6 +7,8 @@ class TareaMaterial {
     this.idtareaMaterial,
     required this.idtarea,
     required this.idMaterial,
+    required this.idPeriodo,
+    required this.idTipoValor,
     required this.cantidad,
     required this.costo,
     required this.creado,
@@ -15,6 +17,8 @@ class TareaMaterial {
   int? idtareaMaterial;
   int idtarea;
   int idMaterial;
+  int idPeriodo;
+  int idTipoValor;
   int cantidad;
   double costo;
   DateTime creado;
@@ -32,6 +36,8 @@ class TareaMaterial {
       idtareaMaterial: json['idtarea_material'] as int?,
       idtarea: json['idtarea'] as int,
       idMaterial: json['id_material'] as int,
+      idPeriodo: json['idperiodo'] as int? ?? 1,
+      idTipoValor: json['idtipo_valor'] as int? ?? 1,
       cantidad: json['cantidad'] as int,
       costo: json['costo'] != null ? (json['costo'] as num).toDouble() : 0.0,
       creado: json['creado'] != null ? DateTime.parse(json['creado']) : DateTime.now(),
@@ -47,6 +53,8 @@ class TareaMaterial {
       idtareaMaterial: null,
       idtarea: tarea.idtarea!,
       idMaterial: 0,
+      idPeriodo: 1,
+      idTipoValor: 1,
       cantidad: 0,
       costo: 0.0,
       creado: DateTime.now(),
@@ -63,28 +71,31 @@ class TareaMaterial {
 
 
   Map<String, dynamic> create() {
-    return {
-      "input": {
-        "idtarea": idtarea,
-        "id_material": idMaterial,
-        "cantidad": cantidad,
-        "costo": costo,
-        "creado": DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado)
-      }
+    final input = <String, dynamic>{
+      'idtarea': idtarea,
+      'id_material': idMaterial,
+      'idperiodo': idPeriodo,
+      'idtipo_valor': idTipoValor,
+      'cantidad': cantidad,
+      'costo': costo,
+      'creado': DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado),
     };
+
+    return {'input': input};
   }
 
   Map<String, dynamic> update() {
-    return {
-      "id": idtareaMaterial,
-      "input": {
-        "idtarea": idtarea,
-        "id_material": idMaterial,
-        "cantidad": cantidad,
-        "costo": costo,
-        "creado": DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado)
-      }
+    final input = <String, dynamic>{
+      'idtarea': idtarea,
+      'id_material': idMaterial,
+      'idperiodo': idPeriodo,
+      'idtipo_valor': idTipoValor,
+      'cantidad': cantidad,
+      'costo': costo,
+      'creado': DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado),
     };
+
+    return {'id': idtareaMaterial, 'input': input};
   }
 
   Map<String, dynamic> toJson() {
@@ -92,6 +103,8 @@ class TareaMaterial {
       'idtarea_material': idtareaMaterial,
       'idtarea': idtarea,
       'id_material': idMaterial,
+      'idperiodo': idPeriodo,
+      'idtipo_valor': idTipoValor,
       'cantidad': cantidad,
       'costo': costo,
       'creado': DateFormat('yyyy-MM-ddTHH:mm:ss').format(creado),
