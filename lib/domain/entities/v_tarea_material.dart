@@ -25,7 +25,8 @@ class VTareaMaterial {
     required this.idempleado,
     required this.idestadoTarea,
     required this.avance,
-    required this.orden,
+    required this.orden, 
+    required this.total,
   });
 
   final int idtareaMaterial;
@@ -52,6 +53,7 @@ class VTareaMaterial {
   final int idestadoTarea;
   final double avance;
   final int orden;
+  final double total;
 
   factory VTareaMaterial.fromJson(Map<String, dynamic> json) {
     return VTareaMaterial(
@@ -79,6 +81,7 @@ class VTareaMaterial {
       idestadoTarea: json['idestado_tarea'],
       avance: (json['avance'] as num).toDouble(),
       orden: json['orden'],
+      total: (json['total'] as num).toDouble(),
     );
   }
 

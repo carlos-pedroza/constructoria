@@ -1,8 +1,12 @@
 import 'package:constructoria/cors/wait_tool.dart';
+import 'package:constructoria/domain/entities/periodo.dart';
 import 'package:constructoria/domain/entities/tarea.dart';
 import 'package:constructoria/domain/entities/tarea_gasto.dart';
 import 'package:constructoria/domain/entities/tipo_gasto.dart';
+import 'package:constructoria/domain/entities/tipo_valor.dart';
+import 'package:constructoria/domain/repositories/periodo_queries.dart';
 import 'package:constructoria/domain/repositories/tipo_gasto_queries.dart';
+import 'package:constructoria/domain/repositories/tipo_valor_queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -65,6 +69,8 @@ class _AgregarGastoComponentState extends State<AgregarGastoComponent> {
   late double _dialogHeight;
   var _isSaving = false;
   int _idTipoGasto = 0;
+  int _idPeriodo = 1;
+  int _idTipoValor = 1;
 
   @override
   void didChangeDependencies() {
@@ -73,16 +79,18 @@ class _AgregarGastoComponentState extends State<AgregarGastoComponent> {
     _totalHeight = MediaQuery.of(context).size.height;
     if(_totalWidth > 700) {
       _dialogWidth = _totalWidth * 0.6;
-      _dialogHeight = _totalHeight * 0.3;
+      _dialogHeight = _totalHeight * 0.5;
     } else {
       _dialogWidth = _totalWidth * 0.9;
-      _dialogHeight = _totalHeight * 0.3;
+      _dialogHeight = _totalHeight * 0.5;
     }
   }
 
   @override
   void initState() {
     super.initState();
+    _idPeriodo = widget.gasto.idPeriodo;
+    _idTipoValor = widget.gasto.idTipoValor;
     if(widget.gasto.idtareaGasto == null) {
       _idTipoGasto = 0;
       _costoController.text = '';
@@ -144,8 +152,110 @@ class _AgregarGastoComponentState extends State<AgregarGastoComponent> {
                       });
                     },
                     validator: (value) {
-                      if (value == null) {
+                      if (value == null || value == 0) {
                         return 'Por favor seleccione un tipo de gasto';
+                      }
+                      return null;
+                    },
+                  );
+                }
+              ),
+              SizedBox(height: 16),
+              Query(
+                options: QueryOptions(
+                  document: gql(PeriodoQueries.getAll),
+                ),
+                builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+                  if (result.hasException) {
+                    return Text('Error al cargar periodos');
+                  }
+                  if (result.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  final periodos = Periodo.fromJsonList(result.data?['periodos'] ?? []);
+                  if (periodos.isEmpty) {
+                    return Text('No hay periodos disponibles');
+                  }
+                  periodos.insert(0, Periodo(idperiodo: 0, nombre: 'Seleccione un periodo'));
+
+                  final initialPeriodo = periodos.any((p) => p.idperiodo == _idPeriodo) ? _idPeriodo : 0;
+
+                  return DropdownButtonFormField<int>(
+                    initialValue: initialPeriodo,
+                    decoration: InputDecoration(
+                      labelText: 'Periodo',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    items: periodos.map<DropdownMenuItem<int>>((p) {
+                      return DropdownMenuItem<int>(
+                        value: p.idperiodo ?? 0,
+                        child: Text(p.nombre),
+                      );
+                    }).toList(),
+                    onChanged: (int? newValue) {
+                      setState(() {
+                        _idPeriodo = newValue ?? 0;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value == 0) {
+                        return 'Por favor seleccione un periodo';
+                      }
+                      return null;
+                    },
+                  );
+                }
+              ),
+              SizedBox(height: 16),
+              Query(
+                options: QueryOptions(
+                  document: gql(TipoValorQueries.getAll),
+                ),
+                builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+                  if (result.hasException) {
+                    return Text('Error al cargar tipos de valor');
+                  }
+                  if (result.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  final tiposValor = TipoValor.fromJsonList(result.data?['tipoValores'] ?? []);
+                  if (tiposValor.isEmpty) {
+                    return Text('No hay tipos de valor disponibles');
+                  }
+                  tiposValor.insert(0, TipoValor(idtipoValor: 0, nombre: 'Seleccione un tipo de valor'));
+
+                  final initialTipoValor = tiposValor.any((t) => t.idtipoValor == _idTipoValor) ? _idTipoValor : 0;
+
+                  return DropdownButtonFormField<int>(
+                    initialValue: initialTipoValor,
+                    decoration: InputDecoration(
+                      labelText: 'Tipo de valor',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    items: tiposValor.map<DropdownMenuItem<int>>((t) {
+                      return DropdownMenuItem<int>(
+                        value: t.idtipoValor ?? 0,
+                        child: Text(t.nombre),
+                      );
+                    }).toList(),
+                    onChanged: (int? newValue) {
+                      setState(() {
+                        _idTipoValor = newValue ?? 0;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value == 0) {
+                        return 'Por favor seleccione un tipo de valor';
                       }
                       return null;
                     },
@@ -162,7 +272,7 @@ class _AgregarGastoComponentState extends State<AgregarGastoComponent> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Por favor ingrese un costo';
@@ -227,10 +337,15 @@ class _AgregarGastoComponentState extends State<AgregarGastoComponent> {
   }
 
   void _onSave(runMutation) {
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid) return;
+
     setState(() {
       _isSaving = true;
     });
     widget.gasto.idTipoGasto = _idTipoGasto;
+    widget.gasto.idPeriodo = _idPeriodo;
+    widget.gasto.idTipoValor = _idTipoValor;
     widget.gasto.costo = double.tryParse(_costoController.text) ?? 0;
     runMutation(widget.gasto.data());
   }

@@ -77,6 +77,7 @@ class TareaMaterialQueries {
         tipo_valor_nombre
         cantidad
         costo
+        total
         creado
         nombre
         descripcion
@@ -108,6 +109,7 @@ class TareaMaterialQueries {
         tipo_valor_nombre
         cantidad
         costo
+        total
         creado
         nombre
         descripcion

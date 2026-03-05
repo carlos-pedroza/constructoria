@@ -142,11 +142,33 @@ class _InformacionTareaGastosComponentState extends State<InformacionTareaGastos
                           '${gasto.code} ${gasto.tipoGastoNombre}',
                           style: theme.textTheme.bodyMedium,
                         ),
-                        subtitle: Text(
-                          gasto.tipoGastoDescripcion,
-                          style: theme.textTheme.bodySmall!.copyWith(
-                            color: theme.colorScheme.outline,
-                          ),
+                        subtitle: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${gasto.tipoGastoDescripcion},',
+                              style: theme.textTheme.bodySmall!.copyWith(
+                                color: theme.colorScheme.outline,
+                              ),
+                            ),
+                            SizedBox(width: 20.0),
+                            Text(
+                              '${gasto.periodoNombre}, ',
+                              style: theme.textTheme.bodySmall!.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 10.0),
+                            Text(
+                              gasto.tipoValorNombre,
+                              style: theme.textTheme.bodySmall!.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 10.0),
+                          ],
                         ),
                         trailing: Text(
                           _currencyFormat.format(gasto.tipoGastoCosto),

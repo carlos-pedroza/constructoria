@@ -69,7 +69,7 @@ class _InformacionTareaMaterialesComponentState extends State<InformacionTareaMa
               }
               final materiales =  VTareaMaterial.fromJsonList(result.data?['vTareaMaterialByTarea'] ?? []);
               
-              _totalMateriales = materiales.fold(0.0, (sum, gasto) => sum + gasto.costo);
+              _totalMateriales = materiales.fold(0.0, (sum, consumible) => sum + consumible.total);
             
               if(materiales.isEmpty) {
                 return Column(
@@ -138,18 +138,48 @@ class _InformacionTareaMaterialesComponentState extends State<InformacionTareaMa
                             );
                           }
                         ),
-                        title: Text(
-                          '${material.codigo} ${material.nombre}',
-                          style: theme.textTheme.bodyMedium,
+                        title: Row(
+                          children: [
+                            Text(
+                              '${material.codigo} ${material.nombre}, ',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                            SizedBox(width: 10.0),
+                            Text(
+                              'Cantidad: ${material.cantidad},  C.U: ${_currencyFormat.format(material.costo)}',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ],
                         ),
-                        subtitle: Text(
-                          material.descripcion,
-                          style: theme.textTheme.bodySmall!.copyWith(
-                            color: theme.colorScheme.outline,
-                          ),
+                        subtitle: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${material.descripcion} ',
+                              style: theme.textTheme.bodySmall!.copyWith(
+                                color: theme.colorScheme.outline,
+                              ),
+                            ),
+                            Text(
+                              '${material.periodoNombre}, ',
+                              style: theme.textTheme.bodySmall!.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 10.0),
+                            Text(
+                              material.tipoValorNombre,
+                              style: theme.textTheme.bodySmall!.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 10.0),
+                          ],
                         ),
                         trailing: Text(
-                          _currencyFormat.format(material.costo),
+                          _currencyFormat.format(material.total),
                           style: theme.textTheme.bodyMedium!.copyWith(
                             fontWeight: FontWeight.bold,  
                           ),
@@ -211,7 +241,7 @@ class _InformacionTareaMaterialesComponentState extends State<InformacionTareaMa
             ElevatedButton.icon(
               onPressed: ()=>_onAgregar(refetch),
               label: SizedBox(
-                width: 70,
+                width: 100,
                 child: Center(child: Text('Consumible'))
               ),
               icon: Icon(Icons.add),
@@ -232,6 +262,7 @@ class _InformacionTareaMaterialesComponentState extends State<InformacionTareaMa
           material: material,
           onChanged: () {
             refetch!();
+            refresh();
           },
         );
       },

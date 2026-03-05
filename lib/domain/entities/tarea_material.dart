@@ -23,6 +23,8 @@ class TareaMaterial {
   double costo;
   DateTime creado;
 
+  double get total => cantidad * costo;
+
   String get query {
     if(idtareaMaterial == null) {
       return TareaMaterialQueries.create;

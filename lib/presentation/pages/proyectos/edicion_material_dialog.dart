@@ -1,8 +1,12 @@
 import 'package:constructoria/cors/wait_tool.dart';
 import 'package:constructoria/domain/entities/material_entidad.dart';
+import 'package:constructoria/domain/entities/periodo.dart';
 import 'package:constructoria/domain/entities/tarea.dart';
 import 'package:constructoria/domain/entities/tarea_material.dart';
+import 'package:constructoria/domain/entities/tipo_valor.dart';
 import 'package:constructoria/domain/repositories/material_queries.dart';
+import 'package:constructoria/domain/repositories/periodo_queries.dart';
+import 'package:constructoria/domain/repositories/tipo_valor_queries.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -60,14 +64,19 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
   final _formKey = GlobalKey<FormState>();
   final _cantidadController = TextEditingController();
   final _costoController = TextEditingController();
+  final _costoTotalController = TextEditingController();
   late double _totalWidth;
   late double _totalHeight;
   late double _dialogWidth;
   late double _dialogHeight;
   var _isSaving = false;
   int _idTipoMaterial = 0;
+  int _idPeriodo = 1;
+  int _idTipoValor = 1;
   var _initialized = false;
   late List<MaterialEntidad> _materiales;
+  late List<Periodo> _periodos;
+  late List<TipoValor> _tiposValor;
 
   @override
   void didChangeDependencies() {
@@ -81,27 +90,72 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
       _dialogWidth = _totalWidth * 0.9;
       _dialogHeight = _totalHeight * 0.5;
     }
+
   }
 
   @override
   void initState() {
     super.initState();
+    _cantidadController.addListener(_updateCostoTotal);
+    _costoController.addListener(_updateCostoTotal);
+    _cantidadController.text = '1';
+
+    _idPeriodo = widget.tareaMaterial.idPeriodo;
+    _idTipoValor = widget.tareaMaterial.idTipoValor;
+
     if(widget.tareaMaterial.idtareaMaterial == null) {
       _idTipoMaterial = 0;
-      _cantidadController.text = '';
-      _costoController.text = '';
+      _costoController.text = '1.0';
     } else {
       _idTipoMaterial = widget.tareaMaterial.idMaterial;
       _cantidadController.text = widget.tareaMaterial.cantidad.toString();
       _costoController.text = widget.tareaMaterial.costo.toString();
     }
     _materiales = [];
+    _periodos = [];
+    _tiposValor = [];
   }
+
+  void _updateCostoTotal() {
+    // Sanitiza solo si hay caracteres inválidos.
+    final cantidadText = _cantidadController.text;
+    if (!RegExp(r'^\d*$').hasMatch(cantidadText)) {
+      final sanitized = cantidadText.replaceAll(RegExp(r'[^0-9]'), '');
+      _cantidadController.value = _cantidadController.value.copyWith(
+        text: sanitized,
+        selection: TextSelection.collapsed(offset: sanitized.length),
+        composing: TextRange.empty,
+      );
+    }
+
+    final costoText = _costoController.text;
+    if (!RegExp(r'^\d*\.?\d*$').hasMatch(costoText)) {
+      var sanitized = costoText.replaceAll(RegExp(r'[^0-9\.]'), '');
+      final firstDotIndex = sanitized.indexOf('.');
+      if (firstDotIndex != -1) {
+        sanitized = sanitized.substring(0, firstDotIndex + 1) +
+            sanitized.substring(firstDotIndex + 1).replaceAll('.', '');
+      }
+
+      _costoController.value = _costoController.value.copyWith(
+        text: sanitized,
+        selection: TextSelection.collapsed(offset: sanitized.length),
+        composing: TextRange.empty,
+      );
+    }
+
+    // Calcula el costo total cada vez que cambie la cantidad o el costo unitario
+    final cantidad = int.tryParse(_cantidadController.text) ?? 0;
+    final costo = double.tryParse(_costoController.text) ?? 0.0;
+    final total = cantidad * costo;
+    _costoTotalController.text = total.toStringAsFixed(2);
+   }
 
   @override
   void dispose() {
     _cantidadController.dispose();
     _costoController.dispose();
+    _costoTotalController.dispose();
     super.dispose();
   }
 
@@ -162,8 +216,112 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
                       });
                     },
                     validator: (value) {
-                      if (value == null) {
+                      if (value == null || value == 0) {
                         return 'Por favor seleccione un consumible';
+                      }
+                      return null;
+                    },
+                  );
+                }
+              ),
+              SizedBox(height: 16),
+              Query(
+                options: QueryOptions(
+                  document: gql(PeriodoQueries.getAll),
+                ),
+                builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+                  if (result.hasException) {
+                    return Text('Error al cargar periodos');
+                  }
+                  if (result.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  _periodos = Periodo.fromJsonList(result.data?['periodos'] ?? []);
+                  if (_periodos.isEmpty) {
+                    return Text('No hay periodos disponibles');
+                  }
+
+                  _periodos.insert(0, Periodo(idperiodo: 0, nombre: 'Seleccione un periodo'));
+
+                  final initialPeriodo = _periodos.any((p) => p.idperiodo == _idPeriodo) ? _idPeriodo : 0;
+
+                  return DropdownButtonFormField<int>(
+                    initialValue: initialPeriodo,
+                    decoration: InputDecoration(
+                      labelText: 'Periodo',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    items: _periodos.map<DropdownMenuItem<int>>((p) {
+                      return DropdownMenuItem<int>(
+                        value: p.idperiodo ?? 0,
+                        child: Text(p.nombre),
+                      );
+                    }).toList(),
+                    onChanged: (int? newValue) {
+                      setState(() {
+                        _idPeriodo = newValue ?? 0;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value == 0) {
+                        return 'Por favor seleccione un periodo';
+                      }
+                      return null;
+                    },
+                  );
+                }
+              ),
+              SizedBox(height: 16),
+              Query(
+                options: QueryOptions(
+                  document: gql(TipoValorQueries.getAll),
+                ),
+                builder: (QueryResult result, { VoidCallback? refetch, FetchMore? fetchMore }) {
+                  if (result.hasException) {
+                    return Text('Error al cargar tipos de valor');
+                  }
+                  if (result.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  _tiposValor = TipoValor.fromJsonList(result.data?['tipoValores'] ?? []);
+                  if (_tiposValor.isEmpty) {
+                    return Text('No hay tipos de valor disponibles');
+                  }
+
+                  _tiposValor.insert(0, TipoValor(idtipoValor: 0, nombre: 'Seleccione un tipo de valor'));
+
+                  final initialTipoValor = _tiposValor.any((t) => t.idtipoValor == _idTipoValor) ? _idTipoValor : 0;
+
+                  return DropdownButtonFormField<int>(
+                    initialValue: initialTipoValor,
+                    decoration: InputDecoration(
+                      labelText: 'Tipo de valor',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    items: _tiposValor.map<DropdownMenuItem<int>>((t) {
+                      return DropdownMenuItem<int>(
+                        value: t.idtipoValor ?? 0,
+                        child: Text(t.nombre),
+                      );
+                    }).toList(),
+                    onChanged: (int? newValue) {
+                      setState(() {
+                        _idTipoValor = newValue ?? 0;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value == 0) {
+                        return 'Por favor seleccione un tipo de valor';
                       }
                       return null;
                     },
@@ -196,12 +354,12 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
                 controller: _costoController,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.monetization_on),
-                  labelText: 'Costo',
+                  labelText: 'Costo unitario',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Por favor ingrese un costo';
@@ -211,6 +369,28 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
                   }
                   return null;
                 },
+              ),
+              SizedBox(height: 16),
+              TextFormField(
+                controller: _costoTotalController,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.monetization_on),
+                  labelText: 'Costo Total',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingrese un costo';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Por favor ingrese un número válido';
+                  }
+                  return null;
+                },
+                readOnly: true,
               ),
               SizedBox(height: 50),
               Row(
@@ -266,10 +446,15 @@ class _AgregarMaterialComponentState extends State<AgregarMaterialComponent> {
   }
 
   void _onSave(runMutation) {
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid) return;
+
     setState(() {
       _isSaving = true;
     });
     widget.tareaMaterial.idMaterial = _idTipoMaterial;
+    widget.tareaMaterial.idPeriodo = _idPeriodo;
+    widget.tareaMaterial.idTipoValor = _idTipoValor;
     widget.tareaMaterial.cantidad = int.tryParse(_cantidadController.text) ?? 0;
     widget.tareaMaterial.costo = double.tryParse(_costoController.text) ?? 0;
     runMutation(widget.tareaMaterial.data());
