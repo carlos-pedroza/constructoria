@@ -6,6 +6,9 @@ class TipoValor {
     required this.nombre,
   });
 
+  static const fijo = 1;
+  static const calculado = 2;
+
   int? idtipoValor;
   String nombre;
 

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Constants {
   static const String baseUrlProd = 'https://api.allgaze.com';
   static const String baseUrlDev = 'http://192.168.100.246:3000';
+  static const String baseUrlCodespace = 'https://musical-winner-px476rp594267g4-3000.app.github.dev';
   static const String baseUrlKey = 'base_url_key';
 
   static const String _informeTrabajadoresPath = '/empleados/pdf';

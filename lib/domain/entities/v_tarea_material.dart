@@ -1,4 +1,6 @@
+import 'package:constructoria/domain/entities/periodo.dart';
 import 'package:constructoria/domain/entities/tarea_material.dart';
+import 'package:constructoria/domain/entities/tipo_valor.dart';
 
 class VTareaMaterial {
     VTareaMaterial({
@@ -26,7 +28,9 @@ class VTareaMaterial {
     required this.idestadoTarea,
     required this.avance,
     required this.orden, 
-    required this.total,
+    required this.subtotal, 
+    required this.startDate, 
+    required this.endDate,
   });
 
   final int idtareaMaterial;
@@ -53,9 +57,19 @@ class VTareaMaterial {
   final int idestadoTarea;
   final double avance;
   final int orden;
-  final double total;
+  final double subtotal;
+  final DateTime startDate;
+  final DateTime endDate;
 
-  factory VTareaMaterial.fromJson(Map<String, dynamic> json) {
+  double get total {
+    if (idTipoValor == TipoValor.calculado && idPeriodo == Periodo.mensual) {
+      final days = endDate.difference(startDate).inDays;
+      return subtotal * days;
+    }
+    return subtotal;
+  }
+
+  factory VTareaMaterial.fromJson(Map<String, dynamic> json, {required DateTime startDate, required DateTime endDate}) {
     return VTareaMaterial(
       idtareaMaterial: json['idtarea_material'],
       idtarea: json['idtarea'],
@@ -81,12 +95,14 @@ class VTareaMaterial {
       idestadoTarea: json['idestado_tarea'],
       avance: (json['avance'] as num).toDouble(),
       orden: json['orden'],
-      total: (json['total'] as num).toDouble(),
+      subtotal: (json['total'] as num).toDouble(),
+      startDate: startDate,
+      endDate: endDate,
     );
   }
 
-  static List<VTareaMaterial> fromJsonList(List<dynamic> jsonList) {
-    return jsonList.map((json) => VTareaMaterial.fromJson(json)).toList();
+  static List<VTareaMaterial> fromJsonList(List<dynamic> jsonList, {required DateTime startDate, required DateTime endDate}) {
+    return jsonList.map((json) => VTareaMaterial.fromJson(json, startDate: startDate, endDate: endDate)).toList();
   }
 
   TareaMaterial toTareaMaterial() {

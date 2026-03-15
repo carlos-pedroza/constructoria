@@ -6,6 +6,10 @@ class Periodo {
     required this.nombre,
   });
 
+  static const evento = 1;
+  static const diario = 2; 
+  static const mensual = 3;
+
   int? idperiodo;
   String nombre;
 

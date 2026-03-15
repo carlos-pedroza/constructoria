@@ -527,6 +527,8 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                                   });
                                   widget.refetch();
                                 },
+                                startDate: _tarea.fechaInicio,
+                                endDate: _tarea.fechaFin,
                               ),
                               SizedBox(height: 20.0),
                               InformacionTareaMaterialesComponent(

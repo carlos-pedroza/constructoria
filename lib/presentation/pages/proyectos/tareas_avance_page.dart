@@ -288,9 +288,9 @@ class _TareaCardState extends State<_TareaCard> {
                   child: Center(child: Text('Error al cargar los gastos'))
                 );
               }
-              final gastos = VTareaGasto.fromJsonList(result.data?['VTareaGastosByTarea'] as List);
+              final gastos = VTareaGasto.fromJsonList((result.data?['VTareaGastosByTarea'] as List), startDate: widget.tarea.fechaInicio, endDate: widget.tarea.fechaFin);
 
-              final totalGastos = gastos.fold(0.0, (sum, gasto) => sum + gasto.tipoGastoCosto);
+              final totalGastos = gastos.fold(0.0, (sum, gasto) => sum + gasto.total);
 
               return Container(
                 decoration: BoxDecoration(
@@ -361,9 +361,9 @@ class _TareaCardState extends State<_TareaCard> {
                   child: Center(child: Text('Error al cargar los materiales'))
                 );
               }
-              final materiales = VTareaMaterial.fromJsonList(result.data?['vTareaMaterialByTarea'] as List);
+              final materiales = VTareaMaterial.fromJsonList((result.data?['vTareaMaterialByTarea'] as List), startDate: widget.tarea.fechaInicio, endDate: widget.tarea.fechaFin);
 
-              final totalMateriales = materiales.fold(0.0, (sum, material) => sum + material.costo);
+              final totalMateriales = materiales.fold(0.0, (sum, material) => sum + material.total);
 
               return Container(
                 decoration: BoxDecoration(
@@ -391,7 +391,7 @@ class _TareaCardState extends State<_TareaCard> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('${material.codigo} ${material.descripcion}  Cantidad: ${material.cantidad}'),
-                                Text(_currencyFormatter.format(material.costo)),
+                                Text(_currencyFormatter.format(material.total)),
                               ],
                             ),
                             SizedBox(height: 4),

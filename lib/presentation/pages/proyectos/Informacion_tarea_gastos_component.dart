@@ -11,10 +11,12 @@ import 'package:intl/intl.dart';
 
 
 class InformacionTareaGastosComponent extends StatefulWidget {
-  const InformacionTareaGastosComponent({super.key, required this.client, required this.tarea, required this.getTotalGasto});
+  const InformacionTareaGastosComponent({super.key, required this.client, required this.tarea, required this.getTotalGasto, required this.startDate, required this.endDate});
 
   final GraphQLClient client;
   final Tarea tarea;
+  final DateTime startDate;
+  final DateTime endDate;
   final void Function(double total) getTotalGasto;
 
   @override
@@ -67,9 +69,9 @@ class _InformacionTareaGastosComponentState extends State<InformacionTareaGastos
                   ),
                 );
               }
-              final gastos =  VTareaGasto.fromJsonList(result.data?['VTareaGastosByTarea'] ?? []);
+              final gastos =  VTareaGasto.fromJsonList(result.data?['VTareaGastosByTarea'] ?? [], startDate: widget.startDate, endDate: widget.endDate);
               
-              _totalGastos = gastos.fold(0.0, (sum, gasto) => sum + gasto.costo);
+              _totalGastos = gastos.fold(0.0, (sum, gasto) => sum + gasto.total);
             
               if(gastos.isEmpty) {
                 return Column(
@@ -171,7 +173,7 @@ class _InformacionTareaGastosComponentState extends State<InformacionTareaGastos
                           ],
                         ),
                         trailing: Text(
-                          _currencyFormat.format(gasto.tipoGastoCosto),
+                          _currencyFormat.format(gasto.total),
                           style: theme.textTheme.bodyMedium!.copyWith(
                             fontWeight: FontWeight.bold,  
                           ),
