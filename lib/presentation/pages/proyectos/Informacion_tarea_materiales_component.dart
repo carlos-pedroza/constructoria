@@ -69,7 +69,7 @@ class _InformacionTareaMaterialesComponentState extends State<InformacionTareaMa
               }
               final materiales =  VTareaMaterial.fromJsonList((result.data?['vTareaMaterialByTarea'] ?? []) as List<dynamic>, startDate: widget.tarea.fechaInicio, endDate: widget.tarea.fechaFin);
               
-              _totalMateriales = materiales.fold(0.0, (sum, consumible) => sum + consumible.subtotal);
+              _totalMateriales = materiales.fold(0.0, (sum, consumible) => sum + consumible.total);
             
               if(materiales.isEmpty) {
                 return Column(
@@ -179,7 +179,7 @@ class _InformacionTareaMaterialesComponentState extends State<InformacionTareaMa
                           ],
                         ),
                         trailing: Text(
-                          _currencyFormat.format(material.subtotal),
+                          _currencyFormat.format(material.total),
                           style: theme.textTheme.bodyMedium!.copyWith(
                             fontWeight: FontWeight.bold,  
                           ),

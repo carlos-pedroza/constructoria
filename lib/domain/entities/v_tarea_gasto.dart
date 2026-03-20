@@ -59,7 +59,7 @@ class VTareaGasto {
   double get total {
     if (idTipoValor == TipoValor.calculado && idPeriodo == Periodo.mensual) {
       final days = endDate.difference(startDate).inDays;
-      return tipoGastoCosto * days;
+      return tipoGastoCosto * (days * avance);
     }
     return tipoGastoCosto;
   }

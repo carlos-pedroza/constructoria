@@ -28,11 +28,25 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
   var _totalMateriales = 0.0;
   late VTarea _tarea;
   var _changeEstado = false;
+  var _refreshTick = 0;
 
   @override
   void initState() {
     super.initState();
     _tarea = widget.tarea;
+  }
+
+  @override
+  void didUpdateWidget(covariant InformacionTareaPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Cuando el padre haga `refetch()` y nos pase una nueva instancia de VTarea,
+    // sincronizamos el estado local para que toda la UI muestre lo más reciente.
+    if (oldWidget.tarea != widget.tarea) {
+      setState(() {
+        _tarea = widget.tarea;
+        _refreshTick++;
+      });
+    }
   }
 
 
@@ -404,6 +418,13 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                             options: MutationOptions(
                               document: gql(TareaQueries.updateTarea),
                               onCompleted: (data) {
+                                // Una vez guardado el avance en backend, recreamos los widgets
+                                // de gastos/materiales para que vuelvan a ejecutar sus Queries.
+                                if (!mounted) return;
+                                setState(() {
+                                  _refreshTick++;
+                                });
+                                widget.refetch();
                               },
                               onError: (error) {
                                 Snak.show(
@@ -519,6 +540,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                             children: [
                               SizedBox(height: 10),
                               InformacionTareaGastosComponent(
+                                key: ValueKey('gastos_${_tarea.idtarea}_$_refreshTick'),
                                 client: widget.client,
                                 tarea: _tarea.toTarea(),
                                 getTotalGasto: (double total) {
@@ -532,6 +554,7 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
                               ),
                               SizedBox(height: 20.0),
                               InformacionTareaMaterialesComponent(
+                                key: ValueKey('materiales_${_tarea.idtarea}_$_refreshTick'),
                                 client: widget.client, 
                                 tarea: _tarea.toTarea(), 
                                 changeTotalMateriales: (double total){
@@ -566,7 +589,6 @@ class _InformacionTareaPageState extends State<InformacionTareaPage> {
       _tarea.avance = nuevoAvance;
     });
     runMutation(_tarea.toTarea().update());
-    widget.refetch();
   }
 
   void _onChangeEstado() {

@@ -317,7 +317,7 @@ class _TareaCardState extends State<_TareaCard> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('${gasto.tipoGastoCodigo}  ${gasto.tipoGastoNombre}'),
-                                Text(_currencyFormatter.format(gasto.tipoGastoCosto)),
+                                Text(_currencyFormatter.format(gasto.total)),
                               ],
                             ),
                             SizedBox(height: 4),
@@ -390,7 +390,7 @@ class _TareaCardState extends State<_TareaCard> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('${material.codigo} ${material.descripcion}  Cantidad: ${material.cantidad}'),
+                                Text('${material.codigo} ${material.descripcion}  Cantidad: ${material.total}'),
                                 Text(_currencyFormatter.format(material.total)),
                               ],
                             ),

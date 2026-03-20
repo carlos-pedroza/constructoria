@@ -64,7 +64,7 @@ class VTareaMaterial {
   double get total {
     if (idTipoValor == TipoValor.calculado && idPeriodo == Periodo.mensual) {
       final days = endDate.difference(startDate).inDays;
-      return subtotal * days;
+      return subtotal * (days * avance);
     }
     return subtotal;
   }
