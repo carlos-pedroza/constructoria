@@ -514,7 +514,7 @@ class _InformesPageState extends State<InformesPage> {
                         color: theme.colorScheme.onSecondaryContainer,
                       ),
                       title: Text(
-                        'Materiales por proyecto',
+                        'Consumibles por proyecto',
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: theme.colorScheme.onSecondaryContainer,
                           fontWeight: FontWeight.bold,
