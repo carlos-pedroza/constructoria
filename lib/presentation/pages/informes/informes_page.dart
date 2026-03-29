@@ -521,7 +521,7 @@ class _InformesPageState extends State<InformesPage> {
                         ),
                       ),
                       subtitle: Text(
-                        'Informe de materiales utilizados en cada proyectoß',
+                        'Informe de consumibles utilizados en cada proyectoß',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSecondaryContainer,
                         ),

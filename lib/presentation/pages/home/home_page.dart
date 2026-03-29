@@ -1,4 +1,7 @@
+import 'package:constructoria/domain/entities/proyecto_avance_sp.dart';
+import 'package:constructoria/domain/entities/pago_resumen_estatus_moneda.dart';
 import 'package:constructoria/domain/entities/security_auth.dart';
+import 'package:constructoria/domain/repositories/proyecto_queries.dart';
 import 'package:constructoria/presentation/pages/administracion/administracion_page.dart';
 import 'package:constructoria/presentation/pages/home/login/login_page.dart';
 import 'package:constructoria/presentation/pages/informes/informes_page.dart';
@@ -6,6 +9,7 @@ import 'package:constructoria/presentation/pages/pagos/pagos_page.dart';
 import 'package:constructoria/presentation/pages/proyectos/proyectos_page.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class _MenuItem {
@@ -33,6 +37,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
   final PageController _pageController = PageController();
+  final _currecnyFormat = NumberFormat.currency(locale: 'es_MX', symbol: '\$');
 
   static const _pageLogin = 0;
   static const _pageHome = 1;
@@ -211,15 +216,355 @@ class _HomePageState extends State<HomePage> {
                                     width: double.infinity,
                                     height: double.infinity,
                                     color: colorScheme.primary,
-                                    child: Center(
-                                      child: Text(
-                                        'CONSTRUCTORIA',
-                                        style: theme.textTheme.headlineLarge
-                                            ?.copyWith(
-                                              color: colorScheme.onPrimary,
-                                              fontWeight: FontWeight.bold,
+                                    padding: const EdgeInsets.only(left: 24, right: 24, top: 40, bottom: 24),
+                                    child: Column(
+                                      children: [
+                                        if(!isMobile) ...[
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Image.asset(
+                                                'assets/images/logo_small_white.png',
+                                                height: 80,
+                                              ),
+                                              SizedBox(width: 16),
+                                              Text(
+                                                'CONSTRUCTORIA',
+                                                style: theme.textTheme.headlineLarge
+                                                    ?.copyWith(
+                                                      color: colorScheme.onPrimary,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 12),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                'La solución integral para la gestión de tu empresa constructora',
+                                                style: theme.textTheme.bodyMedium
+                                                    ?.copyWith(
+                                                      color: colorScheme.onPrimary,
+                                                    ),
+                                              ),  
+                                            ]
+                                          ),
+                                        ]
+                                        else 
+                                        Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            Image.asset(
+                                              'assets/images/logo_small_white.png',
+                                              height: 80,
                                             ),
-                                      ),
+                                            SizedBox(width: 16),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    'CONSTRUCTORIA',
+                                                    style: theme.textTheme.titleLarge
+                                                        ?.copyWith(
+                                                          color: colorScheme.onPrimary,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 32),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            SizedBox(width: 10),
+                                            Text(
+                                              'Proyectos',
+                                              style: theme.textTheme.titleLarge
+                                                  ?.copyWith(
+                                                    color: colorScheme.onPrimary,
+                                                  ),
+                                            ),  
+                                          ]
+                                        ),
+                                        SizedBox(height: 8),
+                                        Expanded(
+                                          child: GraphQLProvider(
+                                            client: ValueNotifier(_client!),
+                                            child: SingleChildScrollView(
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(color: colorScheme.onPrimary, width: 1),
+                                                      borderRadius: BorderRadius.circular(20),
+                                                    ),
+                                                    child: Query(
+                                                      options: QueryOptions(
+                                                        document: gql(ProyectoQueries.getAvanceProyectos),
+                                                        fetchPolicy: FetchPolicy.noCache,
+                                                        variables: {
+                                                          "idproyecto": null
+                                                        },
+                                                      ),
+                                                      builder: (result, {fetchMore, refetch}) {
+                                                        if (result.isLoading) {
+                                                          return Center(child: CircularProgressIndicator(color: colorScheme.onPrimary));
+                                                        }
+                                                        if (result.hasException) {
+                                                          return Center(child: Text('Error al cargar los proyectos'));
+                                                        }
+                                                        final proyectos = ProyectoAvanceSp.fromJsonList(result.data?['getAvanceProyectos'] ?? []);
+                                                        return Column(
+                                                          children: [
+                                                            for (var proyecto in proyectos)
+                                                            Container(
+                                                              decoration: BoxDecoration(
+                                                                border: proyecto == proyectos.last ? null : Border(
+                                                                  bottom: BorderSide(
+                                                                    color: colorScheme.onPrimary,
+                                                                    width: 1,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              padding: const EdgeInsets.symmetric(
+                                                                vertical: 12, horizontal: 24,
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Expanded(
+                                                                    flex: 6,
+                                                                    child: Text(
+                                                                      proyecto.nombre,
+                                                                      maxLines: 1,
+                                                                      overflow: TextOverflow.ellipsis,
+                                                                      style: theme.textTheme.bodyMedium
+                                                                          ?.copyWith(
+                                                                            color: colorScheme.onPrimary,
+                                                                            fontWeight: FontWeight.w600,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(width: 12),
+                                                                  Expanded(
+                                                                    flex: 3,
+                                                                    child: Text(
+                                                                      'Tareas: ${proyecto.totalTareas}',
+                                                                      textAlign: TextAlign.end,
+                                                                      style: theme.textTheme.bodyMedium
+                                                                          ?.copyWith(
+                                                                            color: colorScheme.onPrimary,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(width: 12),
+                                                                  Expanded(
+                                                                    flex: 3,
+                                                                    child: Text(
+                                                                      '${proyecto.avancePorcentaje.toStringAsFixed(2)}%',
+                                                                      textAlign: TextAlign.end,
+                                                                      style: theme.textTheme.bodyMedium
+                                                                          ?.copyWith(
+                                                                            color: colorScheme.onPrimary,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 24),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    children: [
+                                                      const SizedBox(width: 10),
+                                                      Text(
+                                                        'Pagos',
+                                                        style: theme.textTheme.titleLarge?.copyWith(
+                                                          color: colorScheme.onPrimary,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: colorScheme.onPrimary,
+                                                        width: 1,
+                                                      ),
+                                                      borderRadius: BorderRadius.circular(20),
+                                                    ),
+                                                    child: Query(
+                                                      options: QueryOptions(
+                                                        document: gql(
+                                                          ProyectoQueries.pagoResumenEstatusMonedaView,
+                                                        ),
+                                                        fetchPolicy: FetchPolicy.noCache,
+                                                      ),
+                                                      builder: (result, {fetchMore, refetch}) {
+                                                        if (result.isLoading) {
+                                                          return Center(
+                                                            child: CircularProgressIndicator(
+                                                              color: colorScheme.onPrimary,
+                                                            ),
+                                                          );
+                                                        }
+                                                        if (result.hasException) {
+                                                          return const Padding(
+                                                            padding: EdgeInsets.all(16),
+                                                            child: Text(
+                                                              'Error al cargar el resumen de pagos',
+                                                            ),
+                                                          );
+                                                        }
+
+                                                        final resumen =
+                                                            PagoResumenEstatusMoneda.fromJsonList(
+                                                          result.data?
+                                                                  ['pagoResumenEstatusMonedaView'] ??
+                                                              [],
+                                                        );
+
+                                                        if (resumen.isEmpty) {
+                                                          return Padding(
+                                                            padding: const EdgeInsets.all(16),
+                                                            child: Text(
+                                                              'Sin información de pagos',
+                                                              style: theme.textTheme.bodyMedium
+                                                                  ?.copyWith(
+                                                                color:
+                                                                    colorScheme.onPrimary,
+                                                              ),
+                                                            ),
+                                                          );
+                                                        }
+
+                                                        return Column(
+                                                          children: [
+                                                            for (var row in resumen)
+                                                              Container(
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  border: row == resumen.last
+                                                                      ? null
+                                                                      : Border(
+                                                                          bottom: BorderSide(
+                                                                            color: colorScheme
+                                                                                .onPrimary,
+                                                                            width: 1,
+                                                                          ),
+                                                                        ),
+                                                                ),
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .symmetric(
+                                                                  vertical: 12,
+                                                                  horizontal: 24,
+                                                                ),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Expanded(
+                                                                      flex: 5,
+                                                                      child: Text(
+                                                                        row.estatusPago ??
+                                                                            'Sin estatus',
+                                                                        maxLines: 1,
+                                                                        overflow: TextOverflow
+                                                                            .ellipsis,
+                                                                        style: theme
+                                                                            .textTheme
+                                                                            .bodyMedium
+                                                                            ?.copyWith(
+                                                                          color: colorScheme
+                                                                              .onPrimary,
+                                                                          fontWeight:
+                                                                              FontWeight
+                                                                                  .w600,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                        width: 12),
+                                                                    Expanded(
+                                                                      flex: 2,
+                                                                      child: Text(
+                                                                        row.moneda ??
+                                                                            'Moneda',
+                                                                        textAlign:
+                                                                            TextAlign.end,
+                                                                        style: theme
+                                                                            .textTheme
+                                                                            .bodyMedium
+                                                                            ?.copyWith(
+                                                                          color: colorScheme
+                                                                              .onPrimary,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                        width: 12),
+                                                                    Expanded(
+                                                                      flex: 3,
+                                                                      child: Text(
+                                                                        row.montoTotal != 0
+                                                                            ? _currecnyFormat.format(row.montoTotal)
+                                                                            : 'Sin monto',
+                                                                        textAlign:
+                                                                            TextAlign.end,
+                                                                        style: theme
+                                                                            .textTheme
+                                                                            .bodyMedium
+                                                                            ?.copyWith(
+                                                                          color: colorScheme
+                                                                              .onPrimary,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                        width: 12),
+                                                                    Expanded(
+                                                                      flex: 2,
+                                                                      child: Text(
+                                                                        'Pagos: ${row.pagosCount}',
+                                                                        textAlign:
+                                                                            TextAlign.end,
+                                                                        style: theme
+                                                                            .textTheme
+                                                                            .bodyMedium
+                                                                            ?.copyWith(
+                                                                          color: colorScheme
+                                                                              .onPrimary,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   AdministracionPage(client: _client!),
@@ -238,6 +583,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                   ],
                 ),
+                if(!isMobile)
                 Align(
                   alignment: Alignment.topLeft,
                   child: Container(

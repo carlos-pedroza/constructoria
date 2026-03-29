@@ -133,4 +133,30 @@ class ProyectoQueries {
     }
   ''';
 
+  static const String getAvanceProyectos = r'''
+    query ($idproyecto: Int) {
+      getAvanceProyectos(idproyecto: $idproyecto) {
+        idproyecto
+        clave_proyecto
+        nombre
+        total_tareas
+        avance_promedio
+        avance_porcentaje
+      }
+    }
+  ''';
+
+  static const String pagoResumenEstatusMonedaView = r'''
+    query {
+      pagoResumenEstatusMonedaView {
+        id_estatus_pago
+        estatus_pago
+        id_moneda
+        moneda
+        monto_total
+        pagos_count
+      }
+    }
+  ''';
+
 }
