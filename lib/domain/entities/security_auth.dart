@@ -14,7 +14,7 @@ class SecurityAuth {
   final UserEmpleado userEmpleado;
   final bool isLogged;
 
-  static const _userLogKey = 'user_log';
+  static const _userLogKey = 'user_logv2';
 
   static Future<SecurityAuth> login({
     required String jwt,
